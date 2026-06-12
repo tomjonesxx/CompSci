@@ -978,43 +978,115 @@ function optimalMoves(n, p) {
 
 /* ════════════════════════════════════════════════════
    NEXT OPTIMAL MOVE
-   Works out the next move from the ACTUAL current state
-   (not a fixed sequence from the start), so it still
-   gives the right answer after off-optimal manual moves.
-
-   Classic recursive rule: to land disk `d` on `target`,
-   first clear every smaller disk onto the third peg, then
-   move `d` across. Returns the single next move to make.
+   Dispatcher:
+   • 3 pegs  → exact next move computed from the ACTUAL
+     current state, so it stays correct after off-optimal
+     manual moves (nextMove3).
+   • 4+ pegs → follow the precomputed Frame–Stewart optimal
+     plan so autoplay/Suggest actually reach the displayed
+     optimal. If the board has drifted off that plan (the
+     player made non-optimal manual moves), fall back to the
+     3-peg solver so we still finish legally instead of
+     stalling — just not in the optimal number of moves.
 ════════════════════════════════════════════════════ */
 function nextOptimalMove(towers) {
-  const n    = towers.reduce((s, t) => s + t.length, 0);
+  const n = towers.reduce((s, t) => s + t.length, 0);
   if (n === 0) return null;
-  const dest = towers.length - 1;
+  if (towers.length === 3) return nextMove3(towers);
+  return nextFromPlan(towers) || nextMove3(towers);
+}
 
-  // Where each disk size currently sits
-  const pos = {};
+/* Exact next move from any legal state, using 3 pegs.
+   Classic rule: to land disk `d` on `target`, first clear every
+   smaller disk onto the spare peg, then move `d` across. Optimal
+   for 3 pegs; for more pegs it ignores the extras (legal solve,
+   used only as the off-plan fallback above). */
+function nextMove3(towers) {
+  const n    = towers.reduce((s, t) => s + t.length, 0);
+  const dest = towers.length - 1;
+  const pos  = {};
   for (let t = 0; t < towers.length; t++)
     for (const size of towers[t]) pos[size] = t;
 
-  // Pick a spare peg that is neither src nor target
   function auxPeg(src, target) {
     for (let p = 0; p < towers.length; p++)
       if (p !== src && p !== target) return p;
     return -1;
   }
-
-  // Next move that progresses disk `disk` (and all below it) onto `target`
   function next(disk, target) {
-    if (disk === 0) return null;          // nothing left to place
+    if (disk === 0) return null;
     const src = pos[disk];
-    if (src === target) return next(disk - 1, target); // already placed
+    if (src === target) return next(disk - 1, target);
     const aux = auxPeg(src, target);
-    const sub = next(disk - 1, aux);      // first clear the smaller disks
+    const sub = next(disk - 1, aux);
     if (sub) return sub;
-    return { from: src, to: target };     // path is clear — move this disk
+    return { from: src, to: target };
   }
-
   return next(n, dest);
+}
+
+/* ── Frame–Stewart optimal plan (4+ pegs) ─────────────────
+   Build the full optimal move list from the canonical start
+   (all disks on peg 0), cached per disks/pegs combo, then read
+   off the next move for the current board by replaying it. */
+let _fsPlan = { key: null, moves: null };
+
+function bestSplit(n, pegs) {
+  let bt = 1, bc = Infinity;
+  for (let t = 1; t < n; t++) {
+    const cost = 2 * optimalMoves(t, pegs) + optimalMoves(n - t, pegs - 1);
+    if (cost < bc) { bc = cost; bt = t; }
+  }
+  return bt;
+}
+
+function fsMoves(n, src, dst, pegs, out) {
+  if (n === 0) return;
+  if (n === 1) { out.push([src, dst]); return; }
+  if (pegs.length === 3) {                       // standard 3-peg recursion
+    const via = pegs.find(p => p !== src && p !== dst);
+    (function h(k, from, to, spare) {
+      if (k === 0) return;
+      h(k - 1, from, spare, to);
+      out.push([from, to]);
+      h(k - 1, spare, to, from);
+    })(n, src, dst, via);
+    return;
+  }
+  const t   = bestSplit(n, pegs.length);
+  const tmp = pegs.find(p => p !== src && p !== dst);
+  fsMoves(t, src, tmp, pegs, out);                       // top t aside (all pegs)
+  fsMoves(n - t, src, dst, pegs.filter(p => p !== tmp), out); // rest across (one fewer peg)
+  fsMoves(t, tmp, dst, pegs, out);                       // bring t back on top
+}
+
+function nextFromPlan(towers) {
+  const n   = towers.reduce((s, t) => s + t.length, 0);
+  const P   = towers.length;
+  const key = `${n}-${P}`;
+  if (_fsPlan.key !== key) {
+    const out = [];
+    fsMoves(n, 0, P - 1, [...Array(P).keys()], out);
+    _fsPlan = { key, moves: out };
+  }
+  // Replay the plan from the canonical start; the first move whose
+  // pre-state equals the current board is the move to make next.
+  const sim = Array.from({ length: P }, () => []);
+  for (let d = n; d >= 1; d--) sim[0].push(d);
+  for (const [from, to] of _fsPlan.moves) {
+    if (statesEqual(sim, towers)) return { from, to };
+    sim[to].push(sim[from].pop());
+  }
+  return null; // board is off the optimal plan (or already solved)
+}
+
+function statesEqual(a, b) {
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].length !== b[i].length) return false;
+    for (let j = 0; j < a[i].length; j++)
+      if (a[i][j] !== b[i][j]) return false;
+  }
+  return true;
 }
 
 function canPlaceSize(diskSize, tIdx, towers) {
