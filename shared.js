@@ -13,6 +13,7 @@
     { label: 'Nim',         icon: '🎯', href: '/nim/'        },
     { label: 'Hanoi',       icon: '🗼', href: '/hanoi/'      },
     { label: 'Mastermind',  icon: '🔵', href: '/mastermind/' },
+    { label: 'Build a PC',  icon: '💻', href: '/buildapc/'   },
   ];
 
   /* ── Styles ─────────────────────────────────────────────────────── */

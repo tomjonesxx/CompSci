@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Computers Work — Build a PC</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #f7f7f3;
+  --white:       #ffffff;
+  --border:      #d8d8d0;
+  --border-dark: #b0b0a8;
+  --text:        #2a2a2a;
+  --muted:       #888880;
+  --faint:       #c0c0b8;
+
+  --green:       #3bba5a;
+  --green-d:     #2a9648;
+  --green-light: #d4f5dc;
+
+  --blue:        #3a8fd4;
+  --blue-light:  #dcecfa;
+  --orange:      #e07a30;
+  --red:         #d94040;
+  --red-light:   #fadcdc;
+  --purple:      #7060cc;
+
+  --yellow-hdr:  #fdf8dc;
+  --yellow-bdr:  #e8d87a;
+
+  --font: Arial, Helvetica, sans-serif;
+  --mono: 'Courier New', Courier, monospace;
+}
+
+html, body { min-height: 100%; }
+
+body {
+  background: var(--bg);
+  font-family: var(--font);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ── HEADER ─────────────────────────────────────────── */
+#header {
+  background: var(--yellow-hdr);
+  border-bottom: 2.5px solid var(--yellow-bdr);
+  padding: 14px 20px 14px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+#header h1 {
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+#header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+#who { font-weight: 700; color: var(--text); }
+
+.link-btn {
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 2px 4px;
+}
+.link-btn:hover { color: var(--text); }
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 20px 64px;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 10px;
+}
+
+h2.screen-title {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+p.screen-intro {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 24px;
+  max-width: 66ch;
+}
+
+/* ── PANELS ─────────────────────────────────────────── */
+.panel {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.panel h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.panel .sub {
+  font-size: 0.84rem;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+/* ── BUTTONS ────────────────────────────────────────── */
+.btn {
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 11px 22px;
+  border: 2px solid var(--border-dark);
+  background: var(--white);
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+.btn:hover:not(:disabled) { background: var(--bg); border-color: var(--text); }
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn.primary { background: var(--green); border-color: var(--green-d); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--green-d); border-color: var(--green-d); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+/* ── NAME ENTRY ─────────────────────────────────────── */
+#screen-name .name-card {
+  max-width: 460px;
+  margin: 6vh auto 0;
+  text-align: center;
+}
+.name-emoji { font-size: 3.4rem; line-height: 1; margin-bottom: 12px; }
+#name-input {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 1.05rem;
+  padding: 12px 14px;
+  border: 2px solid var(--border-dark);
+  border-radius: 6px;
+  margin: 18px 0 6px;
+  text-align: center;
+}
+#name-input:focus { outline: none; border-color: var(--green); }
+.name-hint { font-size: 0.74rem; color: var(--muted); min-height: 1.2em; }
+
+/* ── HUB CARDS ──────────────────────────────────────── */
+.hub-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+.hub-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.16s, box-shadow 0.16s, transform 0.14s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  text-align: left;
+  font-family: var(--font);
+  color: inherit;
+}
+.hub-card:hover {
+  border-color: var(--green);
+  box-shadow: 0 4px 18px rgba(59,186,90,0.15);
+  transform: translateY(-2px);
+}
+.hub-card.locked { opacity: 0.55; cursor: not-allowed; }
+.hub-card.locked:hover { border-color: var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.05); transform: none; }
+.hub-icon { font-size: 1.9rem; line-height: 1; }
+.hub-lesson {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.hub-title { font-size: 1.02rem; font-weight: 800; line-height: 1.2; }
+.hub-desc { font-size: 0.8rem; color: var(--muted); flex: 1; line-height: 1.5; }
+.hub-status {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+.hub-status.done { color: var(--green-d); }
+
+/* ── PROGRESS BAR ───────────────────────────────────── */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+.progress-track {
+  flex: 1;
+  min-width: 160px;
+  height: 12px;
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  width: 0%;
+  transition: width 0.4s ease;
+}
+.progress-text {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* ── COMPONENT EXPLORER ─────────────────────────────── */
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+.part-tile {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 9px;
+  padding: 12px 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font);
+  color: inherit;
+}
+.part-tile:hover { border-color: var(--blue); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(58,143,212,0.16); }
+.part-tile.seen { border-color: var(--green); background: #fbfffc; }
+.part-tile svg { width: 100%; height: 62px; }
+.part-name { font-size: 0.76rem; font-weight: 700; text-align: center; line-height: 1.2; }
+.part-tick { font-size: 0.62rem; color: var(--green-d); font-weight: 700; min-height: 1em; }
+
+/* ── MODAL ──────────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(40,40,36,0.55);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  padding: 20px;
+}
+.overlay.show { display: flex; }
+@keyframes popUp {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.modal-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 30px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+  animation: popUp 0.24s cubic-bezier(0.34,1.4,0.64,1);
+}
+.modal-card svg { width: 150px; height: 110px; display: block; margin: 0 auto 14px; }
+.modal-cat {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blue);
+  text-align: center;
+  margin-bottom: 6px;
+}
+.modal-title { font-size: 1.4rem; font-weight: 900; text-align: center; margin-bottom: 12px; }
+.modal-body { font-size: 0.9rem; color: var(--text); line-height: 1.65; }
+.modal-body p { margin-bottom: 10px; }
+.modal-body strong { color: var(--green-d); }
+.modal-fact {
+  background: var(--bg);
+  border-left: 3px solid var(--yellow-bdr);
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 0.84rem;
+  margin-top: 12px;
+}
+
+/* ── QUIZ ───────────────────────────────────────────── */
+.q-block { margin-bottom: 22px; padding-bottom: 20px; border-bottom: 1.5px solid var(--border); }
+.q-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.q-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.q-text { font-size: 0.96rem; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+.q-opts { display: flex; gap: 9px; flex-wrap: wrap; }
+.q-opt {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 16px;
+  border: 2px solid var(--border-dark);
+  background: var(--white);
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.14s;
+}
+.q-opt:hover:not(.locked) { border-color: var(--blue); background: var(--blue-light); }
+.q-opt.chosen { border-color: var(--blue); background: var(--blue-light); }
+.q-opt.correct { border-color: var(--green-d); background: var(--green-light); color: var(--green-d); }
+.q-opt.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); }
+.q-opt.locked { cursor: default; }
+.q-fb {
+  font-size: 0.82rem;
+  margin-top: 10px;
+  padding: 9px 13px;
+  border-radius: 5px;
+  display: none;
+  line-height: 1.55;
+}
+.q-fb.show { display: block; }
+.q-fb.ok { background: var(--green-light); color: var(--green-d); }
+.q-fb.no { background: var(--red-light); color: var(--red); }
+
+.q-media { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.q-media svg { width: 78px; height: 62px; flex-shrink: 0; }
+
+/* ── COMPARE (magnetic vs SSD) ──────────────────────── */
+.compare {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+.compare-card {
+  border: 2px solid var(--border);
+  border-radius: 9px;
+  padding: 18px;
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.compare-card:hover { border-color: var(--blue); }
+.compare-card.picked { border-color: var(--green); background: #fbfffc; box-shadow: 0 3px 14px rgba(59,186,90,0.16); }
+.compare-card svg { width: 100%; height: 84px; margin-bottom: 10px; }
+.compare-card h4 { font-size: 0.98rem; font-weight: 800; margin-bottom: 8px; text-align: center; }
+.compare-card ul { list-style: none; font-size: 0.8rem; line-height: 1.7; }
+.compare-card li::before { content: '• '; color: var(--muted); }
+
+/* ── SORTING (software categories) ──────────────────── */
+.sort-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 46px;
+  margin-bottom: 18px;
+}
+.chip {
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 13px;
+  border: 2px solid var(--border-dark);
+  background: var(--white);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.14s;
+  color: inherit;
+}
+.chip:hover { border-color: var(--blue); background: var(--blue-light); }
+.chip.selected { border-color: var(--blue); background: var(--blue-light); }
+.chip.placed-ok { border-color: var(--green-d); background: var(--green-light); color: var(--green-d); cursor: default; }
+.chip.placed-no { border-color: var(--red); background: var(--red-light); color: var(--red); cursor: default; }
+
+.bins { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.bin {
+  border: 2px dashed var(--border-dark);
+  border-radius: 9px;
+  padding: 14px;
+  min-height: 120px;
+  background: var(--bg);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.bin:hover, .bin.armed { border-color: var(--blue); background: var(--blue-light); }
+.bin h4 { font-size: 0.86rem; font-weight: 800; margin-bottom: 4px; }
+.bin .bin-hint { font-size: 0.72rem; color: var(--muted); margin-bottom: 10px; line-height: 1.45; }
+.bin-items { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ── SHOP (Activity 4) ──────────────────────────────── */
+.client-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 14px; }
+.client-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  font-family: var(--font);
+  color: inherit;
+}
+.client-card:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 4px 18px rgba(59,186,90,0.15); }
+.client-emoji { font-size: 2.1rem; line-height: 1; margin-bottom: 8px; }
+.client-name { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+.client-quote { font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.5; margin-bottom: 10px; }
+.client-budget {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--green-d);
+}
+
+#build-bar {
+  position: sticky;
+  top: 62px;
+  z-index: 40;
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+}
+.bb-client { font-size: 0.86rem; font-weight: 700; }
+.bb-client span { color: var(--muted); font-weight: 400; }
+.bb-money { display: flex; gap: 18px; align-items: center; font-family: var(--mono); font-size: 0.8rem; }
+.bb-fig { font-weight: 700; font-size: 1rem; }
+.bb-fig.over { color: var(--red); }
+.bb-fig.ok { color: var(--green-d); }
+.bb-lbl { font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); display: block; }
+
+.shop-cat { margin-bottom: 20px; }
+.shop-cat h4 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+.shop-cat .cat-why { font-size: 0.76rem; color: var(--muted); margin-bottom: 11px; }
+.shop-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 10px; }
+.shop-opt {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.14s;
+  text-align: left;
+  font-family: var(--font);
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.shop-opt:hover { border-color: var(--blue); }
+.shop-opt.picked { border-color: var(--green); background: #fbfffc; box-shadow: 0 2px 10px rgba(59,186,90,0.16); }
+.shop-opt-name { font-size: 0.84rem; font-weight: 800; }
+.shop-opt-spec { font-size: 0.72rem; color: var(--muted); line-height: 1.45; flex: 1; }
+.shop-opt-price { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--text); }
+
+/* ── RESULTS ────────────────────────────────────────── */
+.score-hero { text-align: center; padding: 10px 0 24px; }
+.score-big {
+  font-family: var(--mono);
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--green);
+}
+.score-big.mid { color: var(--orange); }
+.score-big.low { color: var(--red); }
+.score-outof { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); letter-spacing: 0.16em; }
+.score-grade { font-size: 1.3rem; font-weight: 900; margin-top: 10px; }
+.stars { font-size: 1.6rem; letter-spacing: 0.1em; margin-top: 6px; }
+
+.breakdown { margin-top: 6px; }
+.bd-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.84rem;
+  flex-wrap: wrap;
+}
+.bd-row:last-child { border-bottom: none; }
+.bd-cat { font-weight: 700; min-width: 105px; }
+.bd-pick { color: var(--muted); flex: 1; min-width: 130px; }
+.bd-verdict { font-family: var(--mono); font-size: 0.74rem; font-weight: 700; }
+.bd-verdict.good { color: var(--green-d); }
+.bd-verdict.okay { color: var(--orange); }
+.bd-verdict.bad  { color: var(--red); }
+
+#summary-box {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  white-space: pre-wrap;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  line-height: 1.65;
+  margin-top: 12px;
+  user-select: all;
+}
+
+/* ── MOBILE ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  #header { padding: 12px 14px 12px 60px; }
+  #header h1 { font-size: 0.92rem; }
+  main { padding: 20px 14px 48px; }
+  .panel { padding: 18px 16px; }
+  .modal-card { padding: 22px 18px; }
+  #build-bar { top: 56px; padding: 10px 14px; }
+  .bb-money { gap: 12px; }
+  .explore-grid { grid-template-columns: repeat(auto-fill, minmax(102px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>💻 How Computers Work — Build a PC</h1>
+  <div id="header-right">
+    <span id="who"></span>
+    <button class="link-btn" onclick="goHub()">Menu</button>
+    <button class="link-btn" onclick="resetAll()">Reset</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ═══ NAME ENTRY ═══ -->
+  <section id="screen-name" class="screen active">
+    <div class="name-card">
+      <div class="name-emoji">💻</div>
+      <h2 class="screen-title">How Computers Work</h2>
+      <p class="screen-intro" style="margin:0 auto 4px">Take apart a computer, learn what every part does, then build the best PC you can for a real customer on a budget.</p>
+      <input id="name-input" type="text" placeholder="Type your name" maxlength="28" autocomplete="off">
+      <div class="name-hint" id="name-hint">Your progress is saved on this computer only.</div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn primary" onclick="saveName()">Start →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HUB ═══ -->
+  <section id="screen-hub" class="screen">
+    <div class="eyebrow">Unit 3 — How Computers Work</div>
+    <h2 class="screen-title">Choose an activity</h2>
+    <p class="screen-intro">Work through the three activities to learn the parts of a computer, then take on the Build Challenge.</p>
+
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text"></div>
+    </div>
+
+    <div class="hub-cards" id="hub-cards"></div>
+
+    <div class="panel" style="margin-top:24px">
+      <h3>📋 My results</h3>
+      <div class="sub">When you have finished, copy this into your Class Notebook.</div>
+      <div id="summary-box"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="copySummary()" id="copy-btn">Copy results</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACTIVITY 1 ═══ -->
+  <section id="screen-a1" class="screen">
+    <div class="eyebrow">Lesson 1 · Activity 1</div>
+    <h2 class="screen-title">🔍 Take the computer apart</h2>
+    <p class="screen-intro">Every part of a computer has a job. Click each part to find out what it does — then prove what you have learned.</p>
+
+    <div class="panel">
+      <h3>Part 1 — Outside the computer</h3>
+      <div class="sub">Click all <b>5</b> parts to see what each one does.</div>
+      <div class="explore-grid" id="a1-outside"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Part 2 — Inside the computer</h3>
+      <div class="sub">Now look inside the case. Click all <b>5</b> parts.</div>
+      <div class="explore-grid" id="a1-inside"></div>
+    </div>
+
+    <div class="panel" id="a1-quiz-panel">
+      <h3>Part 3 — Input, output, or both?</h3>
+      <div class="sub">Data goes <b>IN</b> to a computer through an input device, and comes <b>OUT</b> through an output device. Some devices do both!</div>
+      <div id="a1-quiz"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="a1-finish" onclick="finishA1()" disabled>Finish activity</button>
+        <button class="btn" onclick="goHub()">Back to menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACTIVITY 2 ═══ -->
+  <section id="screen-a2" class="screen">
+    <div class="eyebrow">Lesson 2 · Activity 2</div>
+    <h2 class="screen-title">💾 Storage &amp; expansion cards</h2>
+    <p class="screen-intro">RAM only holds what you are using right now. So where do your files live when the computer is switched off?</p>
+
+    <div class="panel">
+      <h3>Part 1 — Choose a hard drive</h3>
+      <div class="sub">There are two main types of hard drive. Read both, then choose the one you would put in your own computer.</div>
+      <div class="compare" id="a2-drives"></div>
+      <div class="q-fb" id="a2-drive-fb"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Part 2 — Other places to store files</h3>
+      <div class="sub">Click each one to learn about it.</div>
+      <div class="explore-grid" id="a2-storage"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Part 3 — Expansion cards</h3>
+      <div class="sub">An expansion card is a circuit board you slot into the motherboard to give the computer extra abilities.</div>
+      <div class="explore-grid" id="a2-cards"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Part 4 — True or false?</h3>
+      <div class="sub">Decide whether each statement is true or false.</div>
+      <div id="a2-quiz"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="a2-finish" onclick="finishA2()" disabled>Finish activity</button>
+        <button class="btn" onclick="goHub()">Back to menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACTIVITY 3 ═══ -->
+  <section id="screen-a3" class="screen">
+    <div class="eyebrow">Lesson 3 · Activity 3</div>
+    <h2 class="screen-title">📀 Software</h2>
+    <p class="screen-intro">Hardware is the part you can touch. Software is the instructions that make it useful. Software comes in three types.</p>
+
+    <div class="panel">
+      <h3>Part 1 — Sort the software</h3>
+      <div class="sub">Click a piece of software, then click the box it belongs in.</div>
+      <div class="sort-pool" id="a3-pool"></div>
+      <div class="bins" id="a3-bins"></div>
+      <div class="q-fb" id="a3-sort-fb"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Part 2 — Which utility is it?</h3>
+      <div class="sub">Utilities work quietly in the background keeping your computer healthy.</div>
+      <div id="a3-quiz"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Part 3 — Choose your desktop</h3>
+      <div class="sub">Pick an operating system, then choose <b>exactly 4</b> apps for your desktop. Choose wisely!</div>
+      <div style="margin-bottom:16px">
+        <div class="q-num">Operating system</div>
+        <div class="q-opts" id="a3-os"></div>
+      </div>
+      <div>
+        <div class="q-num">Your 4 apps — <span id="a3-app-count">0 of 4 chosen</span></div>
+        <div class="sort-pool" id="a3-apps"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" id="a3-finish" onclick="finishA3()" disabled>Finish activity</button>
+        <button class="btn" onclick="goHub()">Back to menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACTIVITY 4 — CLIENT PICK ═══ -->
+  <section id="screen-a4pick" class="screen">
+    <div class="eyebrow">The Build Challenge</div>
+    <h2 class="screen-title">🏆 Build a PC for a customer</h2>
+    <p class="screen-intro">Each customer needs something different from their computer — and each has a budget. Choose a customer, spend their money wisely, and see how well your build suits them.</p>
+    <div class="client-cards" id="a4-clients"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="goHub()">Back to menu</button>
+    </div>
+  </section>
+
+  <!-- ═══ ACTIVITY 4 — SHOP ═══ -->
+  <section id="screen-a4shop" class="screen">
+    <div class="eyebrow">The Build Challenge</div>
+    <h2 class="screen-title" id="a4-shop-title">The Computer Shop</h2>
+    <p class="screen-intro" id="a4-shop-brief"></p>
+
+    <div id="build-bar">
+      <div class="bb-client" id="bb-client"></div>
+      <div class="bb-money">
+        <div><span class="bb-lbl">Budget</span><span class="bb-fig" id="bb-budget"></span></div>
+        <div><span class="bb-lbl">Spent</span><span class="bb-fig" id="bb-spent"></span></div>
+        <div><span class="bb-lbl">Left</span><span class="bb-fig" id="bb-left"></span></div>
+      </div>
+      <button class="btn primary" id="bb-submit" onclick="submitBuild()" disabled>Build it!</button>
+    </div>
+
+    <div id="a4-shop"></div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="showScreen('screen-a4pick')">← Choose a different customer</button>
+    </div>
+  </section>
+
+  <!-- ═══ ACTIVITY 4 — RESULT ═══ -->
+  <section id="screen-a4result" class="screen">
+    <div class="eyebrow">The Build Challenge</div>
+    <h2 class="screen-title" id="a4-res-title">Your build</h2>
+
+    <div class="panel">
+      <div class="score-hero">
+        <div class="score-big" id="res-score">0</div>
+        <div class="score-outof">OUT OF 100</div>
+        <div class="score-grade" id="res-grade"></div>
+        <div class="stars" id="res-stars"></div>
+      </div>
+      <div class="breakdown" id="res-breakdown"></div>
+    </div>
+
+    <div class="panel">
+      <h3>💬 What the customer says</h3>
+      <div class="modal-body" id="res-verdict"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" onclick="retryBuild()">↺ Try this customer again</button>
+      <button class="btn" onclick="showScreen('screen-a4pick')">Different customer</button>
+      <button class="btn" onclick="goHub()">Back to menu</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ INFO MODAL ═══ -->
+<div class="overlay" id="modal">
+  <div class="modal-card">
+    <div id="modal-svg"></div>
+    <div class="modal-cat" id="modal-cat"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn primary" onclick="closeModal()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   SVG COMPONENT ART
+   Simple, recognisable vector drawings of each part.
+════════════════════════════════════════════════════ */
+const SVG = {
+  monitor: `<svg viewBox="0 0 120 100"><rect x="8" y="8" width="104" height="66" rx="5" fill="#3a3a42"/><rect x="14" y="14" width="92" height="54" rx="2" fill="#5aa8dc"/><rect x="14" y="14" width="92" height="54" rx="2" fill="url(#gl)" opacity=".35"/><rect x="50" y="74" width="20" height="12" fill="#4a4a52"/><rect x="36" y="86" width="48" height="6" rx="3" fill="#3a3a42"/><defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs></svg>`,
+
+  keyboard: `<svg viewBox="0 0 120 100"><rect x="6" y="26" width="108" height="52" rx="6" fill="#4a4a52"/><rect x="10" y="30" width="100" height="44" rx="4" fill="#33333a"/><g fill="#5c5c66">${(()=>{let s='';for(let r=0;r<4;r++)for(let c=0;c<11;c++){s+=`<rect x="${14+c*8.6}" y="${34+r*10}" width="7" height="8" rx="1.4"/>`;}return s;})()}</g><rect x="40" y="68" width="40" height="5" rx="1.4" fill="#5c5c66"/></svg>`,
+
+  touchpad: `<svg viewBox="0 0 120 100"><rect x="10" y="16" width="100" height="72" rx="7" fill="#c8c8cc"/><rect x="26" y="28" width="68" height="48" rx="4" fill="#e2e2e6" stroke="#b0b0b8" stroke-width="1.5"/><circle cx="72" cy="58" r="6" fill="#9a9aa4" opacity=".55"/><path d="M66 52l14 8-14 8z" fill="#8a8a94" opacity=".3"/></svg>`,
+
+  webcam: `<svg viewBox="0 0 120 100"><rect x="30" y="24" width="60" height="44" rx="18" fill="#3a3a42"/><circle cx="60" cy="46" r="15" fill="#22222a"/><circle cx="60" cy="46" r="9" fill="#2f6fa8"/><circle cx="56" cy="42" r="3" fill="#8ec8f0"/><circle cx="80" cy="34" r="2.6" fill="#d94040"/><rect x="46" y="68" width="28" height="14" rx="3" fill="#4a4a52"/></svg>`,
+
+  speakers: `<svg viewBox="0 0 120 100"><rect x="18" y="16" width="34" height="70" rx="4" fill="#4a4a52"/><circle cx="35" cy="38" r="10" fill="#2a2a30"/><circle cx="35" cy="38" r="5" fill="#6a6a74"/><circle cx="35" cy="66" r="6" fill="#2a2a30"/><rect x="68" y="16" width="34" height="70" rx="4" fill="#4a4a52"/><circle cx="85" cy="38" r="10" fill="#2a2a30"/><circle cx="85" cy="38" r="5" fill="#6a6a74"/><circle cx="85" cy="66" r="6" fill="#2a2a30"/></svg>`,
+
+  motherboard: `<svg viewBox="0 0 120 100"><rect x="8" y="10" width="104" height="80" rx="4" fill="#1f7a3f"/><g stroke="#d8b24a" stroke-width="1.2" fill="none" opacity=".75"><path d="M20 22h30v12h22"/><path d="M20 40h16v22h30"/><path d="M64 20v18h30"/><path d="M30 74h44v-10"/></g><rect x="28" y="26" width="24" height="24" rx="2" fill="#8a8a92" stroke="#5a5a62" stroke-width="1.5"/><rect x="78" y="24" width="10" height="34" rx="1.5" fill="#2a2a30"/><rect x="90" y="24" width="10" height="34" rx="1.5" fill="#2a2a30"/><rect x="24" y="64" width="34" height="8" rx="1.5" fill="#c05a20"/><circle cx="16" cy="18" r="2.4" fill="#d8d8dc"/><circle cx="104" cy="18" r="2.4" fill="#d8d8dc"/><circle cx="16" cy="82" r="2.4" fill="#d8d8dc"/><circle cx="104" cy="82" r="2.4" fill="#d8d8dc"/></svg>`,
+
+  cpu: `<svg viewBox="0 0 120 100"><g stroke="#c8a83a" stroke-width="2.4">${(()=>{let s='';for(let i=0;i<9;i++){const p=24+i*9;s+=`<path d="M${p} 20v-8"/><path d="M${p} 80v8"/>`;}for(let i=0;i<7;i++){const p=28+i*9;s+=`<path d="M20 ${p}h-8"/><path d="M100 ${p}h8"/>`;}return s;})()}</g><rect x="20" y="20" width="80" height="60" rx="3" fill="#2b2b32"/><rect x="27" y="27" width="66" height="46" rx="2" fill="#b8b8c0" stroke="#8a8a92" stroke-width="1.2"/><text x="60" y="55" font-family="Courier New, monospace" font-size="13" font-weight="700" fill="#4a4a52" text-anchor="middle">CPU</text></svg>`,
+
+  ram: `<svg viewBox="0 0 120 100"><rect x="8" y="30" width="104" height="40" rx="2" fill="#1f7a3f"/><g fill="#2a2a30">${(()=>{let s='';for(let i=0;i<6;i++)s+=`<rect x="${14+i*17}" y="${37}" width="13" height="18" rx="1"/>`;return s;})()}</g><rect x="8" y="62" width="104" height="8" fill="#d8b24a"/><g fill="#1f7a3f">${(()=>{let s='';for(let i=0;i<22;i++)s+=`<rect x="${11+i*4.7}" y="62" width="1.7" height="8"/>`;return s;})()}</g><rect x="54" y="62" width="5" height="8" fill="#1f7a3f"/></svg>`,
+
+  rom: `<svg viewBox="0 0 120 100"><g stroke="#8a8a92" stroke-width="2.4">${(()=>{let s='';for(let i=0;i<7;i++){const p=32+i*8;s+=`<path d="M30 ${p}h-10"/><path d="M90 ${p}h10"/>`;}return s;})()}</g><rect x="30" y="24" width="60" height="52" rx="3" fill="#2b2b32"/><circle cx="38" cy="32" r="3" fill="#4a4a52"/><text x="62" y="55" font-family="Courier New, monospace" font-size="12" font-weight="700" fill="#c8c8d0" text-anchor="middle">ROM</text></svg>`,
+
+  fan: `<svg viewBox="0 0 120 100"><rect x="14" y="6" width="92" height="88" rx="6" fill="#3a3a42"/><circle cx="60" cy="50" r="38" fill="#22222a"/><g fill="#5c5c66">${(()=>{let s='';for(let i=0;i<7;i++){const a=i*(360/7);const x1=(60+34*Math.cos((a-22)*Math.PI/180)).toFixed(1), y1=(50+34*Math.sin((a-22)*Math.PI/180)).toFixed(1);
+        const x2=(60+34*Math.cos((a+22)*Math.PI/180)).toFixed(1), y2=(50+34*Math.sin((a+22)*Math.PI/180)).toFixed(1);
+        s+=`<path d="M60 50 L${x1} ${y1} A34 34 0 0 1 ${x2} ${y2} Z" opacity=".85"/>`;}return s;})()}</g><circle cx="60" cy="50" r="11" fill="#8a8a92"/><circle cx="60" cy="50" r="5" fill="#5c5c66"/><g fill="#5c5c66"><circle cx="22" cy="14" r="3"/><circle cx="98" cy="14" r="3"/><circle cx="22" cy="86" r="3"/><circle cx="98" cy="86" r="3"/></g></svg>`,
+
+  hdd: `<svg viewBox="0 0 120 100"><rect x="10" y="14" width="100" height="72" rx="4" fill="#a8a8b0" stroke="#7a7a84" stroke-width="1.5"/><circle cx="54" cy="50" r="30" fill="#3a3a42"/><circle cx="54" cy="50" r="30" fill="url(#pl)" opacity=".5"/><circle cx="54" cy="50" r="9" fill="#8a8a92"/><circle cx="54" cy="50" r="3.4" fill="#5a5a62"/><path d="M96 22 L88 30 L66 44 L72 52 L94 34 Z" fill="#c8c8d0" stroke="#8a8a92" stroke-width="1.2"/><circle cx="95" cy="26" r="5" fill="#8a8a92"/><defs><linearGradient id="pl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".6"/></linearGradient></defs></svg>`,
+
+  ssd: `<svg viewBox="0 0 120 100"><rect x="10" y="20" width="100" height="60" rx="4" fill="#2f3a4a" stroke="#1f2a36" stroke-width="1.5"/><rect x="16" y="26" width="88" height="48" rx="2" fill="#1f7a3f" opacity=".9"/><g fill="#2a2a30"><rect x="22" y="32" width="24" height="16" rx="1.5"/><rect x="50" y="32" width="24" height="16" rx="1.5"/><rect x="22" y="52" width="24" height="16" rx="1.5"/><rect x="50" y="52" width="24" height="16" rx="1.5"/><rect x="80" y="32" width="16" height="36" rx="1.5"/></g><rect x="10" y="44" width="6" height="14" fill="#d8b24a"/></svg>`,
+
+  gpu: `<svg viewBox="0 0 120 100"><rect x="6" y="26" width="104" height="46" rx="3" fill="#1f2a36"/><rect x="10" y="30" width="96" height="38" rx="2" fill="#2a3542"/><circle cx="38" cy="49" r="15" fill="#12181f"/><g fill="#4a5a6a">${(()=>{let s='';for(let i=0;i<6;i++){const a=i*60;s+=`<ellipse cx="${(38+8*Math.cos(a*Math.PI/180)).toFixed(1)}" cy="${(49+8*Math.sin(a*Math.PI/180)).toFixed(1)}" rx="6" ry="3.4" transform="rotate(${a} ${(38+8*Math.cos(a*Math.PI/180)).toFixed(1)} ${(49+8*Math.sin(a*Math.PI/180)).toFixed(1)})"/>`;}return s;})()}</g><circle cx="38" cy="49" r="4" fill="#6a7a8a"/><circle cx="76" cy="49" r="15" fill="#12181f"/><g fill="#4a5a6a">${(()=>{let s='';for(let i=0;i<6;i++){const a=i*60+30;s+=`<ellipse cx="${(76+8*Math.cos(a*Math.PI/180)).toFixed(1)}" cy="${(49+8*Math.sin(a*Math.PI/180)).toFixed(1)}" rx="6" ry="3.4" transform="rotate(${a} ${(76+8*Math.cos(a*Math.PI/180)).toFixed(1)} ${(49+8*Math.sin(a*Math.PI/180)).toFixed(1)})"/>`;}return s;})()}</g><circle cx="76" cy="49" r="4" fill="#6a7a8a"/><rect x="20" y="72" width="42" height="7" fill="#d8b24a"/><rect x="68" y="72" width="20" height="7" fill="#d8b24a"/><rect x="104" y="20" width="8" height="60" rx="1.5" fill="#b0b0b8"/></svg>`,
+
+  soundcard: `<svg viewBox="0 0 120 100"><rect x="14" y="32" width="88" height="38" rx="3" fill="#1f7a3f"/><g stroke="#d8b24a" stroke-width="1.2" fill="none" opacity=".7"><path d="M24 40h24v10h20"/><path d="M24 58h34"/></g><rect x="30" y="40" width="18" height="14" rx="1.5" fill="#2a2a30"/><rect x="54" y="42" width="12" height="12" rx="6" fill="#2a2a30"/><g><circle cx="86" cy="42" r="5" fill="#3aaa5a" stroke="#1a1a20" stroke-width="1.2"/><circle cx="86" cy="56" r="5" fill="#d94040" stroke="#1a1a20" stroke-width="1.2"/></g><rect x="22" y="70" width="34" height="6" fill="#d8b24a"/><rect x="102" y="26" width="8" height="52" rx="1.5" fill="#b0b0b8"/></svg>`,
+
+  usb: `<svg viewBox="0 0 120 100"><rect x="14" y="38" width="30" height="24" rx="2" fill="#b0b0b8" stroke="#8a8a92" stroke-width="1.2"/><rect x="18" y="43" width="22" height="6" fill="#8a8a92"/><rect x="44" y="32" width="62" height="36" rx="5" fill="#3a6ea8"/><rect x="50" y="38" width="34" height="10" rx="2" fill="#5a8ec8" opacity=".7"/><circle cx="96" cy="50" r="4" fill="#d8d8dc" opacity=".6"/></svg>`,
+
+  sdcard: `<svg viewBox="0 0 120 100"><path d="M34 16h44a4 4 0 0 1 4 4v60a4 4 0 0 1-4 4H34a4 4 0 0 1-4-4V32z" fill="#2f6fa8"/><path d="M34 16v14a2 2 0 0 1-2 2h-2" fill="none"/><g fill="#d8d8dc">${(()=>{let s='';for(let i=0;i<7;i++)s+=`<rect x="${37+i*6}" y="20" width="4" height="12" rx="1"/>`;return s;})()}</g><rect x="38" y="42" width="36" height="30" rx="2" fill="#fff" opacity=".25"/></svg>`,
+
+  disc: `<svg viewBox="0 0 120 100"><circle cx="60" cy="50" r="40" fill="#c8c8d0"/><circle cx="60" cy="50" r="40" fill="url(#dg)" opacity=".7"/><circle cx="60" cy="50" r="14" fill="#e8e8ec"/><circle cx="60" cy="50" r="6" fill="#f7f7f3" stroke="#b0b0b8" stroke-width="1.2"/><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9ad8f0"/><stop offset=".4" stop-color="#f0c8e8"/><stop offset=".7" stop-color="#d8f0a8"/><stop offset="1" stop-color="#a8c8f0"/></linearGradient></defs></svg>`,
+
+  cloud: `<svg viewBox="0 0 120 100"><path d="M34 68a17 17 0 0 1 2-33.8 24 24 0 0 1 45.6 6.4A15 15 0 0 1 88 68z" fill="#7ab8e0"/><path d="M34 68a17 17 0 0 1 2-33.8 24 24 0 0 1 45.6 6.4A15 15 0 0 1 88 68z" fill="url(#cg)" opacity=".5"/><path d="M60 48v22m0 0l-8-8m8 8l8-8" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs></svg>`,
+
+  mouse: `<svg viewBox="0 0 120 100"><rect x="38" y="12" width="44" height="76" rx="22" fill="#d8d8dc" stroke="#a8a8b0" stroke-width="1.5"/><path d="M38 44h44" stroke="#a8a8b0" stroke-width="1.5"/><path d="M60 12v32" stroke="#a8a8b0" stroke-width="1.5"/><rect x="56" y="20" width="8" height="14" rx="4" fill="#8a8a92"/></svg>`,
+
+  mic: `<svg viewBox="0 0 120 100"><rect x="48" y="14" width="24" height="42" rx="12" fill="#4a4a52"/><g stroke="#6a6a74" stroke-width="1.4">${(()=>{let s='';for(let i=0;i<6;i++)s+=`<path d="M50 ${22+i*6}h20"/>`;return s;})()}</g><path d="M38 48a22 22 0 0 0 44 0" stroke="#4a4a52" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M60 70v12" stroke="#4a4a52" stroke-width="4" stroke-linecap="round"/><rect x="44" y="82" width="32" height="6" rx="3" fill="#4a4a52"/></svg>`,
+
+  printer: `<svg viewBox="0 0 120 100"><rect x="30" y="12" width="60" height="22" rx="2" fill="#e8e8ec" stroke="#b0b0b8" stroke-width="1.2"/><rect x="16" y="34" width="88" height="36" rx="4" fill="#5a5a64"/><rect x="22" y="42" width="30" height="8" rx="2" fill="#3a3a42"/><circle cx="92" cy="46" r="3" fill="#3aaa5a"/><rect x="30" y="66" width="60" height="24" rx="2" fill="#fff" stroke="#b0b0b8" stroke-width="1.2"/><g stroke="#c8c8d0" stroke-width="1.6"><path d="M38 74h44"/><path d="M38 80h44"/><path d="M38 86h30"/></g></svg>`,
+
+  scanner: `<svg viewBox="0 0 120 100"><rect x="18" y="24" width="84" height="52" rx="5" fill="#3a3a42"/><rect x="26" y="32" width="68" height="36" rx="2" fill="#fff"/><g fill="#2a2a30">${(()=>{const w=[3,1.6,4,1.6,2.4,3.6,1.6,3,2,4,1.6,2.6];let x=32,s='';w.forEach(v=>{s+=`<rect x="${x}" y="38" width="${v}" height="24"/>`;x+=v+2.6;});return s;})()}</g><path d="M60 12v10" stroke="#d94040" stroke-width="3" stroke-linecap="round"/></svg>`,
+
+  gamepad: `<svg viewBox="0 0 120 100"><path d="M30 34h60a20 20 0 0 1 18 26l-4 12a11 11 0 0 1-19 3l-8-11H43l-8 11a11 11 0 0 1-19-3l-4-12a20 20 0 0 1 18-26z" fill="#4a4a52"/><rect x="28" y="46" width="6" height="18" rx="2" fill="#c8c8d0"/><rect x="22" y="52" width="18" height="6" rx="2" fill="#c8c8d0"/><circle cx="84" cy="48" r="4.4" fill="#d94040"/><circle cx="94" cy="57" r="4.4" fill="#3aaa5a"/><circle cx="74" cy="57" r="4.4" fill="#3a8fd4"/><circle cx="84" cy="66" r="4.4" fill="#e8c83a"/></svg>`,
+
+  touchscreen: `<svg viewBox="0 0 120 100"><rect x="34" y="6" width="52" height="88" rx="8" fill="#2a2a32"/><rect x="39" y="14" width="42" height="70" rx="2" fill="#5aa8dc"/><circle cx="60" cy="89" r="3.4" fill="#4a4a52"/><circle cx="66" cy="52" r="11" fill="#fff" opacity=".55"/><path d="M60 44v-8" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/></svg>`,
+
+  headset: `<svg viewBox="0 0 120 100"><path d="M26 60V48a34 34 0 0 1 68 0v12" stroke="#4a4a52" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="16" y="56" width="20" height="30" rx="8" fill="#3a3a42"/><rect x="84" y="56" width="20" height="30" rx="8" fill="#3a3a42"/><path d="M36 76c8 0 12 6 12 10" stroke="#4a4a52" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="50" cy="88" r="4" fill="#4a4a52"/></svg>`,
+
+  projector: `<svg viewBox="0 0 120 100"><rect x="14" y="34" width="62" height="36" rx="5" fill="#5a5a64"/><circle cx="70" cy="52" r="12" fill="#2a2a30"/><circle cx="70" cy="52" r="7" fill="#8ec8f0"/><path d="M82 40l24-12v48l-24-12z" fill="#e8e8ec" opacity=".55"/><circle cx="26" cy="42" r="2.6" fill="#3aaa5a"/></svg>`,
+};
+
+/* ════════════════════════════════════════════════════
+   CONTENT DATA
+════════════════════════════════════════════════════ */
+
+// ── Activity 1: parts to explore ──
+const A1_OUTSIDE = [
+  { id:'monitor', name:'Monitor', svg:'monitor', cat:'Output device',
+    body:`<p>The monitor is the computer's main <strong>output device</strong>. It shows you the results of everything the computer is doing.</p>
+          <p>Nothing you type or click goes <em>into</em> the computer through the screen — it only ever comes <em>out</em>.</p>
+          <div class="modal-fact">⚡ Unless it is a <b>touchscreen</b>! Then it is an input device as well.</div>` },
+  { id:'keyboard', name:'Keyboard', svg:'keyboard', cat:'Input device',
+    body:`<p>The keyboard is an <strong>input device</strong>. Every key you press sends data into the computer for the CPU to process.</p>
+          <p>It is the main way we put words and numbers into a computer.</p>` },
+  { id:'touchpad', name:'Touchpad', svg:'touchpad', cat:'Input device',
+    body:`<p>The touchpad is an <strong>input device</strong>. It senses your finger moving and tells the computer where to put the pointer.</p>
+          <p>On a desktop computer you would use a <b>mouse</b> instead — it does exactly the same job.</p>` },
+  { id:'webcam', name:'Webcam', svg:'webcam', cat:'Input device',
+    body:`<p>A webcam is an <strong>input device</strong>. It captures pictures and video and sends that data into the computer.</p>
+          <div class="modal-fact">💡 A webcam usually has a microphone next to it — that is another input device.</div>` },
+  { id:'speakers', name:'Speakers', svg:'speakers', cat:'Output device',
+    body:`<p>Speakers are an <strong>output device</strong>. They take data from the computer and turn it into sound you can hear.</p>
+          <p>Sound coming <em>out</em> = output. A microphone recording sound going <em>in</em> = input.</p>` },
+];
+
+const A1_INSIDE = [
+  { id:'motherboard', name:'Motherboard', svg:'motherboard', cat:'Processing',
+    body:`<p>The motherboard is the <strong>main circuit board</strong> inside the computer. Everything plugs into it.</p>
+          <p>It connects the CPU to the memory, the storage and all the other parts, so they can send data to each other.</p>
+          <div class="modal-fact">🔎 Think of it as the computer's road network — every other part is a town connected to it.</div>` },
+  { id:'cpu', name:'CPU', svg:'cpu', cat:'Processing',
+    body:`<p>The <strong>Central Processing Unit</strong> is where the computer processes all the instructions.</p>
+          <p>It controls the hardware and software, performs all the calculations, and decides where data is stored.</p>
+          <div class="modal-fact">🧠 The CPU is often called the "brain" of the computer.</div>` },
+  { id:'rom', name:'ROM', svg:'rom', cat:'Memory',
+    body:`<p><strong>Read Only Memory</strong> is the chip closest to the CPU. It holds the instructions for how to start the computer up (boot up).</p>
+          <p>As the name says, it is <em>read only</em> — the data on it cannot be changed.</p>
+          <div class="modal-fact">🔌 ROM keeps its contents even when the power is off.</div>` },
+  { id:'ram', name:'RAM', svg:'ram', cat:'Memory',
+    body:`<p><strong>Random Access Memory</strong> stores the programs and data that are being used <em>right now</em>.</p>
+          <p>The CPU is small and cannot hold much, so RAM keeps the current work close by where the CPU can grab it quickly.</p>
+          <div class="modal-fact">⚠️ RAM is emptied when you switch the computer off — that is why you must save your work!</div>` },
+  { id:'fan', name:'Fan', svg:'fan', cat:'Cooling',
+    body:`<p>All that processing uses electricity, and electricity makes <strong>heat</strong>. A hot computer will stop working.</p>
+          <p>The fan pulls cool air in and pushes hot air out to stop the computer overheating.</p>
+          <div class="modal-fact">🛏️ Never rest a laptop on a duvet — it blocks the air and the computer cooks itself.</div>` },
+];
+
+// ── Activity 1 quiz: input / output / both ──
+const A1_QUIZ = [
+  { svg:'mouse',       q:'A <b>mouse</b> — input, output, or both?',        a:'Input', why:'A mouse only sends data in (where you move and click).' },
+  { svg:'printer',     q:'A <b>printer</b> — input, output, or both?',      a:'Output', why:'A printer takes data out of the computer and puts it on paper.' },
+  { svg:'touchscreen', q:'A <b>touchscreen</b> — input, output, or both?',  a:'Both', why:'It shows you a picture (output) AND senses your finger (input).' },
+  { svg:'mic',         q:'A <b>microphone</b> — input, output, or both?',   a:'Input', why:'A microphone captures sound and sends it into the computer.' },
+  { svg:'headset',     q:'A <b>gaming headset</b> — input, output, or both?', a:'Both', why:'The earphones play sound (output) and the microphone records it (input).' },
+  { svg:'scanner',     q:'A <b>barcode scanner</b> — input, output, or both?', a:'Input', why:'It reads the barcode and sends the number into the computer.' },
+  { svg:'gamepad',     q:'A <b>games controller that vibrates</b> — input, output, or both?', a:'Both', why:'You control the game with it (input) and it buzzes to tell you something (output).' },
+  { svg:'projector',   q:'A <b>projector</b> — input, output, or both?',    a:'Output', why:'A projector displays what the computer sends it — output only.' },
+];
+
+// ── Activity 2 ──
+const A2_DRIVES = [
+  { id:'magnetic', name:'Magnetic Hard Drive (HDD)', svg:'hdd',
+    pros:['Cheaper — especially for lots of storage','Holds a very large amount of data','Been around a long time and well understood'],
+    cons:['Slower than solid state','Has moving parts, so bumps can damage it','Becomes less reliable with age','Can be damaged by magnets'] },
+  { id:'ssd', name:'Solid State Drive (SSD)', svg:'ssd',
+    pros:['Much faster than magnetic','No moving parts, so far more robust','Silent and uses less power'],
+    cons:['More expensive','Costs a lot more for very large sizes'] },
+];
+
+const A2_STORAGE = [
+  { id:'usb', name:'USB Stick', svg:'usb', cat:'Secondary storage',
+    body:`<p>A small, cheap device you plug into a USB port to carry files between computers.</p>
+          <p>Great for moving work from school to home — but easy to lose!</p>` },
+  { id:'sd', name:'Memory Card', svg:'sdcard', cat:'Secondary storage',
+    body:`<p>Small cards used in cameras, phones and games consoles to store photos, videos and save files.</p>
+          <p>They use the same kind of chips as a solid state drive.</p>` },
+  { id:'disc', name:'CD / DVD', svg:'disc', cat:'Optical storage',
+    body:`<p>Data is burned onto a shiny disc and read with a <strong>laser</strong> — which is why it is called <em>optical</em> storage.</p>
+          <p>Once common for music, films and games, but rarely used now.</p>` },
+  { id:'cloud', name:'The Cloud', svg:'cloud', cat:'Online storage',
+    body:`<p>Your files are sent over the internet and stored on someone else's computer in a big data centre.</p>
+          <p>You can get to them from any device, anywhere — but you need an internet connection.</p>
+          <div class="modal-fact">☁️ "The cloud" is just a friendly name for <b>somebody else's computer</b>.</div>` },
+];
+
+const A2_CARDS = [
+  { id:'gpu', name:'Graphics Card', svg:'gpu', cat:'Expansion card',
+    body:`<p>A graphics card takes over the job of drawing everything you see on screen, so the CPU does not have to.</p>
+          <p>You want a good one for <strong>high quality games</strong> or <strong>editing video</strong>.</p>
+          <div class="modal-fact">🌡️ Graphics cards work so hard they need their <b>own fans</b> to stay cool.</div>` },
+  { id:'sound', name:'Sound Card', svg:'soundcard', cat:'Expansion card',
+    body:`<p>A sound card handles audio going out to speakers and coming in from a microphone.</p>
+          <p>You would upgrade it to <strong>record top quality sound</strong> or make music.</p>
+          <div class="modal-fact">🎧 You can spot it by the round coloured <b>audio jack sockets</b> on the end.</div>` },
+];
+
+const A2_QUIZ = [
+  { q:'CPU stands for <b>Computer Processer Unit</b>.', a:false, why:'It stands for <b>Central</b> Processing Unit.' },
+  { q:'ROM controls how the computer boots up.',        a:true,  why:'Correct — ROM holds the start-up instructions.' },
+  { q:'RAM is where you store your work files, like a presentation.', a:false, why:'RAM only holds what is in use right now. Files are saved to secondary storage like a hard drive.' },
+  { q:'Hard drives allow you to save your files.',      a:true,  why:'Correct — the hard drive is the main secondary storage.' },
+  { q:'Expansion cards can be used to upgrade a computer.', a:true, why:'Correct — you slot them in to add better graphics or sound.' },
+  { q:'The fan keeps the CPU warm.',                    a:false, why:'The opposite! The fan keeps the CPU <b>cool</b> to stop it overheating.' },
+];
+
+// ── Activity 3 ──
+const A3_SOFTWARE = [
+  { name:'Windows',        cat:'os' },
+  { name:'macOS',          cat:'os' },
+  { name:'Android',        cat:'os' },
+  { name:'Antivirus',      cat:'util' },
+  { name:'Backup software',cat:'util' },
+  { name:'File manager',   cat:'util' },
+  { name:'Word processor', cat:'app' },
+  { name:'Spreadsheet',    cat:'app' },
+  { name:'Web browser',    cat:'app' },
+];
+
+const A3_BINS = [
+  { id:'os',   title:'Operating System', hint:'Controls the whole computer and lets everything else run.' },
+  { id:'util', title:'Utilities',        hint:'Works in the background keeping the computer healthy.' },
+  { id:'app',  title:'Applications',     hint:'Programs you actively use to get a job done.' },
+];
+
+const A3_QUIZ = [
+  { q:'"I scan your files and remove anything dangerous I find."', opts:['Antivirus','Backup software','Screen saver'], a:'Antivirus', why:'Antivirus software protects the computer from harmful programs.' },
+  { q:'"I keep a spare copy of your files in case something goes wrong."', opts:['File manager','Backup software','Encryption software'], a:'Backup software', why:'Backup software copies your files so you can get them back.' },
+  { q:'"I scramble your data so nobody else can read it."', opts:['Encryption software','Antivirus','File manager'], a:'Encryption software', why:'Encryption scrambles data so only the right person can read it.' },
+  { q:'"I let you move, rename, copy and delete your files and folders."', opts:['Screen saver','Encryption software','File manager'], a:'File manager', why:'A file manager organises your files and folders.' },
+];
+
+const A3_OS = ['Windows','macOS','Linux','Android'];
+const A3_APPS = ['Word Processor','Spreadsheet','Presentation','Email','Web Browser','Graphics Software','Music Player','Video Editor'];
+
+/* ════════════════════════════════════════════════════
+   ACTIVITY 4 — SHOP DATA
+   tier 1 = basic … 5 = top end
+════════════════════════════════════════════════════ */
+const SHOP_CATS = [
+  { id:'cpu',     name:'Processor (CPU)', why:'Does the calculations. The heart of how fast the computer feels.',
+    opts:[
+      { tier:1, name:'Bronze 2-Core',  spec:'2 cores · 2.4 GHz · basic tasks',        price:60  },
+      { tier:2, name:'Silver 4-Core',  spec:'4 cores · 3.0 GHz · everyday work',      price:110 },
+      { tier:3, name:'Gold 6-Core',    spec:'6 cores · 3.6 GHz · good all-rounder',   price:190 },
+      { tier:4, name:'Platinum 8-Core',spec:'8 cores · 4.2 GHz · fast for gaming',    price:320 },
+      { tier:5, name:'Titan 16-Core',  spec:'16 cores · 4.8 GHz · professional',      price:540 },
+    ]},
+  { id:'ram',     name:'Memory (RAM)', why:'Holds what you are using right now. More RAM = more things at once.',
+    opts:[
+      { tier:1, name:'4 GB',  spec:'One or two programs at a time',      price:20  },
+      { tier:2, name:'8 GB',  spec:'Comfortable for everyday use',       price:38  },
+      { tier:3, name:'16 GB', spec:'Gaming and lots of browser tabs',    price:70  },
+      { tier:4, name:'32 GB', spec:'Video editing and heavy multitasking',price:135 },
+      { tier:5, name:'64 GB', spec:'Professional workstation',           price:260 },
+    ]},
+  { id:'storage', name:'Storage', why:'Where files live when the power is off. Speed and size both matter.',
+    opts:[
+      { tier:1, name:'500 GB HDD',  spec:'Magnetic · slow · cheap',           price:25  },
+      { tier:2, name:'1 TB HDD',    spec:'Magnetic · slow · lots of room',    price:40  },
+      { tier:3, name:'500 GB SSD',  spec:'Solid state · fast · smaller',      price:55  },
+      { tier:4, name:'1 TB SSD',    spec:'Solid state · fast · roomy',        price:95  },
+      { tier:5, name:'2 TB NVMe SSD',spec:'Solid state · very fast · huge',   price:180 },
+    ]},
+  { id:'gpu',     name:'Graphics Card', why:'Draws everything on screen. Essential for gaming and video work.',
+    opts:[
+      { tier:1, name:'Built-in Graphics', spec:'No separate card · fine for office work', price:0   },
+      { tier:2, name:'GT-210 Basic',      spec:'Light games · photo editing',             price:70  },
+      { tier:3, name:'RX-560 Mid',        spec:'Most games at medium settings',           price:160 },
+      { tier:4, name:'RTX-470 Gaming',    spec:'High settings · smooth frame rates',      price:340 },
+      { tier:5, name:'RTX-990 Ultra',     spec:'4K gaming · professional rendering',      price:680 },
+    ]},
+  { id:'monitor', name:'Monitor', why:'The main output device. Size and colour accuracy matter for some jobs.',
+    opts:[
+      { tier:1, name:'19" Basic',        spec:'1280×1024 · small',                 price:55  },
+      { tier:2, name:'24" Full HD',      spec:'1920×1080 · good all-rounder',      price:100 },
+      { tier:3, name:'27" QHD',          spec:'2560×1440 · sharp and roomy',       price:190 },
+      { tier:4, name:'27" 144Hz Gaming', spec:'Super smooth motion for games',     price:300 },
+      { tier:5, name:'32" 4K Colour Pro',spec:'Ultra sharp · accurate colours',    price:520 },
+    ]},
+  { id:'os',      name:'Operating System', why:'The software that controls the whole computer. Here the best choice depends on what the customer runs, not on power.',
+    isOS:true,
+    opts:[
+      { tier:3, osid:'Linux',   name:'Linux',   spec:'Free and open source · less mainstream software', price:0   },
+      { tier:3, osid:'Windows', name:'Windows', spec:'Runs almost all software and games',              price:120 },
+      { tier:3, osid:'macOS',   name:'macOS',   spec:'Popular in design and publishing',                price:150 },
+    ]},
+];
+
+const CLIENTS = [
+  { id:'gamer', emoji:'🎮', name:'Alex the Gamer', budget:1750,
+    quote:'"I want to play the latest games at high settings with smooth, fast graphics. I stream to my friends too."',
+    needs:{ cpu:4, ram:3, storage:4, gpu:5, monitor:4, os:3 },
+    weight:{ cpu:1.2, ram:1, storage:1, gpu:1.8, monitor:1.2, os:0.6 },
+    osGood:['Windows'], osOkay:['Linux'],
+    osWhy:'Nearly all big games are made for Windows.' },
+
+  { id:'editor', emoji:'🎬', name:'Priya the Video Editor', budget:2100,
+    quote:'"I edit 4K video all day. I need lots of memory, plenty of fast storage, and colours I can trust on screen."',
+    needs:{ cpu:5, ram:5, storage:5, gpu:4, monitor:5, os:3 },
+    weight:{ cpu:1.6, ram:1.6, storage:1.4, gpu:1.2, monitor:1.3, os:0.6 },
+    osGood:['Windows','macOS'], osOkay:['Linux'],
+    osWhy:'The main video editing packages run on Windows and macOS.' },
+
+  { id:'office', emoji:'📊', name:'Mr Dawson the Office Worker', budget:480,
+    quote:'"Email, spreadsheets and video calls. Nothing fancy — but I do not want to waste the company money."',
+    needs:{ cpu:2, ram:2, storage:3, gpu:1, monitor:2, os:3 },
+    weight:{ cpu:1, ram:1, storage:1, gpu:1.4, monitor:1, os:0.8 },
+    osGood:['Windows'], osOkay:['macOS'],
+    osWhy:'Most companies run their business software on Windows.' },
+
+  { id:'student', emoji:'🎒', name:'Sam the Student', budget:680,
+    quote:'"Homework, research and a bit of gaming in the evening. My budget is tight so every pound counts."',
+    needs:{ cpu:3, ram:3, storage:3, gpu:2, monitor:2, os:3 },
+    weight:{ cpu:1.1, ram:1.2, storage:1.1, gpu:1, monitor:0.9, os:0.7 },
+    osGood:['Windows'], osOkay:['macOS','Linux'],
+    osWhy:'Windows suits schoolwork and games — though free Linux saves money.' },
+
+  { id:'designer', emoji:'🎨', name:'Nia the Graphic Designer', budget:1500,
+    quote:'"I work with huge image files. Screen colour has to be perfect, and I hate waiting for things to load."',
+    needs:{ cpu:4, ram:4, storage:4, gpu:3, monitor:5, os:3 },
+    weight:{ cpu:1.2, ram:1.3, storage:1.2, gpu:1, monitor:1.8, os:0.6 },
+    osGood:['macOS','Windows'], osOkay:['Linux'],
+    osWhy:'macOS has long been popular in design and publishing.' },
+];
+
+/* ════════════════════════════════════════════════════
+   STATE + PERSISTENCE
+════════════════════════════════════════════════════ */
+const STORE_KEY = 'buildapc-progress-v1';
+
+let P = {
+  name: '',
+  a1: { seen: [], answers: {}, done: false, score: 0, max: A1_QUIZ.length },
+  a2: { drive: null, seen: [], answers: {}, done: false, score: 0, max: A2_QUIZ.length },
+  a3: { sorted: {}, answers: {}, os: null, apps: [], done: false, score: 0, max: A3_SOFTWARE.length + A3_QUIZ.length },
+  a4: { best: {} },   // best[clientId] = score
+};
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(P)); } catch (e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (d && typeof d === 'object') { P = Object.assign(P, d); return !!P.name; }
+  } catch (e) {}
+  return false;
+}
+
+/* ════════════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function saveName() {
+  const v = document.getElementById('name-input').value.trim();
+  if (!v) {
+    document.getElementById('name-hint').textContent = 'Please type your name to start.';
+    document.getElementById('name-input').focus();
+    return;
+  }
+  P.name = v;
+  save();
+  document.getElementById('who').textContent = '👤 ' + P.name;
+  goHub();
+}
+
+function goHub() {
+  renderHub();
+  renderSummary();
+  showScreen('screen-hub');
+}
+
+function resetAll() {
+  if (!confirm('Clear your name and all progress on this computer?')) return;
+  try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+  location.reload();
+}
+
+/* ════════════════════════════════════════════════════
+   HUB
+════════════════════════════════════════════════════ */
+const ACTIVITIES = [
+  { id:'a1', lesson:'Lesson 1', icon:'🔍', title:'Take the computer apart', desc:'Find out what every part of a computer does, and tell input from output.', open:() => openA1() },
+  { id:'a2', lesson:'Lesson 2', icon:'💾', title:'Storage & expansion cards', desc:'Hard drives, memory cards, the cloud, and cards that upgrade your PC.',        open:() => openA2() },
+  { id:'a3', lesson:'Lesson 3', icon:'📀', title:'Software',                 desc:'Operating systems, utilities and apps — and building your own desktop.',      open:() => openA3() },
+  { id:'a4', lesson:'Challenge', icon:'🏆', title:'The Build Challenge',      desc:'Build the best PC you can for a real customer on a budget.',                  open:() => openA4() },
+];
+
+function renderHub() {
+  document.getElementById('who').textContent = P.name ? '👤 ' + P.name : '';
+  const wrap = document.getElementById('hub-cards');
+  wrap.innerHTML = '';
+
+  ACTIVITIES.forEach(act => {
+    const card = document.createElement('button');
+    card.className = 'hub-card';
+    card.type = 'button';
+
+    let status = 'Not started';
+    let done = false;
+
+    if (act.id === 'a4') {
+      const scores = Object.values(P.a4.best || {});
+      if (scores.length) {
+        status = `Best score ${Math.max.apply(null, scores)}/100 · ${scores.length} built`;
+        done = true;
+      } else {
+        status = 'Not attempted';
+      }
+    } else {
+      const a = P[act.id];
+      if (a.done) { status = `Complete · ${a.score}/${a.max}`; done = true; }
+      else if ((a.seen && a.seen.length) || Object.keys(a.answers || {}).length) { status = 'In progress…'; }
+    }
+
+    card.innerHTML =
+      `<div class="hub-icon">${act.icon}</div>` +
+      `<div class="hub-lesson">${act.lesson}</div>` +
+      `<div class="hub-title">${act.title}</div>` +
+      `<div class="hub-desc">${act.desc}</div>` +
+      `<div class="hub-status${done ? ' done' : ''}">${done ? '✓ ' : ''}${status}</div>`;
+
+    card.onclick = act.open;
+    wrap.appendChild(card);
+  });
+
+  // progress bar — 3 activities + at least one build
+  let complete = ['a1','a2','a3'].filter(k => P[k].done).length;
+  if (Object.keys(P.a4.best || {}).length) complete++;
+  const pct = Math.round((complete / 4) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = complete + ' of 4 complete';
+}
+
+function renderSummary() {
+  const L = [];
+  L.push('HOW COMPUTERS WORK — RESULTS');
+  L.push('Name: ' + (P.name || '—'));
+  L.push('');
+  L.push('Activity 1 (Take the computer apart): ' + (P.a1.done ? P.a1.score + '/' + P.a1.max : 'not finished'));
+  L.push('Activity 2 (Storage & expansion):     ' + (P.a2.done ? P.a2.score + '/' + P.a2.max : 'not finished'));
+  L.push('Activity 3 (Software):                ' + (P.a3.done ? P.a3.score + '/' + P.a3.max : 'not finished'));
+
+  const best = P.a4.best || {};
+  const keys = Object.keys(best);
+  if (keys.length) {
+    L.push('');
+    L.push('Build Challenge:');
+    keys.forEach(k => {
+      const c = CLIENTS.find(x => x.id === k);
+      L.push('  ' + (c ? c.name : k) + ': ' + best[k] + '/100');
+    });
+  } else {
+    L.push('Build Challenge:                      not attempted');
+  }
+
+  if (P.a3.done && P.a3.os) {
+    L.push('');
+    L.push('Chosen OS: ' + P.a3.os);
+    L.push('Chosen apps: ' + (P.a3.apps || []).join(', '));
+  }
+
+  document.getElementById('summary-box').textContent = L.join('\n');
+}
+
+function copySummary() {
+  const txt = document.getElementById('summary-box').textContent;
+  const btn = document.getElementById('copy-btn');
+  const done = () => { btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = 'Copy results', 1800); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(fallbackCopy);
+  } else fallbackCopy();
+
+  function fallbackCopy() {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = 'Select the text above'; }
+    document.body.removeChild(ta);
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   MODAL
+════════════════════════════════════════════════════ */
+function openModal(part) {
+  document.getElementById('modal-svg').innerHTML = SVG[part.svg] || '';
+  document.getElementById('modal-cat').textContent = part.cat || '';
+  document.getElementById('modal-title').textContent = part.name;
+  document.getElementById('modal-body').innerHTML = part.body;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ════════════════════════════════════════════════════
+   ACTIVITY 1
+════════════════════════════════════════════════════ */
+function openA1() {
+  renderParts('a1-outside', A1_OUTSIDE, 'a1');
+  renderParts('a1-inside',  A1_INSIDE,  'a1');
+  renderA1Quiz();
+  updateA1Btn();
+  showScreen('screen-a1');
+}
+
+function renderParts(containerId, parts, actKey) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = '';
+  parts.forEach(part => {
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    const seen = P[actKey].seen.includes(part.id);
+    tile.className = 'part-tile' + (seen ? ' seen' : '');
+    tile.innerHTML = SVG[part.svg] +
+      `<div class="part-name">${part.name}</div>` +
+      `<div class="part-tick">${seen ? '✓ learned' : ''}</div>`;
+    tile.onclick = () => {
+      openModal(part);
+      if (!P[actKey].seen.includes(part.id)) {
+        P[actKey].seen.push(part.id);
+        save();
+        renderParts(containerId, parts, actKey);
+        if (actKey === 'a1') updateA1Btn();
+        if (actKey === 'a2') updateA2Btn();
+      }
+    };
+    wrap.appendChild(tile);
+  });
+}
+
+function renderA1Quiz() {
+  const wrap = document.getElementById('a1-quiz');
+  wrap.innerHTML = '';
+  A1_QUIZ.forEach((q, i) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    const chosen = P.a1.answers[i];
+
+    block.innerHTML =
+      `<div class="q-num">Question ${i + 1} of ${A1_QUIZ.length}</div>` +
+      `<div class="q-media">${SVG[q.svg]}<div class="q-text">${q.q}</div></div>` +
+      `<div class="q-opts"></div>` +
+      `<div class="q-fb" id="a1fb-${i}"></div>`;
+
+    const opts = block.querySelector('.q-opts');
+    ['Input', 'Output', 'Both'].forEach(label => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'q-opt';
+      b.textContent = label;
+      if (chosen !== undefined) {
+        b.classList.add('locked');
+        if (label === q.a) b.classList.add('correct');
+        else if (label === chosen) b.classList.add('wrong');
+      }
+      b.onclick = () => {
+        if (P.a1.answers[i] !== undefined) return;
+        P.a1.answers[i] = label;
+        save();
+        renderA1Quiz();
+        updateA1Btn();
+      };
+      opts.appendChild(b);
+    });
+
+    wrap.appendChild(block);
+
+    if (chosen !== undefined) {
+      const fb = document.getElementById(`a1fb-${i}`);
+      const ok = chosen === q.a;
+      fb.className = 'q-fb show ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '✓ Correct. ' : `✗ It is <b>${q.a}</b>. `) + q.why;
+    }
+  });
+}
+
+function updateA1Btn() {
+  const allSeen = P.a1.seen.length >= (A1_OUTSIDE.length + A1_INSIDE.length);
+  const allAns  = Object.keys(P.a1.answers).length >= A1_QUIZ.length;
+  const btn = document.getElementById('a1-finish');
+  btn.disabled = !(allSeen && allAns);
+  btn.textContent = allSeen && allAns ? 'Finish activity' :
+    (!allSeen ? `Explore all parts first (${P.a1.seen.length}/${A1_OUTSIDE.length + A1_INSIDE.length})`
+              : `Answer all questions (${Object.keys(P.a1.answers).length}/${A1_QUIZ.length})`);
+}
+
+function finishA1() {
+  let s = 0;
+  A1_QUIZ.forEach((q, i) => { if (P.a1.answers[i] === q.a) s++; });
+  P.a1.score = s;
+  P.a1.done = true;
+  save();
+  alert(`Activity 1 complete!\n\nYou scored ${s} out of ${A1_QUIZ.length}.`);
+  goHub();
+}
+
+/* ════════════════════════════════════════════════════
+   ACTIVITY 2
+════════════════════════════════════════════════════ */
+function openA2() {
+  renderA2Drives();
+  renderParts('a2-storage', A2_STORAGE, 'a2');
+  renderParts('a2-cards',   A2_CARDS,   'a2');
+  renderA2Quiz();
+  updateA2Btn();
+  showScreen('screen-a2');
+}
+
+function renderA2Drives() {
+  const wrap = document.getElementById('a2-drives');
+  wrap.innerHTML = '';
+  A2_DRIVES.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'compare-card' + (P.a2.drive === d.id ? ' picked' : '');
+    card.innerHTML = SVG[d.svg] +
+      `<h4>${d.name}</h4>` +
+      `<ul>` +
+        d.pros.map(p => `<li style="color:var(--green-d)">${p}</li>`).join('') +
+        d.cons.map(c => `<li style="color:var(--red)">${c}</li>`).join('') +
+      `</ul>`;
+    card.onclick = () => {
+      P.a2.drive = d.id;
+      save();
+      renderA2Drives();
+      const fb = document.getElementById('a2-drive-fb');
+      fb.className = 'q-fb show ok';
+      fb.innerHTML = d.id === 'ssd'
+        ? '✓ You chose a <b>solid state drive</b> — fast and tough, but you pay more per gigabyte. A great choice if speed matters most.'
+        : '✓ You chose a <b>magnetic hard drive</b> — slower and more fragile, but far cheaper if you need to store a lot. A great choice if space matters most.';
+      updateA2Btn();
+    };
+    wrap.appendChild(card);
+  });
+}
+
+function renderA2Quiz() {
+  const wrap = document.getElementById('a2-quiz');
+  wrap.innerHTML = '';
+  A2_QUIZ.forEach((q, i) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    const chosen = P.a2.answers[i];
+
+    block.innerHTML =
+      `<div class="q-num">Statement ${i + 1} of ${A2_QUIZ.length}</div>` +
+      `<div class="q-text">${q.q}</div>` +
+      `<div class="q-opts"></div>` +
+      `<div class="q-fb" id="a2fb-${i}"></div>`;
+
+    const opts = block.querySelector('.q-opts');
+    [['True', true], ['False', false]].forEach(([label, val]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'q-opt';
+      b.textContent = label;
+      if (chosen !== undefined) {
+        b.classList.add('locked');
+        if (val === q.a) b.classList.add('correct');
+        else if (val === chosen) b.classList.add('wrong');
+      }
+      b.onclick = () => {
+        if (P.a2.answers[i] !== undefined) return;
+        P.a2.answers[i] = val;
+        save();
+        renderA2Quiz();
+        updateA2Btn();
+      };
+      opts.appendChild(b);
+    });
+
+    wrap.appendChild(block);
+
+    if (chosen !== undefined) {
+      const fb = document.getElementById(`a2fb-${i}`);
+      const ok = chosen === q.a;
+      fb.className = 'q-fb show ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '✓ ' : '✗ ') + q.why;
+    }
+  });
+}
+
+function updateA2Btn() {
+  const need = A2_STORAGE.length + A2_CARDS.length;
+  const allSeen = P.a2.seen.length >= need;
+  const allAns  = Object.keys(P.a2.answers).length >= A2_QUIZ.length;
+  const picked  = !!P.a2.drive;
+  const btn = document.getElementById('a2-finish');
+  btn.disabled = !(allSeen && allAns && picked);
+  btn.textContent = (allSeen && allAns && picked) ? 'Finish activity'
+    : !picked ? 'Choose a hard drive first'
+    : !allSeen ? `Explore all parts first (${P.a2.seen.length}/${need})`
+    : `Answer all statements (${Object.keys(P.a2.answers).length}/${A2_QUIZ.length})`;
+}
+
+function finishA2() {
+  let s = 0;
+  A2_QUIZ.forEach((q, i) => { if (P.a2.answers[i] === q.a) s++; });
+  P.a2.score = s;
+  P.a2.done = true;
+  save();
+  alert(`Activity 2 complete!\n\nYou scored ${s} out of ${A2_QUIZ.length}.`);
+  goHub();
+}
+
+/* ════════════════════════════════════════════════════
+   ACTIVITY 3
+════════════════════════════════════════════════════ */
+let a3Selected = null;
+
+function openA3() {
+  renderA3Sort();
+  renderA3Quiz();
+  renderA3Desktop();
+  updateA3Btn();
+  showScreen('screen-a3');
+}
+
+function renderA3Sort() {
+  const pool = document.getElementById('a3-pool');
+  const bins = document.getElementById('a3-bins');
+  pool.innerHTML = '';
+  bins.innerHTML = '';
+
+  // unsorted chips
+  A3_SOFTWARE.forEach((sw, i) => {
+    if (P.a3.sorted[i] !== undefined) return;
+    const c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'chip' + (a3Selected === i ? ' selected' : '');
+    c.textContent = sw.name;
+    c.onclick = () => { a3Selected = (a3Selected === i ? null : i); renderA3Sort(); };
+    pool.appendChild(c);
+  });
+
+  if (!pool.children.length) {
+    pool.innerHTML = '<span style="font-size:0.8rem;color:var(--muted)">All sorted! ✓</span>';
+  }
+
+  A3_BINS.forEach(bin => {
+    const d = document.createElement('div');
+    d.className = 'bin' + (a3Selected !== null ? ' armed' : '');
+    d.innerHTML = `<h4>${bin.title}</h4><div class="bin-hint">${bin.hint}</div><div class="bin-items"></div>`;
+    const items = d.querySelector('.bin-items');
+
+    A3_SOFTWARE.forEach((sw, i) => {
+      if (P.a3.sorted[i] !== bin.id) return;
+      const c = document.createElement('span');
+      c.className = 'chip ' + (sw.cat === bin.id ? 'placed-ok' : 'placed-no');
+      c.textContent = sw.name + (sw.cat === bin.id ? ' ✓' : ' ✗');
+      items.appendChild(c);
+    });
+
+    d.onclick = () => {
+      if (a3Selected === null) return;
+      P.a3.sorted[a3Selected] = bin.id;
+      a3Selected = null;
+      save();
+      renderA3Sort();
+      updateA3Btn();
+    };
+    bins.appendChild(d);
+  });
+
+  const allSorted = Object.keys(P.a3.sorted).length >= A3_SOFTWARE.length;
+  const fb = document.getElementById('a3-sort-fb');
+  if (allSorted) {
+    let right = 0;
+    A3_SOFTWARE.forEach((sw, i) => { if (P.a3.sorted[i] === sw.cat) right++; });
+    fb.className = 'q-fb show ' + (right === A3_SOFTWARE.length ? 'ok' : 'no');
+    fb.innerHTML = `You sorted <b>${right} of ${A3_SOFTWARE.length}</b> correctly.` +
+      (right === A3_SOFTWARE.length ? ' Perfect!' : ' The red ✗ ones are in the wrong box.');
+  } else {
+    fb.className = 'q-fb';
+  }
+}
+
+function renderA3Quiz() {
+  const wrap = document.getElementById('a3-quiz');
+  wrap.innerHTML = '';
+  A3_QUIZ.forEach((q, i) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    const chosen = P.a3.answers[i];
+
+    block.innerHTML =
+      `<div class="q-num">Clue ${i + 1} of ${A3_QUIZ.length}</div>` +
+      `<div class="q-text">${q.q}</div>` +
+      `<div class="q-opts"></div>` +
+      `<div class="q-fb" id="a3fb-${i}"></div>`;
+
+    const opts = block.querySelector('.q-opts');
+    q.opts.forEach(label => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'q-opt';
+      b.textContent = label;
+      if (chosen !== undefined) {
+        b.classList.add('locked');
+        if (label === q.a) b.classList.add('correct');
+        else if (label === chosen) b.classList.add('wrong');
+      }
+      b.onclick = () => {
+        if (P.a3.answers[i] !== undefined) return;
+        P.a3.answers[i] = label;
+        save();
+        renderA3Quiz();
+        updateA3Btn();
+      };
+      opts.appendChild(b);
+    });
+
+    wrap.appendChild(block);
+
+    if (chosen !== undefined) {
+      const fb = document.getElementById(`a3fb-${i}`);
+      const ok = chosen === q.a;
+      fb.className = 'q-fb show ' + (ok ? 'ok' : 'no');
+      fb.innerHTML = (ok ? '✓ Correct. ' : `✗ It is <b>${q.a}</b>. `) + q.why;
+    }
+  });
+}
+
+function renderA3Desktop() {
+  const osWrap = document.getElementById('a3-os');
+  osWrap.innerHTML = '';
+  A3_OS.forEach(os => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'q-opt' + (P.a3.os === os ? ' chosen' : '');
+    b.textContent = os;
+    b.onclick = () => { P.a3.os = os; save(); renderA3Desktop(); updateA3Btn(); };
+    osWrap.appendChild(b);
+  });
+
+  const appWrap = document.getElementById('a3-apps');
+  appWrap.innerHTML = '';
+  P.a3.apps = P.a3.apps || [];
+  A3_APPS.forEach(app => {
+    const on = P.a3.apps.includes(app);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + (on ? ' selected' : '');
+    b.textContent = (on ? '✓ ' : '') + app;
+    b.onclick = () => {
+      const idx = P.a3.apps.indexOf(app);
+      if (idx >= 0) P.a3.apps.splice(idx, 1);
+      else if (P.a3.apps.length < 4) P.a3.apps.push(app);
+      else { alert('You can only choose 4 apps. Remove one first.'); return; }
+      save();
+      renderA3Desktop();
+      updateA3Btn();
+    };
+    appWrap.appendChild(b);
+  });
+
+  document.getElementById('a3-app-count').textContent = P.a3.apps.length + ' of 4 chosen';
+}
+
+function updateA3Btn() {
+  const sorted = Object.keys(P.a3.sorted).length >= A3_SOFTWARE.length;
+  const answered = Object.keys(P.a3.answers).length >= A3_QUIZ.length;
+  const desktop = !!P.a3.os && (P.a3.apps || []).length === 4;
+  const btn = document.getElementById('a3-finish');
+  btn.disabled = !(sorted && answered && desktop);
+  btn.textContent = (sorted && answered && desktop) ? 'Finish activity'
+    : !sorted ? 'Sort all the software first'
+    : !answered ? 'Answer all the clues'
+    : 'Choose an OS and exactly 4 apps';
+}
+
+function finishA3() {
+  let s = 0;
+  A3_SOFTWARE.forEach((sw, i) => { if (P.a3.sorted[i] === sw.cat) s++; });
+  A3_QUIZ.forEach((q, i) => { if (P.a3.answers[i] === q.a) s++; });
+  P.a3.score = s;
+  P.a3.done = true;
+  save();
+  alert(`Activity 3 complete!\n\nYou scored ${s} out of ${P.a3.max}.`);
+  goHub();
+}
+
+/* ════════════════════════════════════════════════════
+   ACTIVITY 4 — BUILD CHALLENGE
+════════════════════════════════════════════════════ */
+let currentClient = null;
+let build = {};   // catId -> option object
+
+function openA4() {
+  renderClients();
+  showScreen('screen-a4pick');
+}
+
+function renderClients() {
+  const wrap = document.getElementById('a4-clients');
+  wrap.innerHTML = '';
+  CLIENTS.forEach(c => {
+    const best = (P.a4.best || {})[c.id];
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'client-card';
+    card.innerHTML =
+      `<div class="client-emoji">${c.emoji}</div>` +
+      `<div class="client-name">${c.name}</div>` +
+      `<div class="client-quote">${c.quote}</div>` +
+      `<div class="client-budget">Budget: £${c.budget}</div>` +
+      (best !== undefined ? `<div class="hub-status done" style="margin-top:8px">✓ Best score ${best}/100</div>` : '');
+    card.onclick = () => startBuild(c);
+    wrap.appendChild(card);
+  });
+}
+
+function startBuild(client) {
+  currentClient = client;
+  build = {};
+  renderShop();
+  showScreen('screen-a4shop');
+}
+
+function retryBuild() {
+  if (currentClient) startBuild(currentClient);
+}
+
+function renderShop() {
+  document.getElementById('a4-shop-title').textContent = `Build for ${currentClient.name}`;
+  document.getElementById('a4-shop-brief').innerHTML = currentClient.quote;
+  document.getElementById('bb-client').innerHTML =
+    `${currentClient.emoji} <b>${currentClient.name}</b>`;
+
+  const wrap = document.getElementById('a4-shop');
+  wrap.innerHTML = '';
+
+  SHOP_CATS.forEach(cat => {
+    const sec = document.createElement('div');
+    sec.className = 'shop-cat';
+    sec.innerHTML = `<h4>${cat.name}</h4><div class="cat-why">${cat.why}</div><div class="shop-opts"></div>`;
+    const opts = sec.querySelector('.shop-opts');
+
+    cat.opts.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      const picked = build[cat.id] && build[cat.id]._i === i;
+      b.className = 'shop-opt' + (picked ? ' picked' : '');
+      b.innerHTML =
+        `<div class="shop-opt-name">${picked ? '✓ ' : ''}${opt.name}</div>` +
+        `<div class="shop-opt-spec">${opt.spec}</div>` +
+        `<div class="shop-opt-price">${opt.price === 0 ? 'Free' : '£' + opt.price}</div>`;
+      b.onclick = () => {
+        build[cat.id] = Object.assign({}, opt, { _i: i, _cat: cat.id, _catName: cat.name });
+        renderShop();
+      };
+      opts.appendChild(b);
+    });
+
+    wrap.appendChild(sec);
+  });
+
+  updateBuildBar();
+}
+
+function buildTotal() {
+  return SHOP_CATS.reduce((s, c) => s + (build[c.id] ? build[c.id].price : 0), 0);
+}
+
+function updateBuildBar() {
+  const total = buildTotal();
+  const left = currentClient.budget - total;
+  const allPicked = SHOP_CATS.every(c => build[c.id]);
+
+  document.getElementById('bb-budget').textContent = '£' + currentClient.budget;
+  document.getElementById('bb-spent').textContent = '£' + total;
+
+  const leftEl = document.getElementById('bb-left');
+  leftEl.textContent = (left < 0 ? '−£' + Math.abs(left) : '£' + left);
+  leftEl.className = 'bb-fig ' + (left < 0 ? 'over' : 'ok');
+
+  const btn = document.getElementById('bb-submit');
+  btn.disabled = !allPicked || left < 0;
+  btn.textContent = left < 0 ? 'Over budget!'
+    : !allPicked ? `Pick all ${SHOP_CATS.length} parts`
+    : 'Build it!';
+}
+
+function submitBuild() {
+  const total = buildTotal();
+  const c = currentClient;
+  let weighted = 0, weightSum = 0;
+  const rows = [];
+
+  SHOP_CATS.forEach(cat => {
+    const chosen = build[cat.id];
+    const w = c.weight[cat.id] || 1;
+    let pct, verdict, cls;
+
+    if (cat.isOS) {
+      // The OS is judged on what the customer needs to RUN, not on power.
+      if ((c.osGood || []).includes(chosen.osid))      { pct = 100; verdict = 'Right choice';      cls = 'good'; }
+      else if ((c.osOkay || []).includes(chosen.osid)) { pct = 65;  verdict = 'Workable, but not ideal'; cls = 'okay'; }
+      else                                            { pct = 30;  verdict = 'Wrong fit for this job'; cls = 'bad'; }
+    } else {
+      const need = c.needs[cat.id];
+      const diff = chosen.tier - need;
+      if (diff === 0)    { pct = 100; verdict = 'Spot on'; cls = 'good'; }
+      else if (diff > 0) { pct = Math.max(40, 100 - diff * 14); verdict = diff >= 2 ? 'Overkill — wasted money' : 'A bit more than needed'; cls = diff >= 2 ? 'okay' : 'good'; }
+      else               { pct = Math.max(0, 100 + diff * 28);  verdict = diff <= -2 ? 'Not powerful enough' : 'Slightly underpowered'; cls = diff <= -2 ? 'bad' : 'okay'; }
+    }
+
+    weighted += pct * w;
+    weightSum += w;
+    rows.push({ cat: cat.name, pick: chosen.name, price: chosen.price, verdict, cls, pct, isOS: !!cat.isOS });
+  });
+
+  let score = Math.round(weighted / weightSum);
+
+  // Reward using the budget sensibly — big unspent piles lose a little.
+  const leftover = c.budget - total;
+  const leftPct = leftover / c.budget;
+  let budgetNote = '';
+  if (leftPct > 0.35) {
+    score = Math.max(0, score - 8);
+    budgetNote = `You only spent £${total} of the £${c.budget} budget. Leaving over a third unspent means the customer could have had better parts.`;
+  } else if (leftPct > 0.15) {
+    score = Math.max(0, score - 3);
+    budgetNote = `You came in comfortably under budget (£${leftover} left over) — sensible, though a little more could have been spent well.`;
+  } else {
+    budgetNote = `You used the budget well — £${leftover} left from £${c.budget}.`;
+  }
+  score = Math.max(0, Math.min(100, score));
+
+  // save best
+  P.a4.best = P.a4.best || {};
+  if (P.a4.best[c.id] === undefined || score > P.a4.best[c.id]) P.a4.best[c.id] = score;
+  save();
+
+  renderResult(score, rows, budgetNote, total);
+  showScreen('screen-a4result');
+}
+
+function renderResult(score, rows, budgetNote, total) {
+  const c = currentClient;
+  document.getElementById('a4-res-title').textContent = `${c.emoji} Build for ${c.name}`;
+
+  const el = document.getElementById('res-score');
+  el.textContent = score;
+  el.className = 'score-big' + (score >= 80 ? '' : score >= 55 ? ' mid' : ' low');
+
+  let grade, stars;
+  if (score >= 90)      { grade = 'Outstanding build!'; stars = '⭐⭐⭐'; }
+  else if (score >= 75) { grade = 'Great build';        stars = '⭐⭐'; }
+  else if (score >= 55) { grade = 'Decent effort';      stars = '⭐'; }
+  else                  { grade = 'Needs a rethink';    stars = '—'; }
+
+  document.getElementById('res-grade').textContent = grade;
+  document.getElementById('res-stars').textContent = stars;
+
+  const bd = document.getElementById('res-breakdown');
+  bd.innerHTML = '';
+  rows.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'bd-row';
+    d.innerHTML =
+      `<div class="bd-cat">${r.cat}</div>` +
+      `<div class="bd-pick">${r.pick} · ${r.price === 0 ? 'Free' : '£' + r.price}</div>` +
+      `<div class="bd-verdict ${r.cls}">${r.verdict}</div>`;
+    bd.appendChild(d);
+  });
+
+  const weak  = rows.filter(r => r.cls === 'bad' && !r.isOS);
+  const waste = rows.filter(r => r.verdict.indexOf('Overkill') === 0);
+  const osRow = rows.find(r => r.isOS);
+  const firstName = c.name.split(' ')[0];
+
+  let v = `<p><b>Total spent: £${total} of £${c.budget}.</b> ${budgetNote}</p>`;
+  if (weak.length) {
+    v += `<p>😟 <b>Not good enough:</b> ${weak.map(r => r.cat).join(', ')}. ` +
+         `For what ${firstName} does every day, these will feel slow and frustrating.</p>`;
+  }
+  if (waste.length) {
+    v += `<p>💸 <b>Money wasted:</b> ${waste.map(r => r.cat).join(', ')}. ` +
+         `These are far better than needed — that money could have gone somewhere more useful.</p>`;
+  }
+  if (osRow && osRow.cls !== 'good') {
+    v += `<p>💽 <b>Operating system:</b> you chose ${osRow.pick}. ${c.osWhy}</p>`;
+  }
+  if (!weak.length && !waste.length && (!osRow || osRow.cls === 'good')) {
+    v += `<p>😀 <b>Well matched!</b> Every part suits what the customer actually does. This is exactly how a good build is planned.</p>`;
+  }
+  document.getElementById('res-verdict').innerHTML = v;
+}
+
+/* ════════════════════════════════════════════════════
+   BOOT
+════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  const known = load();
+  if (known) {
+    document.getElementById('who').textContent = '👤 ' + P.name;
+    goHub();
+  } else {
+    showScreen('screen-name');
+    document.getElementById('name-input').focus();
+  }
+  document.getElementById('name-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveName();
+  });
+});
+</script>
+<script src="/shared.js"></script>
+</body>
+</html>
