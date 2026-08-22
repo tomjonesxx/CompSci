@@ -849,6 +849,25 @@ p.screen-intro {
 }
 .shelf-pick { cursor: pointer; }
 
+/* Once every original part is back in, the tray has done its job:
+   the parts slide off to the right and the box collapses away. */
+#a2-refit-box.tray-away { overflow: hidden; animation: trayBoxAway 0.7s ease-in 0.28s forwards; }
+@keyframes trayBoxAway {
+  0%   { max-height: 300px; opacity: 1; }
+  40%  { max-height: 300px; opacity: 0; }
+  100% { max-height: 0; opacity: 0; margin-top: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
+}
+#a2-refit-box.tray-away .tray-item { animation: trayItemAway 0.42s ease-in forwards; }
+#a2-refit-box.tray-away .tray-item:nth-child(1) { animation-delay: 0s; }
+#a2-refit-box.tray-away .tray-item:nth-child(2) { animation-delay: .05s; }
+#a2-refit-box.tray-away .tray-item:nth-child(3) { animation-delay: .10s; }
+#a2-refit-box.tray-away .tray-item:nth-child(4) { animation-delay: .15s; }
+#a2-refit-box.tray-away .tray-item:nth-child(5) { animation-delay: .20s; }
+@keyframes trayItemAway {
+  from { transform: none; opacity: 1; }
+  to   { transform: translateX(90px) scale(0.86); opacity: 0; }
+}
+
 /* the case turning to show its front, on the way to the storage step */
 #a2-scene { perspective: 1400px; }
 #a2-scene.flip-out .scene-svg { animation: caseFlipOut 0.44s ease-in forwards; }
@@ -1046,7 +1065,7 @@ p.screen-intro {
 
       <div class="btn-row" id="a2-scene-btns"></div>
 
-      <div class="shelf">
+      <div class="shelf" id="a2-refit-box">
         <div class="shelf-title">🔧 Parts you removed — put them back</div>
         <div class="tray-row" id="a2-refit-tray"></div>
       </div>
@@ -2904,7 +2923,11 @@ function openModal(part) {
   document.getElementById('modal-body').innerHTML = part.body;
   document.getElementById('modal').classList.add('show');
 }
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
+let modalCloseHook = null;   // something to run once the pupil dismisses the box
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  if (modalCloseHook) { const f = modalCloseHook; modalCloseHook = null; f(); }
+}
 document.getElementById('modal').addEventListener('click', e => {
   if (e.target.id === 'modal') closeModal();
 });
@@ -3161,6 +3184,7 @@ function finishA1() {
 function openA2() {
   P.a2.cards = P.a2.cards || [];
   P.a2.refit = P.a2.refit || [];
+  a2TrayFarewell = false;
   if (!a2Built()) a2View = 'inside';
   renderA2Scene();
   renderA2Quiz();
@@ -3186,6 +3210,7 @@ function a2Refitted() { return (P.a2.refit || []).length >= REFIT_ORDER.length; 
 let a2Anim = null;
 
 let a2View = 'inside';   // 'inside' = flat cutaway, 'iso' = turned to show the front
+let a2TrayFarewell = false;   // refit finished, tray still shown until the box is dismissed
 
 function a2Built() {
   const inst = a2Installed();
@@ -3272,7 +3297,7 @@ function paintA2Scene() {
   } else if (a2View !== 'iso') {
     title.textContent = '✓ The machine is built';
     sub.textContent = 'Everything is back in and the new parts are fitted. But the hard drive is not the only place files can live — and the rest of it plugs into the FRONT of the machine.';
-    tip.textContent = '👆 Press “Storage options” to turn the computer round';
+    tip.textContent = '👆 Press “NEXT → Storage Options” to turn the computer round';
   } else if (storeLeft) {
     title.textContent = 'Step 4 — Other places your files can live';
     sub.textContent = 'Storage you plug in goes on the FRONT of the machine, so the computer has turned round. Click each device to find out about it.';
@@ -3294,7 +3319,7 @@ function paintA2Scene() {
       b.textContent = '← Look inside the case again';
       b.onclick = () => flipTo('inside');
     } else {
-      b.textContent = '📦 Storage options →';
+      b.textContent = 'NEXT → Storage Options';
       b.onclick = () => flipTo('iso');
     }
     btns.appendChild(b);
@@ -3303,8 +3328,21 @@ function paintA2Scene() {
   renderA2Tray();
 }
 
+/* Slide the finished tray out of the way, then drop it from the layout. */
+function sendRefitTrayAway() {
+  const box = document.getElementById('a2-refit-box');
+  if (!box) { a2TrayFarewell = false; return; }
+  box.classList.add('tray-away');
+  setTimeout(() => {
+    a2TrayFarewell = false;
+    box.classList.remove('tray-away');
+    renderA2Tray();
+  }, 1050);
+}
+
 function renderA2Tray() {
   const refitTray = document.getElementById('a2-refit-tray');
+  const refitBox  = document.getElementById('a2-refit-box');
   const newTray   = document.getElementById('a2-new-tray');
   const newBox    = document.getElementById('a2-new-box');
   refitTray.innerHTML = '';
@@ -3312,8 +3350,13 @@ function renderA2Tray() {
   const inst = a2Installed();
   const refitLeft = REFIT_ORDER.filter(id => !P.a2.refit.includes(id)).length;
 
-  // ── the parts taken out in Activity 1 — they stay on show, ticked ──
-  REFIT_ORDER.forEach(id => {
+  // Once the rebuild is done and the pupil has dismissed the last box, the
+  // tray has served its purpose and goes.
+  const showRefit = refitLeft > 0 || a2TrayFarewell;
+  refitBox.style.display = showRefit ? '' : 'none';
+
+  // ── the parts taken out in Activity 1 — on show, ticked, until finished ──
+  if (showRefit) REFIT_ORDER.forEach(id => {
     const part = A1_INSIDE.find(p => p.id === id);
     const inPlace = P.a2.refit.includes(id);
     const needsBoard = id !== 'motherboard' && !P.a2.refit.includes('motherboard');
@@ -3333,8 +3376,13 @@ function renderA2Tray() {
       P.a2.refit.push(id);
       save();
       a2Anim = id;
+      const justFinished = REFIT_ORDER.every(x => P.a2.refit.includes(x));
+      if (justFinished) a2TrayFarewell = true;   // keep it on screen a moment longer
       renderA2Scene();
-      setTimeout(() => openModal(part), 430);
+      setTimeout(() => {
+        if (justFinished) modalCloseHook = sendRefitTrayAway;
+        openModal(part);
+      }, 430);
       updateA2Btn();
     };
     refitTray.appendChild(b);
