@@ -517,38 +517,102 @@ p.screen-intro {
 .shop-opt-price { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--text); }
 
 /* ── THE COMPUTER FAIR (Activity 4) ─────────────────── */
-.stall {
+#a4-shop {
   border: 2px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 16px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
-  background: #f3efe4;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+  background: #cfe0f5;
 }
-.stall-svg { display: block; width: 100%; height: auto; }
-.good { cursor: pointer; }
-/* Only the artwork lifts — the hit area above must stay still, or the
-   pointer slides off it and hover flickers on and off. */
-.good .good-art {
-  transition: transform 0.16s ease-out;
+.fair-svg { display: block; width: 100%; height: auto; }
+
+/* a shelf compartment. The hit area never moves — only the art lifts,
+   or hover flickers as the pointer slides off. */
+.bin-slot { cursor: pointer; }
+.bin-slot .bin-art {
+  transition: transform 0.18s ease-out;
   transform-box: fill-box;
   transform-origin: center bottom;
-  pointer-events: none;          /* clicks are handled by .good-hit */
+  pointer-events: none;
 }
-.good:hover .good-art { transform: translateY(-5px); }
-.good-picked .good-art { filter: drop-shadow(0 0 6px rgba(47,154,85,0.55)); }
+.bin-slot:hover .bin-art { transform: translateY(-7px) scale(1.015); }
+.bin-tap { animation: tapPulse 2s ease-in-out infinite; }
+@keyframes tapPulse { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
 
-/* bunting across the top of the fair */
-#fair-banner { margin-bottom: 16px; }
-#fair-banner svg { display: block; width: 100%; height: auto; }
+/* ── THE COUNTER ─────────────────────────────────────── */
+.counter-card {
+  background: var(--white);
+  border: 3px solid var(--yellow-bdr);
+  border-radius: 14px;
+  padding: 24px 26px 20px;
+  max-width: 940px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 22px 64px rgba(0,0,0,0.28);
+  animation: popUp 0.24s cubic-bezier(0.34,1.4,0.64,1);
+  position: relative;
+}
+.counter-close {
+  position: absolute; top: 10px; right: 14px;
+  background: none; border: none; cursor: pointer;
+  font-size: 2rem; line-height: 1; color: var(--muted);
+}
+.counter-close:hover { color: var(--text); }
+.counter-head { text-align: center; margin-bottom: 18px; }
+.counter-head h3 { font-size: 1.5rem; font-weight: 900; }
+.counter-why { font-size: 0.85rem; color: var(--muted); margin: 5px 0 10px; }
+.counter-purse {
+  font-size: 0.8rem;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: inline-block;
+}
+.counter-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+  gap: 12px;
+}
+.counter-item {
+  font-family: var(--font);
+  color: inherit;
+  background: var(--white);
+  border: 2.5px solid var(--border);
+  border-radius: 11px;
+  padding: 12px 10px 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+}
+.counter-item:hover { border-color: var(--blue); transform: translateY(-3px); box-shadow: 0 6px 18px rgba(58,143,212,0.2); }
+.counter-item svg { width: 100%; height: 84px; }
+.ci-name  { font-size: 0.86rem; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+.ci-spec  { font-size: 0.7rem; color: var(--muted); line-height: 1.35; flex: 1; }
+.ci-price {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  background: var(--bg);
+  border: 1.5px solid var(--border-dark);
+  border-radius: 6px;
+  padding: 3px 12px;
+  margin-top: 5px;
+}
+.counter-item.picked { border-color: var(--green); background: #f4fdf6; box-shadow: 0 3px 14px rgba(59,186,90,0.2); }
+.counter-item.picked .ci-price { background: var(--green); border-color: var(--green-d); color: #fff; }
+.counter-item.unaffordable .ci-price { color: var(--red); border-color: var(--red); background: var(--red-light); }
+.ci-warn { font-size: 0.66rem; font-weight: 700; color: var(--red); margin-top: 3px; }
 
 /* the wallet — how much is left to spend */
-#build-bar.wallet {
-  background: #fffdf5;
-  border-color: var(--yellow-bdr);
-}
+#build-bar.wallet { background: #fffdf5; border-color: var(--yellow-bdr); }
 
-/* ── RESULTS ────────────────────────────────────────── */
+/* ── RESULTS ────────────────────────────────────────── *//* ── RESULTS ────────────────────────────────────────── */
 .score-hero { text-align: center; padding: 10px 0 24px; }
 .score-big {
   font-family: var(--mono);
@@ -766,8 +830,10 @@ p.screen-intro {
   .scene-tip { font-size: 0.68rem; padding: 6px 12px; bottom: 6px; }
   /* A stall squeezed to phone width makes the labels unreadable, so let it
      keep its size and scroll sideways inside its own box instead. */
-  .stall { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .stall-svg { min-width: 640px; }
+  #a4-shop { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fair-svg { min-width: 720px; }
+  .counter-card { padding: 20px 14px 16px; }
+  .counter-items { grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 9px; }
   .shelf-item { width: 66px; }
   .shelf-item svg { height: 32px; }
   #header { padding: 12px 14px 12px 60px; }
@@ -1030,8 +1096,6 @@ p.screen-intro {
     <h2 class="screen-title" id="a4-shop-title">The Computer Fair</h2>
     <p class="screen-intro" id="a4-shop-brief"></p>
 
-    <div id="fair-banner"></div>
-
     <div id="build-bar" class="wallet">
       <div class="bb-client" id="bb-client"></div>
       <div class="bb-money">
@@ -1077,6 +1141,22 @@ p.screen-intro {
   </section>
 
 </main>
+
+<!-- ═══ THE COUNTER (one category, close up) ═══ -->
+<div class="overlay" id="counter-overlay">
+  <div class="counter-card">
+    <button class="counter-close" onclick="closeCounter()" aria-label="Back to the stall">&times;</button>
+    <div class="counter-head">
+      <h3 id="counter-title"></h3>
+      <div class="counter-why" id="counter-why"></div>
+      <div class="counter-purse" id="counter-purse"></div>
+    </div>
+    <div class="counter-items" id="counter-items"></div>
+    <div class="btn-row" style="justify-content:center;margin-top:6px">
+      <button class="btn primary" onclick="closeCounter()">← Back to the stall</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ INFO MODAL ═══ -->
 <div class="overlay" id="modal">
@@ -1878,15 +1958,6 @@ const A3_APPS = ['Word Processor','Spreadsheet','Presentation','Email','Web Brow
    Better parts are drawn bigger, so price and power line up
    visually before a pupil has read a single number.
 ════════════════════════════════════════════════════ */
-const STALL_COLOUR = {
-  cpu:     { awn:'#c0433f', sign:'#8f2f2c' },
-  ram:     { awn:'#3a72b8', sign:'#2a548a' },
-  storage: { awn:'#2f9a55', sign:'#217040' },
-  gpu:     { awn:'#7b5cc4', sign:'#584093' },
-  monitor: { awn:'#dd8228', sign:'#a85d17' },
-  os:      { awn:'#2f9aa8', sign:'#1f7079' },
-};
-
 const CPU_CORES = [2, 4, 6, 8, 16];
 
 /* Every goods drawing fits a 140 x 118 box, standing on y = 104. */
@@ -1996,77 +2067,324 @@ function goodsArt(catId, opt) {
   return '';
 }
 
-/* One market stall: awning, hanging price sign, goods on the counter.
-   Layout (viewBox 900 x 320):
-     0-52    striped canopy
-     58-92   hanging sign
-     106     what this part does
-     118-222 the goods, standing on the counter
-     218-230 counter top
-     230+    cloth front, where the price tags and labels sit */
-function stallSvg(cat, pickedIdx, spentOther, budget) {
-  const col = STALL_COLOUR[cat.id] || { awn:'#888', sign:'#555' };
-  const n = cat.opts.length;
-  const slot = 830 / n;
+/* ── Piles of stock for the shelf compartments ──────────
+   Each pile fills a 278 x 150 bin. Items overlap at slight
+   angles so the shelf looks stocked rather than laid out. */
+function rot(x, y, a) { return `transform="rotate(${a} ${x} ${y})"`; }
 
-  // canopy: a solid band so it reads as one awning, with scalloped edge
-  let stripes = '', scallop = '';
-  for (let i = 0; i < 23; i++) {
-    const x = 6 + i * 39;
-    stripes += `<rect x="${x}" y="0" width="39" height="34" fill="${i % 2 ? '#f7edd4' : col.awn}"/>`;
-    scallop += `<path d="M${x} 34 q19.5 19 39 0 z" fill="${i % 2 ? '#f7edd4' : col.awn}"/>`;
+function pileCPU() {
+  const cols = ['#b8bec6', '#c9ced6', '#a9b0b8', '#d0d5db', '#b0b7bf', '#c2c8d0'];
+  const pos = [[42,96,-12],[104,104,7],[168,98,-6],[228,104,14],[74,58,9],[140,52,-9],[204,58,5]];
+  let s = '';
+  pos.forEach((p, i) => {
+    const [x, y, a] = p, sz = 46;
+    let pins = '';
+    for (let k = 0; k < 7; k++) {
+      const px = (x - sz / 2 + 6 + k * 5.4).toFixed(1);
+      pins += `<path d="M${px} ${y - sz / 2} v-5"/><path d="M${px} ${y + sz / 2} v5"/>`;
+    }
+    s += `<g ${rot(x, y, a)}><g stroke="#d8b24a" stroke-width="2">${pins}</g>` +
+         `<rect x="${x - sz / 2}" y="${y - sz / 2}" width="${sz}" height="${sz}" rx="4" fill="#33343c" stroke="#1e1f25" stroke-width="2"/>` +
+         `<rect x="${x - sz / 2 + 5}" y="${y - sz / 2 + 5}" width="${sz - 10}" height="${sz - 10}" rx="3" fill="${cols[i % cols.length]}" stroke="#8a9099" stroke-width="1.5"/>` +
+         `<circle cx="${x - sz / 2 + 10}" cy="${y - sz / 2 + 10}" r="2.6" fill="#8a9099"/></g>`;
+  });
+  return s;
+}
+
+function pileRAM() {
+  const cols = ['#1f8442', '#2b3f8f', '#1f8442', '#7a4a1e', '#2b3f8f', '#1f8442'];
+  const pos = [[30,110,-6],[30,78,4],[30,46,-3],[150,112,8],[150,80,-5],[150,48,6]];
+  let s = '';
+  pos.forEach((p, i) => {
+    const [x, y, a] = p, w = 118, h = 26;
+    let chips = '';
+    for (let k = 0; k < 6; k++) chips += `<rect x="${x + 10 + k * 17}" y="${y + 5}" width="13" height="11" rx="1.5" fill="#22262c"/>`;
+    let teeth = '';
+    for (let k = 0; k < 14; k++) teeth += `<rect x="${x + 8 + k * 7.6}" y="${y + h - 6}" width="3.4" height="6" fill="${cols[i % cols.length]}"/>`;
+    s += `<g ${rot(x + w / 2, y + h / 2, a)}>` +
+         `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${cols[i % cols.length]}" stroke="#12331f" stroke-width="1.6"/>` +
+         chips + `<rect x="${x + 6}" y="${y + h - 6}" width="${w - 12}" height="6" fill="#d8b24a"/>` + teeth + `</g>`;
+  });
+  return s;
+}
+
+function pileStorage() {
+  let s = '';
+  // solid state drives
+  [[24,96,-7],[86,104,6],[24,50,5]].forEach(p => {
+    const [x, y, a] = p, w = 88, h = 52;
+    s += `<g ${rot(x + w / 2, y + h / 2, a)}>` +
+         `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#2f3a4a" stroke="#1a222c" stroke-width="2"/>` +
+         `<rect x="${x + 8}" y="${y + 10}" width="${w - 16}" height="${h - 22}" rx="2" fill="#3d4a5c"/>` +
+         `<text x="${x + w / 2}" y="${y + h / 2 + 4}" font-family="Arial" font-size="13" font-weight="800" fill="#c6d2de" text-anchor="middle">SSD</text></g>`;
+  });
+  // magnetic drives
+  [[160,98,8],[168,48,-6]].forEach(p => {
+    const [x, y, a] = p, w = 96, h = 58;
+    s += `<g ${rot(x + w / 2, y + h / 2, a)}>` +
+         `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#c3c8ce" stroke="#7d848c" stroke-width="2"/>` +
+         `<circle cx="${x + w * 0.42}" cy="${y + h / 2}" r="18" fill="#3f454d"/>` +
+         `<circle cx="${x + w * 0.42}" cy="${y + h / 2}" r="18" fill="url(#ic-pl)" opacity=".45"/>` +
+         `<circle cx="${x + w * 0.42}" cy="${y + h / 2}" r="5" fill="#8f97a2"/>` +
+         `<path d="M${x + w - 10} ${y + 10} L${x + w - 18} ${y + 18} L${x + w * 0.56} ${y + h * 0.5} L${x + w * 0.62} ${y + h * 0.6} Z" fill="#e2e6ea" stroke="#9aa1a9" stroke-width="1.2"/></g>`;
+  });
+  return s;
+}
+
+function pileGPU() {
+  const shells = ['#2b3540', '#3a2b40', '#40312b'];
+  const accents = ['#7fd4ff', '#d94070', '#ffb03a'];
+  [0]; let s = '';
+  [[16,102,-5],[24,62,4],[34,24,-2]].forEach((p, i) => {
+    const [x, y, a] = p, w = 226, h = 46;
+    let fans = '';
+    [0.3, 0.68].forEach(fx => {
+      const cx = x + w * fx, cy = y + h * 0.5, r = 16;
+      fans += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#14191f"/>`;
+      for (let b = 0; b < 6; b++) {
+        const ang = b * 60 + i * 20;
+        const bx = (cx + r * 0.5 * Math.cos(ang * Math.PI / 180)).toFixed(1);
+        const by = (cy + r * 0.5 * Math.sin(ang * Math.PI / 180)).toFixed(1);
+        fans += `<ellipse cx="${bx}" cy="${by}" rx="7" ry="3.2" transform="rotate(${ang} ${bx} ${by})" fill="#525d6b"/>`;
+      }
+      fans += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="#6d7a8a"/>`;
+    });
+    s += `<g ${rot(x + w / 2, y + h / 2, a)}>` +
+         `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${shells[i]}" stroke="#151a20" stroke-width="2"/>` +
+         `<rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="6" rx="3" fill="${accents[i]}" opacity=".8"/>` +
+         fans + `<rect x="${x + w * 0.32}" y="${y + h}" width="${w * 0.36}" height="6" fill="#d8b24a"/></g>`;
+  });
+  return s;
+}
+
+function pileMonitor() {
+  let s = '';
+  [[18,42,120,-4],[122,30,138,5],[196,58,86,-7]].forEach((p, i) => {
+    const [x, y, w, a] = p, h = w * 0.66;
+    s += `<g ${rot(x + w / 2, y + h / 2, a)}>` +
+         `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="#34383f" stroke="#1d2025" stroke-width="2.4"/>` +
+         `<rect x="${x + 7}" y="${y + 7}" width="${w - 14}" height="${h - 14}" rx="3" fill="#4d5a68"/>` +
+         `<circle cx="${x + w * 0.36}" cy="${y + h * 0.52}" r="3.4" fill="#2a2e34"/>` +
+         `<circle cx="${x + w * 0.64}" cy="${y + h * 0.52}" r="3.4" fill="#2a2e34"/>` +
+         `<path d="M${x + w * 0.42} ${y + h * 0.68} q${w * 0.08} ${h * 0.1} ${w * 0.16} 0" stroke="#2a2e34" stroke-width="2.4" fill="none" stroke-linecap="round"/>` +
+         `<circle cx="${x + w * 0.24}" cy="${y + h * 0.62}" r="5" fill="#f0a0a8" opacity=".55"/>` +
+         `<circle cx="${x + w * 0.76}" cy="${y + h * 0.62}" r="5" fill="#f0a0a8" opacity=".55"/></g>`;
+  });
+  return s;
+}
+
+function pileOS() {
+  const names = ['Windows', 'macOS', 'Linux'];
+  let s = '';
+  names.forEach((nm, i) => {
+    const look = OS_LOOK[nm];
+    const x = 22 + i * 82, y = 40 + (i % 2) * 14, w = 62, h = 84, a = i === 1 ? 5 : (i === 0 ? -6 : 4);
+    s += `<g ${rot(x + w / 2, y + h / 2, a)}>` +
+         `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${look.sky1}" stroke="#1b1620" stroke-width="2"/>` +
+         `<rect x="${x}" y="${y}" width="12" height="${h}" rx="5" fill="#000" opacity=".22"/>` +
+         `<circle cx="${x + w * 0.6}" cy="${y + h * 0.42}" r="16" fill="${look.sky2}"/>` +
+         `<circle cx="${x + w * 0.6}" cy="${y + h * 0.42}" r="5" fill="#f4f6f8"/>` +
+         `<text x="${x + w * 0.58}" y="${y + h - 12}" font-family="Arial" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">${nm}</text></g>`;
+  });
+  s += `<g transform="rotate(-8 236 108)"><circle cx="236" cy="108" r="24" fill="#c8ced6"/>` +
+       `<circle cx="236" cy="108" r="24" fill="url(#ic-dg)" opacity=".7"/>` +
+       `<circle cx="236" cy="108" r="8" fill="#eef1f4"/></g>`;
+  return s;
+}
+
+function pileArt(catId) {
+  switch (catId) {
+    case 'cpu':     return pileCPU();
+    case 'ram':     return pileRAM();
+    case 'storage': return pileStorage();
+    case 'gpu':     return pileGPU();
+    case 'monitor': return pileMonitor();
+    case 'os':      return pileOS();
+  }
+  return '';
+}
+
+/* ── THE FAIR STALL ────────────────────────────────────
+   One scene the pupil looks around: banner, balloons, bunting,
+   a stallholder, and six shelf compartments of stock. Clicking a
+   compartment opens that category's counter. ── */
+const SIGN_NAME = {
+  cpu:'PROCESSORS', ram:'MEMORY (RAM)', storage:'STORAGE',
+  gpu:'GRAPHICS CARDS', monitor:'MONITORS', os:'OPERATING SYSTEMS',
+};
+
+const BIN_COLOUR = {
+  cpu:     '#2f9aa8',
+  ram:     '#3a72b8',
+  storage: '#7b5cc4',
+  gpu:     '#c0433f',
+  monitor: '#dd8228',
+  os:      '#5a9e33',
+};
+
+function balloon(x, y, c, dx) {
+  return `<g><path d="M${x} ${y + 54} q${dx} 34 ${dx * 0.4} 72" stroke="#9aa3b0" stroke-width="2" fill="none"/>` +
+    `<ellipse cx="${x}" cy="${y}" rx="42" ry="50" fill="${c}"/>` +
+    `<ellipse cx="${x - 13}" cy="${y - 16}" rx="11" ry="15" fill="#fff" opacity=".38"/>` +
+    `<path d="M${x - 7} ${y + 49} h14 l-7 11 z" fill="${c}"/></g>`;
+}
+
+function fairScene() {
+  // bunting
+  let bunt = '';
+  const bc = ['#e8524f', '#f0a83c', '#5cc45e', '#4aa8e0', '#a86ad4', '#e86aa8'];
+  for (let i = 0; i < 20; i++) {
+    const x = 130 + i * 47, y = 176 + Math.sin(i / 2.4) * 9;
+    bunt += `<path d="M${x} ${y} l40 4 l-22 34 z" fill="${bc[i % bc.length]}"/>`;
+  }
+  // string lights
+  let lights = '';
+  for (let i = 0; i < 11; i++) {
+    const x = 175 + i * 86, y = 242 + Math.sin(i / 1.7) * 12;
+    lights += `<circle cx="${x}" cy="${y}" r="14" fill="#ffe9a8" opacity=".35"/>` +
+              `<rect x="${x - 3}" y="${y - 12}" width="6" height="6" rx="1.5" fill="#7c8390"/>` +
+              `<circle cx="${x}" cy="${y}" r="7.5" fill="#ffd75e" stroke="#e0b13a" stroke-width="1.4"/>`;
   }
 
-  let goods = '';
-  cat.opts.forEach((opt, i) => {
-    const cx = 35 + slot * (i + 0.5);
-    const picked = pickedIdx === i;
-    const afford = spentOther + opt.price <= budget;
-    const tagFill = picked ? '#2f9a55' : (afford ? '#fffdf6' : '#fadede');
-    const tagLine = picked ? '#217040' : (afford ? '#c9c2ad' : '#d98a8a');
-    const tagText = picked ? '#ffffff' : (afford ? '#2a2a2a' : '#b03030');
-    goods +=
-      `<g class="good${picked ? ' good-picked' : ''}" data-idx="${i}" transform="translate(${(cx - 70).toFixed(1)} 118)">` +
-        // Stationary hit area covering the whole slot. It never moves, so
-        // hovering cannot flicker, and it makes the gaps between the artwork,
-        // price tag and labels clickable — an SVG group alone is only
-        // clickable where something is actually painted.
-        `<rect class="good-hit" x="${(70 - slot / 2).toFixed(1)}" y="-14" width="${slot.toFixed(1)}" height="220" fill="none" pointer-events="all"/>` +
-        `<g class="good-art">` +
-        `<ellipse cx="70" cy="106" rx="46" ry="6" fill="#000" opacity=".16"/>` +
-        goodsArt(cat.id, opt) +
-        (picked ? `<circle cx="120" cy="14" r="14" fill="#2f9a55" stroke="#fff" stroke-width="2"/>` +
-                  `<text x="120" y="20" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>` : '') +
-        // price tag propped on the counter
-        `<g transform="translate(0 124)">` +
-          `<rect x="22" y="0" width="96" height="27" rx="5" fill="${tagFill}" stroke="${tagLine}" stroke-width="1.8"/>` +
-          `<circle cx="32" cy="13.5" r="3.2" fill="none" stroke="${tagLine}" stroke-width="1.4"/>` +
-          `<text x="78" y="19" font-family="Courier New, monospace" font-size="15" font-weight="700" fill="${tagText}" text-anchor="middle">${opt.price === 0 ? 'FREE' : '£' + opt.price}</text>` +
-        `</g>` +
-        `<text x="70" y="166" font-family="Arial" font-size="12.5" font-weight="800" fill="#2a2a2a" text-anchor="middle">${opt.name}</text>` +
-        `<text x="70" y="181" font-family="Arial" font-size="10" fill="#6f6f68" text-anchor="middle">${opt.spec}</text>` +
-        (afford || picked ? '' : `<text x="70" y="198" font-family="Arial" font-size="10" font-weight="700" fill="#b03030" text-anchor="middle">✕ too dear for this budget</text>`) +
+  // six shelf compartments
+  const COLW = 278, ROWH = 219;
+  let bins = '';
+  SHOP_CATS.forEach((cat, i) => {
+    const c = i % 3, r = Math.floor(i / 3);
+    const x = 124 + c * (COLW + 14), y = 414 + r * (ROWH + 14);
+    const picked = build[cat.id];
+    const col = BIN_COLOUR[cat.id];
+    bins +=
+      `<g class="bin-slot" data-cat="${cat.id}">` +
+        `<rect class="bin-hit" x="${x - 6}" y="${y - 6}" width="${COLW + 12}" height="${ROWH + 12}" fill="none" pointer-events="all"/>` +
+        `<g class="bin-art">` +
+          `<rect x="${x}" y="${y}" width="${COLW}" height="${ROWH}" rx="4" fill="#3a2f26"/>` +
+          `<rect x="${x}" y="${y}" width="${COLW}" height="${ROWH}" rx="4" fill="#000" opacity=".18"/>` +
+          `<g transform="translate(${x} ${y + 62})">${pileArt(cat.id)}</g>` +
+          // shelf lip
+          `<rect x="${x - 8}" y="${y + ROWH - 12}" width="${COLW + 16}" height="16" rx="4" fill="#c58f52" stroke="#9c6b36" stroke-width="2"/>` +
+          // category sign
+          `<g><rect x="${x + 12}" y="${y + 10}" width="${COLW - 24}" height="42" rx="9" fill="${col}" stroke="#2b2b33" stroke-width="2.5"/>` +
+            `<rect x="${x + 17}" y="${y + 15}" width="${COLW - 34}" height="32" rx="6" fill="none" stroke="#fff" stroke-width="1.4" opacity=".4"/>` +
+            `<text x="${x + COLW / 2}" y="${y + 38}" font-family="Arial" font-size="18" font-weight="900" fill="#fff" text-anchor="middle" letter-spacing="0.5">${SIGN_NAME[cat.id]}</text></g>` +
+          (picked
+            ? `<g><circle cx="${x + COLW - 24}" cy="${y + ROWH - 34}" r="19" fill="#3bba5a" stroke="#fff" stroke-width="3"/>` +
+              `<text x="${x + COLW - 24}" y="${y + ROWH - 27}" font-size="20" fill="#fff" text-anchor="middle" font-family="Arial">✓</text></g>`
+            : `<g class="bin-tap"><rect x="${x + COLW / 2 - 52}" y="${y + ROWH - 46}" width="104" height="26" rx="13" fill="#fffbe8" stroke="#c9a83a" stroke-width="2"/>` +
+              `<text x="${x + COLW / 2}" y="${y + ROWH - 28}" font-family="Arial" font-size="13" font-weight="800" fill="#8a6a12" text-anchor="middle">👆 Pick one</text></g>`) +
         `</g>` +
       `</g>`;
   });
 
-  return `<svg viewBox="0 0 900 336" class="stall-svg" xmlns="http://www.w3.org/2000/svg">
-  <rect width="900" height="336" fill="#f7f4ec"/>
-  <!-- counter -->
-  <rect x="0" y="230" width="900" height="106" fill="#efe7d5"/>
-  <rect x="0" y="218" width="900" height="14" fill="#c8a06e"/>
-  <rect x="0" y="216" width="900" height="5" rx="2" fill="#e2c197"/>
-  <!-- canopy -->
-  <rect x="6" y="0" width="897" height="34" fill="${col.awn}"/>
-  ${stripes}${scallop}
-  <rect x="6" y="32" width="897" height="3" fill="#000" opacity=".12"/>
-  <!-- hanging sign -->
-  <path d="M300 52 v8 M600 52 v8" stroke="#8a8578" stroke-width="2"/>
-  <rect x="276" y="58" width="348" height="36" rx="6" fill="${col.sign}"/>
-  <rect x="281" y="62" width="338" height="28" rx="4" fill="none" stroke="#ffffff" stroke-width="1.2" opacity=".45"/>
-  <text x="450" y="82" font-family="Arial" font-size="17" font-weight="900" fill="#fff" text-anchor="middle" letter-spacing="1">${cat.name.toUpperCase()}</text>
-  <text x="450" y="110" font-family="Arial" font-size="11.5" fill="#7a7368" text-anchor="middle">${cat.why}</text>
-  ${goods}
+  // chalkboard running total
+  let board = '';
+  const lines = SHOP_CATS.map(cat => {
+    const b = build[cat.id];
+    const short = cat.name.replace(' (CPU)','').replace(' (RAM)','').replace('Operating System','OS');
+    return b ? `<tspan>☑ ${short}</tspan>` : `<tspan>☐ ${short}</tspan>`;
+  });
+  lines.forEach((_, i) => {
+    const cat = SHOP_CATS[i], b = build[cat.id];
+    const short = cat.name.replace(' (CPU)','').replace(' (RAM)','').replace('Operating System','OS');
+    board += `<text x="1028" y="${688 + i * 25}" font-family="Arial" font-size="14.5" font-weight="700" fill="${b ? '#a8e6b4' : '#cfcac0'}">${b ? '☑' : '☐'} ${short}</text>`;
+  });
+
+  return `<svg viewBox="0 0 1200 950" class="fair-svg" xmlns="http://www.w3.org/2000/svg">
+  <!-- wall -->
+  <rect width="1200" height="950" fill="#cfe0f5"/>
+  <rect y="860" width="1200" height="90" fill="#c8bfe0"/>
+  <g opacity=".38" fill="#a9c3e6">
+    <rect x="20" y="380" width="120" height="86" rx="8"/><rect x="1055" y="360" width="120" height="90" rx="8"/>
+    <rect x="18" y="486" width="120" height="70" rx="8"/><rect x="1058" y="470" width="118" height="76" rx="8"/>
+  </g>
+  <text x="78" y="432" font-family="Arial" font-size="22" font-weight="900" fill="#8fb0dc" text-anchor="middle">TECH</text>
+  <text x="78" y="456" font-family="Arial" font-size="22" font-weight="900" fill="#8fb0dc" text-anchor="middle">ZONE</text>
+  <text x="1116" y="404" font-family="Arial" font-size="20" font-weight="900" fill="#8fb0dc" text-anchor="middle">BYTE</text>
+  <text x="1116" y="430" font-family="Arial" font-size="20" font-weight="900" fill="#8fb0dc" text-anchor="middle">HAPPY</text>
+
+  <!-- stall posts -->
+  <rect x="96" y="150" width="26" height="740" rx="6" fill="#6d5aa8"/>
+  <rect x="1078" y="150" width="26" height="740" rx="6" fill="#6d5aa8"/>
+  <rect x="96" y="150" width="1008" height="30" rx="8" fill="#7d69bd"/>
+
+  <!-- balloons -->
+  ${balloon(72, 128, '#f0a83c', 16)}
+  ${balloon(150, 168, '#4aa8e0', -14)}
+  ${balloon(1130, 130, '#a86ad4', -16)}
+  ${balloon(1052, 172, '#5cc45e', 14)}
+
+  <!-- banner -->
+  <g transform="rotate(-1.1 600 108)">
+    <rect x="140" y="42" width="920" height="132" rx="14" fill="#fdf6e2" stroke="#4a3f7a" stroke-width="5"/>
+    <rect x="152" y="54" width="896" height="108" rx="9" fill="none" stroke="#4a3f7a" stroke-width="2" opacity=".35"/>
+    <text x="600" y="112" font-family="Arial" font-size="60" font-weight="900" fill="#3f3475" text-anchor="middle" letter-spacing="2">COMPUTER FAIR</text>
+    <text x="600" y="150" font-family="Arial" font-size="26" font-weight="900" fill="#e0407a" text-anchor="middle" letter-spacing="1">BUILD YOUR PERFECT PC!</text>
+    <g fill="#7fc4e8"><circle cx="205" cy="72" r="5"/><circle cx="990" cy="146" r="5"/></g>
+    <g fill="#f0c23c"><circle cx="1010" cy="70" r="5"/><circle cx="192" cy="148" r="5"/></g>
+  </g>
+
+  <!-- bunting + lights -->
+  <path d="M130 176 Q600 214 1070 176" stroke="#8a7fc0" stroke-width="3" fill="none"/>
+  ${bunt}
+  <path d="M175 242 Q600 292 1035 242" stroke="#6f7784" stroke-width="2.4" fill="none"/>
+  ${lights}
+
+  <!-- stallholder -->
+  <g>
+    <path d="M498 404 q0-88 102-88 q102 0 102 88 z" fill="#6d4bc4"/>
+    <path d="M556 330 q44-22 88 0 l-10 26 h-68 z" fill="#5a3ba8"/>
+    <circle cx="600" cy="286" r="62" fill="#f2c9a4"/>
+    <path d="M540 272 q6-62 60-62 q54 0 60 62 q-16-30 -60-30 q-44 0-60 30z" fill="#6b4425"/>
+    <path d="M556 258 q18-34 44-34 q26 0 44 34 q-20-18 -44-18 q-24 0-44 18z" fill="#7d5230"/>
+    <circle cx="578" cy="290" r="9" fill="#2b2b33"/><circle cx="622" cy="290" r="9" fill="#2b2b33"/>
+    <circle cx="581" cy="287" r="3" fill="#fff"/><circle cx="625" cy="287" r="3" fill="#fff"/>
+    <circle cx="558" cy="308" r="8" fill="#f0a0a8" opacity=".6"/><circle cx="642" cy="308" r="8" fill="#f0a0a8" opacity=".6"/>
+    <path d="M582 312 q18 20 36 0 q-18 8 -36 0z" fill="#8a3f4a"/>
+    <path d="M582 312 q18 20 36 0" stroke="#2b2b33" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- waving arm -->
+    <g transform="rotate(-16 700 360)">
+      <rect x="686" y="316" width="34" height="76" rx="17" fill="#6d4bc4"/>
+      <circle cx="726" cy="312" r="21" fill="#f2c9a4"/>
+      <path d="M716 300 v-16 M726 296 v-20 M736 300 v-15" stroke="#f2c9a4" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- speech bubble -->
+  <g>
+    <path d="M770 268 h228 a16 16 0 0 1 16 16 v82 a16 16 0 0 1 -16 16 h-150 l-34 30 v-30 h-44 a16 16 0 0 1 -16-16 v-82 a16 16 0 0 1 16-16 z" fill="#fff" stroke="#4a3f7a" stroke-width="3.5"/>
+    <text x="884" y="300" font-family="Arial" font-size="17" font-weight="800" fill="#3f3475" text-anchor="middle">PICK YOUR PARTS</text>
+    <text x="884" y="326" font-family="Arial" font-size="17" font-weight="800" fill="#3f3475" text-anchor="middle">&amp; BUILD IT</text>
+    <text x="884" y="352" font-family="Arial" font-size="17" font-weight="800" fill="#3f3475" text-anchor="middle">YOUR WAY! ❤</text>
+  </g>
+
+  <!-- shelving unit -->
+  <rect x="104" y="394" width="902" height="492" rx="10" fill="#d9a35e" stroke="#a8712f" stroke-width="4"/>
+  <rect x="112" y="402" width="886" height="476" rx="6" fill="#c58f52"/>
+  ${bins}
+  <rect x="104" y="878" width="902" height="24" rx="6" fill="#a8712f"/>
+
+  <!-- chalkboard: the running build -->
+  <g>
+    <path d="M1016 640 l-14 250 M1174 640 l14 250" stroke="#8a6a45" stroke-width="9" stroke-linecap="round"/>
+    <rect x="1004" y="612" width="184" height="252" rx="10" fill="#8a6a45"/>
+    <rect x="1014" y="622" width="164" height="232" rx="6" fill="#2f3630"/>
+    <text x="1096" y="656" font-family="Arial" font-size="19" font-weight="900" fill="#ffe07a" text-anchor="middle">YOUR BUILD</text>
+    ${board}
+    <path d="M1026 826 h140" stroke="#6f7a70" stroke-width="1.6"/>
+    <text x="1028" y="848" font-family="Arial" font-size="13" font-weight="700" fill="#cfcac0">TOTAL</text>
+    <text x="1166" y="848" font-family="Courier New, monospace" font-size="16" font-weight="700" fill="#ffe07a" text-anchor="end">£${buildTotal()}</text>
+  </g>
+
+  <!-- pot plant -->
+  <g>
+    <path d="M52 782 q-26-46 4-72 q22 26 6 72z" fill="#5cc45e"/>
+    <path d="M64 784 q30-40 62-30 q-20 34 -60 34z" fill="#4bb04d"/>
+    <path d="M46 786 q-34-24 -30-56 q28 18 34 56z" fill="#4bb04d"/>
+    <path d="M28 792 h68 l-9 66 a8 8 0 0 1 -8 7 h-34 a8 8 0 0 1 -8-7 z" fill="#e08a4a" stroke="#b6672f" stroke-width="2.5"/>
+    <rect x="22" y="780" width="80" height="18" rx="6" fill="#f0a05c" stroke="#b6672f" stroke-width="2.5"/>
+    <circle cx="50" cy="832" r="3.4" fill="#2b2b33"/><circle cx="74" cy="832" r="3.4" fill="#2b2b33"/>
+    <path d="M56 840 q6 7 12 0" stroke="#2b2b33" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  </g>
 </svg>`;
 }
 
@@ -3103,25 +3421,9 @@ function renderClients() {
   });
 }
 
-function fairBanner() {
-  const cols = ['#c0433f', '#dd8228', '#2f9a55', '#3a72b8', '#7b5cc4', '#2f9aa8'];
-  let flags = '';
-  for (let i = 0; i < 26; i++) {
-    const x = 8 + i * 34.5;
-    flags += `<path d="M${x} 8 L${x + 30} 8 L${x + 15} 34 Z" fill="${cols[i % cols.length]}" opacity=".92"/>`;
-  }
-  return `<svg viewBox="0 0 900 84" xmlns="http://www.w3.org/2000/svg">
-    <rect width="900" height="84" fill="#fdf8dc"/>
-    <path d="M0 8 Q450 22 900 8" stroke="#b9ad7e" stroke-width="2.5" fill="none"/>
-    ${flags}
-    <text x="450" y="66" font-family="Arial" font-size="26" font-weight="900" fill="#6b5a1e" text-anchor="middle" letter-spacing="3">🎪 COMPUTER FAIR 🎪</text>
-  </svg>`;
-}
-
 function startBuild(client) {
   currentClient = client;
   build = {};
-  document.getElementById('fair-banner').innerHTML = fairBanner();
   renderShop();
   showScreen('screen-a4shop');
 }
@@ -3136,31 +3438,62 @@ function renderShop() {
   document.getElementById('bb-client').innerHTML = `${currentClient.emoji} <b>${currentClient.name}</b>`;
 
   const wrap = document.getElementById('a4-shop');
-  wrap.innerHTML = '';
-  const budget = currentClient.budget;
+  wrap.innerHTML = fairScene();
 
-  SHOP_CATS.forEach(cat => {
-    const picked = build[cat.id] ? build[cat.id]._i : -1;
-    // what everything ELSE costs, so we can flag tags this budget cannot reach
-    const spentOther = SHOP_CATS.reduce((s, c) => s + (c.id !== cat.id && build[c.id] ? build[c.id].price : 0), 0);
-
-    const stall = document.createElement('div');
-    stall.className = 'stall';
-    stall.innerHTML = stallSvg(cat, picked, spentOther, budget);
-
-    stall.querySelectorAll('.good').forEach(g => {
-      g.addEventListener('click', () => {
-        const i = +g.dataset.idx;
-        const opt = cat.opts[i];
-        build[cat.id] = Object.assign({}, opt, { _i: i, _cat: cat.id, _catName: cat.name });
-        renderShop();
-      });
-    });
-
-    wrap.appendChild(stall);
+  wrap.querySelectorAll('.bin-slot').forEach(g => {
+    g.addEventListener('click', () => openCounter(g.dataset.cat));
   });
 
   updateBuildBar();
+}
+
+/* ── the counter: one category's stock, close up ──────── */
+let counterCat = null;
+
+function openCounter(catId) {
+  counterCat = catId;
+  renderCounter();
+  document.getElementById('counter-overlay').classList.add('show');
+}
+
+function closeCounter() {
+  document.getElementById('counter-overlay').classList.remove('show');
+  counterCat = null;
+}
+
+function renderCounter() {
+  const cat = SHOP_CATS.find(c => c.id === counterCat);
+  if (!cat) return;
+  const budget = currentClient.budget;
+  const spentOther = SHOP_CATS.reduce((s, c) => s + (c.id !== cat.id && build[c.id] ? build[c.id].price : 0), 0);
+
+  document.getElementById('counter-title').textContent = cat.name;
+  document.getElementById('counter-why').textContent = cat.why;
+  document.getElementById('counter-purse').innerHTML =
+    `Budget <b>£${budget}</b> &nbsp;·&nbsp; already spent elsewhere <b>£${spentOther}</b> &nbsp;·&nbsp; ` +
+    `<span style="color:var(--green-d)">you can spend up to <b>£${budget - spentOther}</b> here</span>`;
+
+  const row = document.getElementById('counter-items');
+  row.innerHTML = '';
+  cat.opts.forEach((opt, i) => {
+    const picked = build[cat.id] && build[cat.id]._i === i;
+    const afford = spentOther + opt.price <= budget;
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'counter-item' + (picked ? ' picked' : '') + (afford ? '' : ' unaffordable');
+    card.innerHTML =
+      `<svg viewBox="0 0 140 118">${goodsArt(cat.id, opt)}</svg>` +
+      `<span class="ci-name">${picked ? '✓ ' : ''}${opt.name}</span>` +
+      `<span class="ci-spec">${opt.spec}</span>` +
+      `<span class="ci-price">${opt.price === 0 ? 'FREE' : '£' + opt.price}</span>` +
+      (afford ? '' : `<span class="ci-warn">✕ too dear for this budget</span>`);
+    card.onclick = () => {
+      build[cat.id] = Object.assign({}, opt, { _i: i, _cat: cat.id, _catName: cat.name });
+      renderShop();
+      renderCounter();
+    };
+    row.appendChild(card);
+  });
 }
 
 function buildTotal() {
