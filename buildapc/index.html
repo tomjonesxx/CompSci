@@ -849,6 +849,19 @@ p.screen-intro {
 }
 .shelf-pick { cursor: pointer; }
 
+/* the case turning to show its front, on the way to the storage step */
+#a2-scene { perspective: 1400px; }
+#a2-scene.flip-out .scene-svg { animation: caseFlipOut 0.44s ease-in forwards; }
+#a2-scene.flip-in  .scene-svg { animation: caseFlipIn  0.52s ease-out; }
+@keyframes caseFlipOut {
+  from { transform: rotateY(0deg) scale(1); opacity: 1; }
+  to   { transform: rotateY(-86deg) scale(0.88); opacity: 0.2; }
+}
+@keyframes caseFlipIn {
+  from { transform: rotateY(84deg) scale(0.88); opacity: 0.2; }
+  to   { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+
 /* storage that appears on the machine once the build is finished */
 .store-part {
   cursor: pointer;
@@ -1032,8 +1045,13 @@ p.screen-intro {
       </div>
 
       <div class="shelf">
-        <div class="shelf-title" id="a2-tray-label">🔧 Parts you removed — put them back</div>
-        <div class="tray-row" id="a2-tray"></div>
+        <div class="shelf-title">🔧 Parts you removed — put them back</div>
+        <div class="tray-row" id="a2-refit-tray"></div>
+      </div>
+
+      <div class="shelf" id="a2-new-box" style="display:none">
+        <div class="shelf-title">📦 New parts to fit</div>
+        <div class="tray-row" id="a2-new-tray"></div>
       </div>
       <div class="q-fb" id="a2-fit-fb"></div>
 
@@ -1627,43 +1645,43 @@ function mbArt(st, anim) {
     <circle cx="717" cy="146" r="5" fill="#3aaa5a"/><circle cx="717" cy="164" r="5" fill="#d94040"/>
     <g fill="#9aa2ad"><circle cx="390" cy="72" r="4"/><circle cx="720" cy="72" r="4"/><circle cx="390" cy="320" r="4"/><circle cx="720" cy="320" r="4"/></g>
     <!-- PCIe slots -->
-    <rect x="520" y="216" width="180" height="15" rx="2" fill="#3f2f6b"/><rect x="524" y="219" width="172" height="9" rx="1.5" fill="#2a1f4a"/>
-    <rect x="570" y="260" width="130" height="13" rx="2" fill="#3f2f6b"/><rect x="574" y="263" width="122" height="7" rx="1.5" fill="#2a1f4a"/>
+    <rect x="520" y="222" width="180" height="15" rx="2" fill="#3f2f6b"/><rect x="524" y="225" width="172" height="9" rx="1.5" fill="#2a1f4a"/>
+    <rect x="570" y="294" width="130" height="13" rx="2" fill="#3f2f6b"/><rect x="574" y="297" width="122" height="7" rx="1.5" fill="#2a1f4a"/>
     <!-- sockets, revealed until their part goes back in -->
-    ${has('cpu') ? '' : emptySlotArt('cpu', 418, 88, 100, 100, 'CPU SOCKET')}
-    ${has('ram') ? '' : emptySlotArt('ram', 596, 78, 78, 112, 'RAM SLOTS')}
-    ${has('rom') ? '' : emptySlotArt('rom', 538, 238, 60, 40, 'ROM')}
+    ${has('cpu') ? '' : emptySlotArt('cpu', 418, 78, 100, 100, 'CPU SOCKET')}
+    ${has('ram') ? '' : emptySlotArt('ram', 596, 70, 78, 112, 'RAM SLOTS')}
+    ${has('rom') ? '' : emptySlotArt('rom', 394, 268, 62, 42, 'ROM')}
   </g>`;
 }
 
 function cpuArtA2(anim) {
   return `<g class="${fitCls(anim, 'cpu')}" data-fit="cpu">
-    <rect x="418" y="88" width="100" height="100" rx="5" fill="url(#alumG)"/>
-    <g stroke="#8b929b" stroke-width="1.4">${(() => { let s=''; for (let i=0;i<11;i++){const x=424+i*8.8; s+=`<path d="M${x.toFixed(1)} 92 v92"/>`;} return s; })()}</g>
-    <circle cx="468" cy="138" r="34" fill="#20242a" opacity=".92"/>
-    <g fill="#4d545e">${(() => { let s=''; for (let i=0;i<7;i++){const a=i*(360/7);const x1=(468+30*Math.cos((a-21)*Math.PI/180)).toFixed(1),y1=(138+30*Math.sin((a-21)*Math.PI/180)).toFixed(1);const x2=(468+30*Math.cos((a+21)*Math.PI/180)).toFixed(1),y2=(138+30*Math.sin((a+21)*Math.PI/180)).toFixed(1); s+=`<path d="M468 138 L${x1} ${y1} A30 30 0 0 1 ${x2} ${y2} Z"/>`;} return s; })()}</g>
-    <circle cx="468" cy="138" r="12" fill="#8f97a2"/><circle cx="468" cy="138" r="5" fill="#5b626d"/>
-    <text x="468" y="142" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#2b3037" text-anchor="middle">CPU</text>
+    <rect x="418" y="78" width="100" height="100" rx="5" fill="url(#alumG)"/>
+    <g stroke="#8b929b" stroke-width="1.4">${(() => { let s=''; for (let i=0;i<11;i++){const x=424+i*8.8; s+=`<path d="M${x.toFixed(1)} 82 v92"/>`;} return s; })()}</g>
+    <circle cx="468" cy="128" r="34" fill="#20242a" opacity=".92"/>
+    <g fill="#4d545e">${(() => { let s=''; for (let i=0;i<7;i++){const a=i*(360/7);const x1=(468+30*Math.cos((a-21)*Math.PI/180)).toFixed(1),y1=(128+30*Math.sin((a-21)*Math.PI/180)).toFixed(1);const x2=(468+30*Math.cos((a+21)*Math.PI/180)).toFixed(1),y2=(128+30*Math.sin((a+21)*Math.PI/180)).toFixed(1); s+=`<path d="M468 128 L${x1} ${y1} A30 30 0 0 1 ${x2} ${y2} Z"/>`;} return s; })()}</g>
+    <circle cx="468" cy="128" r="12" fill="#8f97a2"/><circle cx="468" cy="128" r="5" fill="#5b626d"/>
+    <text x="468" y="132" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#2b3037" text-anchor="middle">CPU</text>
   </g>`;
 }
 
 function ramArtA2(anim) {
   let s = '';
   [600, 638].forEach(x => {
-    s += `<rect x="${x}" y="78" width="30" height="112" rx="3" fill="#177038"/>` +
-         `<rect x="${x + 3}" y="84" width="24" height="84" rx="2" fill="#2f3a44"/>` +
-         `${vents(x + 6, 88, 1, 5, 16, 18, 11, '#1c242c')}` +
-         `<rect x="${x}" y="178" width="30" height="12" fill="#c8a83a"/>`;
+    s += `<rect x="${x}" y="70" width="30" height="112" rx="3" fill="#177038"/>` +
+         `<rect x="${x + 3}" y="76" width="24" height="84" rx="2" fill="#2f3a44"/>` +
+         `${vents(x + 6, 80, 1, 5, 16, 18, 11, '#1c242c')}` +
+         `<rect x="${x}" y="170" width="30" height="12" fill="#c8a83a"/>`;
   });
   return `<g class="${fitCls(anim, 'ram')}" data-fit="ram">${s}</g>`;
 }
 
 function romArtA2(anim) {
   return `<g class="${fitCls(anim, 'rom')}" data-fit="rom">
-    <rect x="538" y="238" width="60" height="40" rx="3" fill="#1d2126"/>
-    <g stroke="#9aa2ad" stroke-width="2">${(() => { let s=''; for (let i=0;i<6;i++){const y=245+i*6; s+=`<path d="M538 ${y} h-7"/><path d="M598 ${y} h7"/>`;} return s; })()}</g>
-    <circle cx="546" cy="246" r="2.6" fill="#454c56"/>
-    <text x="568" y="263" font-family="Courier New, monospace" font-size="11" font-weight="700" fill="#c3c9d1" text-anchor="middle">ROM</text>
+    <rect x="394" y="268" width="62" height="42" rx="3" fill="#1d2126"/>
+    <g stroke="#9aa2ad" stroke-width="2">${(() => { let s=''; for (let i=0;i<6;i++){const y=276+i*6; s+=`<path d="M394 ${y} h-7"/><path d="M456 ${y} h7"/>`;} return s; })()}</g>
+    <circle cx="402" cy="276" r="2.6" fill="#454c56"/>
+    <text x="425" y="294" font-family="Courier New, monospace" font-size="11" font-weight="700" fill="#c3c9d1" text-anchor="middle">ROM</text>
   </g>`;
 }
 
@@ -1707,7 +1725,7 @@ function driveArt(kind, sizeLabel, anim) {
 function gpuArt(anim) {
   let fans = '';
   [0.32, 0.68].forEach((fx, i) => {
-    const cx = 470 + 234 * fx, cy = 224, r = 20;
+    const cx = 470 + 234 * fx, cy = 230, r = 20;
     fans += `<circle cx="${cx.toFixed(1)}" cy="${cy}" r="${r}" fill="#12181f"/>`;
     for (let b = 0; b < 6; b++) {
       const a = b * 60 + i * 25;
@@ -1718,110 +1736,174 @@ function gpuArt(anim) {
     fans += `<circle cx="${cx.toFixed(1)}" cy="${cy}" r="6" fill="#6d7a8a"/>`;
   });
   return `<g class="${fitCls(anim, 'gpu')}" data-fit="gpu">
-    <rect x="470" y="194" width="234" height="60" rx="4" fill="#1d2530"/>
-    <rect x="476" y="200" width="222" height="48" rx="3" fill="#2b3540"/>
-    <rect x="476" y="200" width="222" height="6" rx="3" fill="#7fd4ff" opacity=".7"/>
+    <rect x="470" y="200" width="234" height="60" rx="4" fill="#1d2530"/>
+    <rect x="476" y="206" width="222" height="48" rx="3" fill="#2b3540"/>
+    <rect x="476" y="206" width="222" height="6" rx="3" fill="#7fd4ff" opacity=".7"/>
     ${fans}
-    <rect x="530" y="254" width="160" height="10" fill="#c8a83a"/>
+    <rect x="530" y="260" width="160" height="10" fill="#c8a83a"/>
     <!-- rear bracket + display ports -->
-    <rect x="700" y="186" width="20" height="80" rx="2" fill="#b8bec6" stroke="#8a9099" stroke-width="1.4"/>
-    <rect x="704" y="196" width="12" height="16" rx="2" fill="#1b1f24"/>
-    <rect x="704" y="218" width="12" height="16" rx="2" fill="#1b1f24"/>
-    <rect x="704" y="240" width="12" height="16" rx="2" fill="#1b1f24"/>
-    <text x="788" y="212" class="socket-label" font-size="9">DISPLAY</text>
-    <text x="788" y="224" class="socket-label" font-size="9">PORTS</text>
+    <rect x="700" y="194" width="20" height="76" rx="2" fill="#b8bec6" stroke="#8a9099" stroke-width="1.4"/>
+    <rect x="704" y="202" width="12" height="16" rx="2" fill="#1b1f24"/>
+    <rect x="704" y="224" width="12" height="16" rx="2" fill="#1b1f24"/>
+    <rect x="704" y="246" width="12" height="16" rx="2" fill="#1b1f24"/>
+    <text x="788" y="222" class="socket-label" font-size="9">DISPLAY</text>
+    <text x="788" y="234" class="socket-label" font-size="9">PORTS</text>
   </g>`;
 }
 
 function soundArt(anim) {
   return `<g class="${fitCls(anim, 'sound')}" data-fit="sound">
-    <rect x="536" y="238" width="168" height="46" rx="4" fill="#0f1a14" opacity=".5"/>
-    <rect x="540" y="242" width="160" height="38" rx="3" fill="#12653a" stroke="#0a3d22" stroke-width="1.6"/>
-    <g stroke="#d3b455" stroke-width="1.1" fill="none" opacity=".6"><path d="M550 252h30v12h26"/><path d="M550 268h44"/></g>
-    <rect x="556" y="248" width="26" height="16" rx="2" fill="#20262c"/>
-    <circle cx="600" cy="258" r="7" fill="#20262c"/>
-    <rect x="570" y="280" width="110" height="9" fill="#c8a83a"/>
+    <rect x="536" y="272" width="168" height="46" rx="4" fill="#0f1a14" opacity=".5"/>
+    <rect x="540" y="276" width="160" height="38" rx="3" fill="#12653a" stroke="#0a3d22" stroke-width="1.6"/>
+    <g stroke="#d3b455" stroke-width="1.1" fill="none" opacity=".6"><path d="M550 286h30v12h26"/><path d="M550 302h44"/></g>
+    <rect x="556" y="282" width="26" height="16" rx="2" fill="#20262c"/>
+    <circle cx="600" cy="292" r="7" fill="#20262c"/>
+    <rect x="570" y="314" width="110" height="9" fill="#c8a83a"/>
     <!-- rear bracket + audio jacks -->
-    <rect x="700" y="232" width="20" height="62" rx="2" fill="#b8bec6" stroke="#8a9099" stroke-width="1.4"/>
-    <circle cx="710" cy="246" r="5.5" fill="#3aaa5a" stroke="#12161a" stroke-width="1.2"/>
-    <circle cx="710" cy="262" r="5.5" fill="#d94040" stroke="#12161a" stroke-width="1.2"/>
-    <circle cx="710" cy="278" r="5.5" fill="#3a7fd4" stroke="#12161a" stroke-width="1.2"/>
-    <text x="788" y="266" class="socket-label" font-size="9">AUDIO</text>
-    <text x="788" y="278" class="socket-label" font-size="9">JACKS</text>
+    <rect x="700" y="276" width="20" height="62" rx="2" fill="#b8bec6" stroke="#8a9099" stroke-width="1.4"/>
+    <circle cx="710" cy="290" r="5.5" fill="#3aaa5a" stroke="#12161a" stroke-width="1.2"/>
+    <circle cx="710" cy="306" r="5.5" fill="#d94040" stroke="#12161a" stroke-width="1.2"/>
+    <circle cx="710" cy="322" r="5.5" fill="#3a7fd4" stroke="#12161a" stroke-width="1.2"/>
+    <text x="788" y="302" class="socket-label" font-size="9">AUDIO</text>
+    <text x="788" y="314" class="socket-label" font-size="9">JACKS</text>
   </g>`;
 }
 
-/* ── the other places files can live ── */
-function storageExtras(seen) {
-  const tick = (x, y, id) => seen.includes(id)
-    ? `<circle cx="${x}" cy="${y}" r="13" fill="#3bba5a" stroke="#fff" stroke-width="2.5"/>` +
-      `<text x="${x}" y="${y + 5}" font-size="14" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>`
-    : '';
-  return `
-  <!-- slot-loading optical drive in the top bay -->
+/* ══ The machine turned round, in isometric ═══════════
+   Storage you plug in lives on the FRONT of a computer, not
+   inside it — so for the last step the case rotates to show its
+   front panel and the devices go in where they really would.
+   2:1 isometric: the front face runs right-and-down, depth runs
+   right-and-up, height is straight down the screen. */
+const ISO = { fx: 312, fy: 104, fw: 200, fh: 214, sw: 122, t: 0.5 };
+
+/* a point on the front face, u across (0-1), v down (0-1) */
+function fpt(u, v) {
+  return [ISO.fx + u * ISO.fw, ISO.fy + u * ISO.fw * ISO.t + v * ISO.fh];
+}
+/* a rectangle lying on the front face, as a polygon */
+function fquad(u0, v0, u1, v1) {
+  const p = [fpt(u0, v0), fpt(u1, v0), fpt(u1, v1), fpt(u0, v1)];
+  return p.map(q => `${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' ');
+}
+/* straight out of the front face, toward the viewer */
+function fout(p, d) { return [p[0] - d * 0.894, p[1] + d * 0.447]; }
+
+function sceneIso(seen) {
+  const P1 = fpt(0, 0), P2 = fpt(1, 0), P3 = fpt(1, 1), P4 = fpt(0, 1);
+  const P5 = [P2[0] + ISO.sw, P2[1] - ISO.sw * ISO.t];
+  const P6 = [P3[0] + ISO.sw, P3[1] - ISO.sw * ISO.t];
+  const P7 = [P1[0] + ISO.sw, P1[1] - ISO.sw * ISO.t];
+  const q = pts => pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+
+  // Labels sit in a column clear of the machine, with a leader line to
+  // the device — putting them next to the devices made them collide.
+  const lead = (y, text, ax, ay) =>
+    `<line x1="212" y1="${y}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#a8a8a0" stroke-width="1.4" stroke-dasharray="3 3"/>` +
+    `<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="3.4" fill="#a8a8a0"/>` +
+    `<text x="204" y="${y + 4}" class="socket-label" font-size="12" text-anchor="end">${text}</text>`;
+
+  const tick = (u, v, id, off) => {
+    if (!seen.includes(id)) return '';
+    const p = fout(fpt(u, v), off || 0);
+    return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="14" fill="#3bba5a" stroke="#fff" stroke-width="3"/>` +
+           `<text x="${p[0].toFixed(1)}" y="${(p[1] + 5).toFixed(1)}" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>`;
+  };
+
+  // side vents
+  let vent = '';
+  for (let i = 0; i < 9; i++) {
+    const a = [P2[0] + 18 + i * 11, P2[1] - 9 - i * 5.5];
+    vent += `<polygon points="${q([a, [a[0] + 7, a[1] + 3.5], [a[0] + 7, a[1] + 3.5 + 150], [a[0], a[1] + 150]])}" fill="#000" opacity=".22"/>`;
+  }
+
+  return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="470" fill="url(#wallG)"/>
+  <ellipse cx="${(P4[0] + 150).toFixed(1)}" cy="${(P3[1] + 16).toFixed(1)}" rx="210" ry="26" fill="#000" opacity=".13"/>
+
+  <!-- the tower -->
+  <polygon points="${q([P1, P2, P5, P7])}" fill="#5b626d"/>
+  <polygon points="${q([P2, P5, P6, P3])}" fill="#333940"/>
+  ${vent}
+  <polygon points="${q([P1, P2, P3, P4])}" fill="#464d57"/>
+  <polygon points="${q([P1, P2, P3, P4])}" fill="url(#glassG)" opacity=".18"/>
+  <polyline points="${q([P7, P1, P4])}" fill="none" stroke="#2b3037" stroke-width="2"/>
+  <polyline points="${q([P4, P3, P6])}" fill="none" stroke="#2b3037" stroke-width="2"/>
+
+  <!-- power button + badge -->
+  <ellipse cx="${fpt(0.82, 0.87)[0].toFixed(1)}" cy="${fpt(0.82, 0.87)[1].toFixed(1)}" rx="11" ry="6" fill="#2a2f36" stroke="#1a1e23" stroke-width="1.4"/>
+  <ellipse cx="${fpt(0.82, 0.87)[0].toFixed(1)}" cy="${fpt(0.82, 0.87)[1].toFixed(1)}" rx="5" ry="2.8" fill="url(#ledG)"/>
+
+  <!-- ══ CD / DVD: slot-loading, disc going in ══ -->
   <g class="store-part" data-store="disc" style="animation-delay:.05s">
-    <rect x="146" y="52" width="172" height="44" rx="4" fill="#2b3037" stroke="#15181c" stroke-width="1.6"/>
-    <rect x="154" y="60" width="150" height="6" rx="3" fill="#0d1013"/>
-    <circle cx="298" cy="86" r="4" fill="#3aaa5a"/>
-    <circle cx="164" cy="86" r="3.4" fill="#5c646f"/>
-    <!-- a disc part-way out of the slot -->
-    <g>
-      <path d="M162 63 a26 26 0 0 0 52 0z" fill="#c8ced6" stroke="#9aa2ad" stroke-width="1"/>
-      <path d="M162 63 a26 26 0 0 0 52 0z" fill="url(#ic-dg)" opacity=".8"/>
-      <path d="M180 63 a8 8 0 0 0 16 0z" fill="#eceff3"/>
+    <polygon points="${fquad(0.08, 0.05, 0.92, 0.115)}" fill="#2b3037" stroke="#181c21" stroke-width="1.6"/>
+    <polygon points="${fquad(0.12, 0.072, 0.86, 0.088)}" fill="#0d1013"/>
+    <ellipse cx="${fpt(0.9, 0.098)[0].toFixed(1)}" cy="${fpt(0.9, 0.098)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
+    <!-- the disc, half fed into the slot -->
+    <g transform="rotate(26.57 ${fpt(0.34, 0.08)[0].toFixed(1)} ${fpt(0.34, 0.08)[1].toFixed(1)})">
+      <ellipse cx="${fpt(0.34, 0.08)[0].toFixed(1)}" cy="${fpt(0.34, 0.08)[1].toFixed(1)}" rx="52" ry="15" fill="#c8ced6" stroke="#9aa2ad" stroke-width="1.2"/>
+      <ellipse cx="${fpt(0.34, 0.08)[0].toFixed(1)}" cy="${fpt(0.34, 0.08)[1].toFixed(1)}" rx="52" ry="15" fill="url(#ic-dg)" opacity=".8"/>
+      <ellipse cx="${fpt(0.34, 0.08)[0].toFixed(1)}" cy="${fpt(0.34, 0.08)[1].toFixed(1)}" rx="15" ry="5" fill="#eef1f4"/>
     </g>
-    <text x="262" y="80" class="socket-label" font-size="10" text-anchor="middle">CD / DVD</text>
-    ${tick(306, 50, 'disc')}
+    ${lead(fpt(0.08, 0.085)[1], 'CD / DVD', fpt(0.08, 0.085)[0], fpt(0.08, 0.085)[1])}
+    ${tick(0.95, 0.06, 'disc', 0)}
   </g>
 
-  <!-- microSD in a card reader -->
+  <!-- ══ memory card going into the reader ══ -->
   <g class="store-part" data-store="sd" style="animation-delay:.18s">
-    <rect x="146" y="200" width="136" height="46" rx="4" fill="url(#alumG)" stroke="#7a828c" stroke-width="1.6"/>
-    <rect x="154" y="210" width="52" height="10" rx="2" fill="#141a1f"/>
-    <rect x="154" y="226" width="30" height="6" rx="2" fill="#141a1f" opacity=".7"/>
-    <circle cx="270" cy="208" r="3.4" fill="#3aaa5a"/>
-    <text x="246" y="236" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#5c646f" text-anchor="middle">READER</text>
-    <g>
-      <path d="M192 208h34a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3h-34z" fill="#2f6fa8" stroke="#1d4870" stroke-width="1.2"/>
-      <g fill="#dfe6ee">${(() => { let s=''; for (let i=0;i<5;i++) s+=`<rect x="${196+i*6}" y="210" width="3" height="7" rx="1"/>`; return s; })()}</g>
-      <path d="M226 208 l4 4 v14 h-4z" fill="#255c8c"/>
-    </g>
-    <text x="214" y="262" class="socket-label" font-size="10" text-anchor="middle">MEMORY CARD</text>
-    ${tick(272, 200, 'sd')}
+    <polygon points="${fquad(0.08, 0.28, 0.62, 0.35)}" fill="#8f97a2" stroke="#5c646f" stroke-width="1.4"/>
+    <polygon points="${fquad(0.13, 0.305, 0.45, 0.325)}" fill="#12161a"/>
+    <ellipse cx="${fpt(0.56, 0.318)[0].toFixed(1)}" cy="${fpt(0.56, 0.318)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
+    <!-- the card, part-way in -->
+    ${(() => {
+      const a = fpt(0.19, 0.315), o1 = fout(a, 60), w = 15;
+      const pts = [[a[0], a[1] - w], [o1[0], o1[1] - w], [o1[0], o1[1] + w * 0.5], [a[0], a[1] + w * 0.5]];
+      return `<polygon points="${q(pts)}" fill="#2f6fa8" stroke="#1d4870" stroke-width="1.4"/>` +
+             `<polygon points="${q([[a[0], a[1] - w], [o1[0], o1[1] - w], [o1[0] + 6, o1[1] - w - 3], [a[0] + 6, a[1] - w - 3]])}" fill="#4a8cc4"/>` +
+             `<g fill="#dfe6ee">${[0,1,2,3].map(i => `<rect x="${(o1[0] + 8 + i * 7).toFixed(1)}" y="${(o1[1] - w + 4).toFixed(1)}" width="4" height="9" rx="1"/>`).join('')}</g>`;
+    })()}
+    ${(() => { const p = fout(fpt(0.19, 0.315), 64); return lead(p[1], 'MEMORY CARD', p[0], p[1]); })()}
+    ${tick(0.68, 0.3, 'sd', 0)}
   </g>
 
-  <!-- USB port with a thumb drive plugged in -->
+  <!-- ══ USB stick going into a front port ══ -->
   <g class="store-part" data-store="usb" style="animation-delay:.31s">
-    <rect x="146" y="276" width="58" height="50" rx="4" fill="#22272d" stroke="#12161a" stroke-width="1.6"/>
-    <rect x="153" y="284" width="44" height="13" rx="2" fill="#2f5f96"/><rect x="157" y="288" width="36" height="5" fill="#0f1216"/>
-    <rect x="153" y="305" width="44" height="13" rx="2" fill="#2f5f96"/><rect x="157" y="309" width="36" height="5" fill="#0f1216"/>
-    <g>
-      <rect x="194" y="282" width="26" height="17" rx="1.5" fill="#b0b8c2" stroke="#828a94" stroke-width="1.2"/>
-      <rect x="199" y="287" width="16" height="5" fill="#7f8892"/>
-      <rect x="218" y="276" width="70" height="29" rx="6" fill="#3a6ea8" stroke="#28527d" stroke-width="1.4"/>
-      <rect x="226" y="283" width="34" height="8" rx="2" fill="#5f97cc" opacity=".85"/>
-      <circle cx="278" cy="290" r="3.6" fill="#dfe6ee" opacity=".8"/>
-    </g>
-    <text x="218" y="342" class="socket-label" font-size="10" text-anchor="middle">USB PORT</text>
-    ${tick(292, 272, 'usb')}
+    <polygon points="${fquad(0.08, 0.5, 0.44, 0.62)}" fill="#22272d" stroke="#12161a" stroke-width="1.4"/>
+    <polygon points="${fquad(0.12, 0.525, 0.39, 0.545)}" fill="#2f5f96"/>
+    <polygon points="${fquad(0.12, 0.575, 0.39, 0.595)}" fill="#2f5f96"/>
+    <!-- the stick, half plugged in -->
+    ${(() => {
+      const a = fpt(0.2, 0.535), m = fout(a, 26), o = fout(a, 96), w = 17;
+      const shroud = [[a[0], a[1] - w], [m[0], m[1] - w], [m[0], m[1] + w * 0.55], [a[0], a[1] + w * 0.55]];
+      const body   = [[m[0], m[1] - w - 4], [o[0], o[1] - w - 4], [o[0], o[1] + w * 0.8], [m[0], m[1] + w * 0.8]];
+      const top    = [[m[0], m[1] - w - 4], [o[0], o[1] - w - 4], [o[0] + 8, o[1] - w - 9], [m[0] + 8, m[1] - w - 9]];
+      return `<polygon points="${q(shroud)}" fill="#b0b8c2" stroke="#828a94" stroke-width="1.2"/>` +
+             `<polygon points="${q(body)}" fill="#3a6ea8" stroke="#28527d" stroke-width="1.4"/>` +
+             `<polygon points="${q(top)}" fill="#5286c4"/>` +
+             `<ellipse cx="${(o[0] + 16).toFixed(1)}" cy="${(o[1] - 4).toFixed(1)}" rx="4" ry="3" fill="#dfe6ee" opacity=".85"/>`;
+    })()}
+    ${(() => { const p = fout(fpt(0.2, 0.535), 100); return lead(p[1], 'USB STICK', p[0], p[1]); })()}
+    ${tick(0.52, 0.53, 'usb', 0)}
   </g>
 
-  <!-- network port, cable, and the cloud beyond it -->
+  <!-- ══ network lead round the back, up to the cloud ══ -->
   <g class="store-part" data-store="cloud" style="animation-delay:.44s">
-    <rect x="704" y="150" width="26" height="26" rx="2" fill="#141a1f" stroke="#39404a" stroke-width="1.2"/>
-    <path d="M710 156h14v9l-4 4h-6l-4-4z" fill="#c8a83a"/>
-    <path d="M730 163 C 766 162, 776 134, 794 96" stroke="#3f4a56" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M730 163 C 766 162, 776 134, 794 96" stroke="#5c6b7a" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 8">
+    <path d="M${(P5[0] - 6).toFixed(1)} ${(P5[1] + 74).toFixed(1)} C 660 190, 690 150, 726 118" stroke="#3f4a56" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M${(P5[0] - 6).toFixed(1)} ${(P5[1] + 74).toFixed(1)} C 660 190, 690 150, 726 118" stroke="#5c6b7a" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 8">
       <animate attributeName="stroke-dashoffset" values="28;0" dur="1.6s" repeatCount="indefinite"/>
     </path>
     <g>
-      <path d="M790 74a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 853 74z" fill="#7ab8e0" stroke="#4d8db8" stroke-width="1.6"/>
-      <path d="M790 74a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 853 74z" fill="url(#ic-cg)" opacity=".5"/>
-      <path d="M822 48v22m0 0l-8-8m8 8l8-8" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M722 106a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 787 106z" fill="#7ab8e0" stroke="#4d8db8" stroke-width="1.6"/>
+      <path d="M722 106a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 787 106z" fill="url(#ic-cg)" opacity=".5"/>
+      <path d="M755 78v24m0 0l-9-9m9 9l9-9" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
-    <text x="822" y="96" class="socket-label" font-size="10" text-anchor="middle">THE CLOUD</text>
-    ${tick(856, 32, 'cloud')}
-  </g>`;
+    <text x="755" y="130" class="socket-label" font-size="11" text-anchor="middle">THE CLOUD</text>
+    ${seen.includes('cloud') ? `<circle cx="795" cy="62" r="14" fill="#3bba5a" stroke="#fff" stroke-width="3"/><text x="795" y="67" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>` : ''}
+  </g>
+
+  <!-- reminder that the drive they fitted is still in there -->
+  <text x="${(P4[0] + 108).toFixed(1)}" y="458" font-family="Arial" font-size="12.5" fill="#8a8a82" text-anchor="middle">…and the hard drive you fitted is still inside the case</text>
+</svg>`;
 }
 
 function sceneRebuild(st, anim, showStorage, seen) {
@@ -1857,8 +1939,8 @@ function sceneRebuild(st, anim, showStorage, seen) {
   ${has('fan') ? fanArtA2(anim) : emptySlotArt('fan', 622, 338, 94, 90, 'FAN MOUNT')}
 
   <!-- expansion cards -->
-  ${boardIn ? (st.gpu   ? gpuArt(anim)   : emptySlotArt('gpu',   470, 194, 234, 60, 'GRAPHICS CARD SLOT')) : ''}
-  ${boardIn ? (st.sound ? soundArt(anim) : emptySlotArt('sound', 536, 238, 168, 46, 'SOUND CARD SLOT')) : ''}
+  ${boardIn ? (st.gpu   ? gpuArt(anim)   : emptySlotArt('gpu',   470, 200, 234, 60, 'GRAPHICS CARD SLOT')) : ''}
+  ${boardIn ? (st.sound ? soundArt(anim) : emptySlotArt('sound', 536, 272, 168, 46, 'SOUND CARD SLOT')) : ''}
 
   ${showStorage ? storageExtras(seen || []) : ''}
 </svg>`;
@@ -3050,7 +3132,8 @@ function finishA1() {
 function openA2() {
   P.a2.cards = P.a2.cards || [];
   P.a2.refit = P.a2.refit || [];
-  renderA2Scene();
+  a2View = a2Built() ? 'iso' : 'inside';
+  renderA2Scene({ noFlip: true });
   renderA2Quiz();
   updateA2Btn();
   showScreen('screen-a2');
@@ -3073,15 +3156,49 @@ function a2Refitted() { return (P.a2.refit || []).length >= REFIT_ORDER.length; 
    every time anything changed, which looked wrong. */
 let a2Anim = null;
 
-function renderA2Scene() {
+let a2View = 'inside';   // 'inside' = flat cutaway, 'iso' = turned to show the front
+
+function a2Built() {
   const inst = a2Installed();
-  const refitted = a2Refitted();
-  const built = refitted && !!inst.drive && inst.gpu && inst.sound;
+  return a2Refitted() && !!inst.drive && inst.gpu && inst.sound;
+}
+
+function renderA2Scene(opts) {
+  const built = a2Built();
+
+  // Reaching the storage step turns the machine round to show its front.
+  if (built && a2View !== 'iso') {
+    a2View = 'iso';
+    if (!(opts && opts.noFlip)) { flipToIso(); return; }
+  }
+  if (!built) a2View = 'inside';
+
+  paintA2Scene();
+}
+
+function flipToIso() {
+  const el = document.getElementById('a2-scene');
+  el.classList.add('flip-out');
+  document.getElementById('a2-tip').textContent = '🔄 Turning the computer round…';
+  setTimeout(() => {
+    paintA2Scene();
+    el.classList.remove('flip-out');
+    el.classList.add('flip-in');
+    setTimeout(() => el.classList.remove('flip-in'), 540);
+  }, 440);
+}
+
+function paintA2Scene() {
+  const inst = a2Installed();
+  const built = a2Built();
   const sceneEl = document.getElementById('a2-scene');
-  sceneEl.innerHTML = sceneRebuild(inst, a2Anim, built, P.a2.seen);
+
+  sceneEl.innerHTML = (a2View === 'iso')
+    ? sceneIso(P.a2.seen)
+    : sceneRebuild(inst, a2Anim, false, P.a2.seen);
   a2Anim = null;
 
-  // anything fitted can be clicked again for its explanation
+  // fitted parts stay clickable for their explanation
   sceneEl.querySelectorAll('.fit-part').forEach(g => {
     g.addEventListener('click', () => {
       const id = g.dataset.fit;
@@ -3091,11 +3208,11 @@ function renderA2Scene() {
     });
   });
 
-  // the other places files can live
+  // the plug-in storage on the front panel
   sceneEl.querySelectorAll('.store-part').forEach(g => {
     g.addEventListener('click', () => {
       const id = g.dataset.store;
-      if (!P.a2.seen.includes(id)) { P.a2.seen.push(id); save(); renderA2Scene(); }
+      if (!P.a2.seen.includes(id)) { P.a2.seen.push(id); save(); paintA2Scene(); }
       openModal(A2_STORAGE.find(s => s.id === id));
       updateA2Btn();
     });
@@ -3123,15 +3240,15 @@ function renderA2Scene() {
   } else if (!inst.drive) {
     title.textContent = 'Step 2 — Fit a hard drive';
     sub.textContent = 'RAM forgets everything when the power goes off. A hard drive is where your files actually live. Pick which kind to slide into the empty bay — you can swap it afterwards to compare.';
-    tip.textContent = '👆 Choose a drive from the tray below';
+    tip.textContent = '👆 Choose a drive from the new parts box below';
   } else if (!(inst.gpu && inst.sound)) {
     title.textContent = 'Step 3 — Fit the expansion cards';
     sub.textContent = 'An expansion card pushes into a slot on the motherboard. Its metal bracket reaches the back of the case, so you can plug things into its ports from outside.';
     tip.textContent = `👆 Push a card into an empty slot — ${2 - P.a2.cards.length} to go`;
   } else if (storeLeft) {
     title.textContent = 'Step 4 — Other places your files can live';
-    sub.textContent = 'The hard drive is not the only option. More storage has just appeared on your machine — click each one to find out about it.';
-    tip.textContent = `👆 Click the new storage — ${storeLeft} left`;
+    sub.textContent = 'Storage you plug in goes on the FRONT of the machine, so the computer has turned round. Click each device to find out about it.';
+    tip.textContent = `👆 Click each device being plugged in — ${storeLeft} left`;
   } else {
     title.textContent = '✓ The computer is rebuilt';
     sub.textContent = 'Everything back in, storage fitted, both cards seated, and you have seen every place a file can be kept.';
@@ -3142,46 +3259,46 @@ function renderA2Scene() {
 }
 
 function renderA2Tray() {
-  const tray = document.getElementById('a2-tray');
-  const label = document.getElementById('a2-tray-label');
-  tray.innerHTML = '';
+  const refitTray = document.getElementById('a2-refit-tray');
+  const newTray   = document.getElementById('a2-new-tray');
+  const newBox    = document.getElementById('a2-new-box');
+  refitTray.innerHTML = '';
+  newTray.innerHTML = '';
   const inst = a2Installed();
   const refitLeft = REFIT_ORDER.filter(id => !P.a2.refit.includes(id)).length;
 
-  // ── Step 1: the parts taken out in Activity 1 ──
-  if (refitLeft) {
-    label.textContent = '🔧 Parts you removed — put them back';
-    REFIT_ORDER.forEach(id => {
-      const part = A1_INSIDE.find(p => p.id === id);
-      const inPlace = P.a2.refit.includes(id);
-      const needsBoard = id !== 'motherboard' && !P.a2.refit.includes('motherboard');
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'tray-item' + (inPlace ? ' fitted-ok' : needsBoard ? ' dimmed' : '');
-      b.innerHTML = SVG[part.svg] +
-        `<span class="t-name">${inPlace ? '✓ ' : ''}${part.name}</span>` +
-        `<span class="t-note">${inPlace ? 'Back in place' : needsBoard ? 'Motherboard first' : 'Click to fit'}</span>`;
-      b.onclick = () => {
-        if (inPlace) { openModal(part); return; }
-        if (needsBoard) {
-          document.getElementById('a2-tip').textContent = '✋ The motherboard has to go in first — everything else mounts on it.';
-          openModal(part);
-          return;
-        }
-        P.a2.refit.push(id);
-        save();
-        a2Anim = id;
-        renderA2Scene();
-        setTimeout(() => openModal(part), 430);
-        updateA2Btn();
-      };
-      tray.appendChild(b);
-    });
-    return;
-  }
+  // ── the parts taken out in Activity 1 — they stay on show, ticked ──
+  REFIT_ORDER.forEach(id => {
+    const part = A1_INSIDE.find(p => p.id === id);
+    const inPlace = P.a2.refit.includes(id);
+    const needsBoard = id !== 'motherboard' && !P.a2.refit.includes('motherboard');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tray-item' + (inPlace ? ' fitted-ok' : needsBoard ? ' dimmed' : '');
+    b.innerHTML = SVG[part.svg] +
+      `<span class="t-name">${inPlace ? '✓ ' : ''}${part.name}</span>` +
+      `<span class="t-note">${inPlace ? 'Back in place' : needsBoard ? 'Motherboard first' : 'Click to fit'}</span>`;
+    b.onclick = () => {
+      if (inPlace) { openModal(part); return; }
+      if (needsBoard) {
+        document.getElementById('a2-tip').textContent = '✋ The motherboard has to go in first — everything else mounts on it.';
+        openModal(part);
+        return;
+      }
+      P.a2.refit.push(id);
+      save();
+      a2Anim = id;
+      renderA2Scene();
+      setTimeout(() => openModal(part), 430);
+      updateA2Btn();
+    };
+    refitTray.appendChild(b);
+  });
 
-  // ── Step 2: the hard drive ──
-  label.textContent = '📦 New parts waiting to be fitted';
+  // ── the new parts box only opens once everything is back in ──
+  newBox.style.display = refitLeft ? 'none' : '';
+  if (refitLeft) return;
+
   A2_DRIVES.forEach(d => {
     const chosen = P.a2.drive === d.id;
     const b = document.createElement('button');
@@ -3202,10 +3319,9 @@ function renderA2Tray() {
       setTimeout(() => openModal(driveInfo(d.id)), 430);
       updateA2Btn();
     };
-    tray.appendChild(b);
+    newTray.appendChild(b);
   });
 
-  // ── Step 3: the expansion cards ──
   A2_CARDS.forEach(c => {
     const fitted = P.a2.cards.includes(c.id);
     const locked = !inst.drive;
@@ -3229,7 +3345,7 @@ function renderA2Tray() {
       setTimeout(() => openModal(c), 430);
       updateA2Btn();
     };
-    tray.appendChild(b);
+    newTray.appendChild(b);
   });
 
   renderA2Sizes();
