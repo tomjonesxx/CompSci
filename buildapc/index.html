@@ -684,6 +684,37 @@ p.screen-intro {
 }
 .shelf-empty { font-size: 0.78rem; color: var(--muted); font-style: italic; padding: 22px 4px; }
 
+/* parts tray — components waiting to be fitted */
+.tray-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.tray-item {
+  width: 132px;
+  background: var(--white);
+  border: 2px solid var(--border-dark);
+  border-radius: 9px;
+  padding: 9px 7px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+  color: inherit;
+}
+.tray-item:hover { border-color: var(--blue); transform: translateY(-3px); box-shadow: 0 5px 16px rgba(58,143,212,0.2); }
+.tray-item svg { width: 100%; height: 46px; }
+.tray-item .t-name { display: block; font-size: 0.74rem; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+.tray-item .t-note { display: block; font-size: 0.62rem; color: var(--muted); line-height: 1.35; margin-top: 3px; }
+.tray-item.fitted-ok { border-color: var(--green); background: #fbfffc; cursor: default; }
+.tray-item.fitted-ok:hover { transform: none; box-shadow: none; }
+.tray-item.dimmed { opacity: 0.4; }
+.tray-item.picked { border-color: var(--green); background: var(--green-light); }
+
+/* a part sliding home into its slot */
+.fitted { animation: seatIn 0.55s cubic-bezier(0.3,1.35,0.6,1); transform-box: fill-box; transform-origin: center; }
+@keyframes seatIn {
+  from { transform: translateX(-130px) scale(0.94); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.shelf-pick { cursor: pointer; }
+
 /* ── MOBILE ─────────────────────────────────────────── */
 @media (max-width: 600px) {
   .scene-tip { font-size: 0.68rem; padding: 6px 12px; bottom: 6px; }
@@ -796,30 +827,44 @@ p.screen-intro {
   <!-- ═══ ACTIVITY 2 ═══ -->
   <section id="screen-a2" class="screen">
     <div class="eyebrow">Lesson 2 · Activity 2</div>
-    <h2 class="screen-title">💾 Storage &amp; expansion cards</h2>
-    <p class="screen-intro">RAM only holds what you are using right now. So where do your files live when the computer is switched off?</p>
+    <h2 class="screen-title">💾 Build it back up</h2>
+    <p class="screen-intro">The case is empty and the slots are bare. RAM only holds what you are using right now — so now fit the parts that keep your files when the power goes off, and the cards that give the computer extra powers.</p>
 
     <div class="panel">
-      <h3>Part 1 — Choose a hard drive</h3>
-      <div class="sub">There are two main types of hard drive. Read both, then choose the one you would put in your own computer.</div>
-      <div class="compare" id="a2-drives"></div>
-      <div class="q-fb" id="a2-drive-fb"></div>
+      <div class="stage-head">
+        <div>
+          <h3 id="a2-stage-title">Step 1 — Fit a hard drive</h3>
+          <div class="sub" id="a2-stage-sub" style="margin-bottom:0">Pick which kind of drive to slide into the empty bay.</div>
+        </div>
+        <div class="stage-steps">
+          <span class="stage-pip" id="a2pip-1">1 · Hard drive</span>
+          <span class="stage-pip" id="a2pip-2">2 · Expansion cards</span>
+        </div>
+      </div>
+
+      <div class="scene-wrap">
+        <div id="a2-scene"></div>
+        <div class="scene-tip" id="a2-tip"></div>
+      </div>
+
+      <div class="shelf">
+        <div class="shelf-title">📦 Parts waiting to be fitted</div>
+        <div class="tray-row" id="a2-tray"></div>
+      </div>
+      <div class="q-fb" id="a2-fit-fb"></div>
     </div>
 
     <div class="panel">
-      <h3>Part 2 — Other places to store files</h3>
-      <div class="sub">Click each one to learn about it.</div>
-      <div class="explore-grid" id="a2-storage"></div>
+      <h3>Other places to store files</h3>
+      <div class="sub">The hard drive is not the only place your files can live. Click each one on the shelf to find out about it.</div>
+      <div class="scene-wrap">
+        <div id="a2-shelf-scene"></div>
+        <div class="scene-tip" id="a2-shelf-tip"></div>
+      </div>
     </div>
 
     <div class="panel">
-      <h3>Part 3 — Expansion cards</h3>
-      <div class="sub">An expansion card is a circuit board you slot into the motherboard to give the computer extra abilities.</div>
-      <div class="explore-grid" id="a2-cards"></div>
-    </div>
-
-    <div class="panel">
-      <h3>Part 4 — True or false?</h3>
+      <h3>True or false?</h3>
       <div class="sub">Decide whether each statement is true or false.</div>
       <div id="a2-quiz"></div>
       <div class="btn-row">
@@ -832,34 +877,51 @@ p.screen-intro {
   <!-- ═══ ACTIVITY 3 ═══ -->
   <section id="screen-a3" class="screen">
     <div class="eyebrow">Lesson 3 · Activity 3</div>
-    <h2 class="screen-title">📀 Software</h2>
-    <p class="screen-intro">Hardware is the part you can touch. Software is the instructions that make it useful. Software comes in three types.</p>
+    <h2 class="screen-title">📀 Switch it on</h2>
+    <p class="screen-intro">The hardware is built — but press the power button and nothing useful happens. Hardware is the part you can touch; <b>software</b> is the instructions that make it do something. Install an operating system, then fill the desktop.</p>
 
     <div class="panel">
-      <h3>Part 1 — Sort the software</h3>
-      <div class="sub">Click a piece of software, then click the box it belongs in.</div>
+      <div class="stage-head">
+        <div>
+          <h3 id="a3-stage-title">Step 1 — Install an operating system</h3>
+          <div class="sub" id="a3-stage-sub" style="margin-bottom:0">Without an OS the computer cannot even start. Choose one to install.</div>
+        </div>
+        <div class="stage-steps">
+          <span class="stage-pip" id="a3pip-1">1 · Install OS</span>
+          <span class="stage-pip" id="a3pip-2">2 · Add apps</span>
+        </div>
+      </div>
+
+      <div class="scene-wrap">
+        <div id="a3-scene"></div>
+        <div class="scene-tip" id="a3-tip"></div>
+      </div>
+
+      <div class="shelf">
+        <div class="shelf-title">💿 Install discs — <span id="a3-install-hint">choose an operating system</span></div>
+        <div class="tray-row" id="a3-os-tray"></div>
+      </div>
+
+      <div id="a3-apps-block" style="display:none">
+        <div class="shelf">
+          <div class="shelf-title">📁 Apps to install — <span id="a3-app-count">0 of 4 chosen</span></div>
+          <div class="tray-row" id="a3-apps"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Sort the software</h3>
+      <div class="sub">Software comes in three types. Click a piece of software, then click the box it belongs in.</div>
       <div class="sort-pool" id="a3-pool"></div>
       <div class="bins" id="a3-bins"></div>
       <div class="q-fb" id="a3-sort-fb"></div>
     </div>
 
     <div class="panel">
-      <h3>Part 2 — Which utility is it?</h3>
+      <h3>Which utility is it?</h3>
       <div class="sub">Utilities work quietly in the background keeping your computer healthy.</div>
       <div id="a3-quiz"></div>
-    </div>
-
-    <div class="panel">
-      <h3>Part 3 — Choose your desktop</h3>
-      <div class="sub">Pick an operating system, then choose <b>exactly 4</b> apps for your desktop. Choose wisely!</div>
-      <div style="margin-bottom:16px">
-        <div class="q-num">Operating system</div>
-        <div class="q-opts" id="a3-os"></div>
-      </div>
-      <div>
-        <div class="q-num">Your 4 apps — <span id="a3-app-count">0 of 4 chosen</span></div>
-        <div class="sort-pool" id="a3-apps"></div>
-      </div>
       <div class="btn-row">
         <button class="btn primary" id="a3-finish" onclick="finishA3()" disabled>Finish activity</button>
         <button class="btn" onclick="goHub()">Back to menu</button>
@@ -1353,6 +1415,244 @@ function sceneInside() {
 </svg>`;
 }
 
+/* ── SCENE 3: fitting new parts into the empty case ──
+   Activity 2 is the mirror of Activity 1 — instead of stripping the PC
+   down, you build it back up by seating parts into empty slots. ── */
+function driveArt(kind) {
+  if (kind === 'magnetic') {
+    return `<g class="fitted" data-fit="drive">
+      <rect x="152" y="62" width="164" height="88" rx="4" fill="url(#alumG)" stroke="#7a828c" stroke-width="1.5"/>
+      <circle cx="220" cy="106" r="34" fill="#3a4048"/>
+      <circle cx="220" cy="106" r="34" fill="url(#glassG)" opacity=".55"/>
+      <circle cx="220" cy="106" r="10" fill="#8f97a2"/><circle cx="220" cy="106" r="4" fill="#5b626d"/>
+      <path d="M300 74 L292 84 L246 98 L252 108 L298 88 Z" fill="#c8ced6" stroke="#8f97a2" stroke-width="1.2"/>
+      <circle cx="299" cy="78" r="6" fill="#8f97a2"/>
+      <rect x="160" y="128" width="58" height="16" rx="2" fill="#eceff3" stroke="#b8bec6" stroke-width="1"/>
+      <text x="189" y="140" font-family="Courier New, monospace" font-size="9" font-weight="700" fill="#4a505a" text-anchor="middle">1 TB HDD</text>
+    </g>`;
+  }
+  return `<g class="fitted" data-fit="drive">
+    <rect x="152" y="70" width="164" height="72" rx="4" fill="#2f3a4a" stroke="#1d2530" stroke-width="1.5"/>
+    <rect x="160" y="78" width="148" height="56" rx="3" fill="url(#pcbG)"/>
+    <g fill="#20262c">
+      <rect x="168" y="86" width="40" height="18" rx="2"/><rect x="214" y="86" width="40" height="18" rx="2"/>
+      <rect x="168" y="110" width="40" height="18" rx="2"/><rect x="214" y="110" width="40" height="18" rx="2"/>
+      <rect x="262" y="86" width="34" height="42" rx="2"/>
+    </g>
+    <rect x="152" y="98" width="8" height="18" fill="#c8a83a"/>
+    <text x="279" y="112" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#9fb4c6" text-anchor="middle">SSD</text>
+  </g>`;
+}
+
+function gpuArt() {
+  return `<g class="fitted" data-fit="gpu">
+    <rect x="292" y="226" width="316" height="50" rx="4" fill="#1d2530"/>
+    <rect x="298" y="231" width="304" height="40" rx="3" fill="#2b3540"/>
+    <circle cx="356" cy="251" r="17" fill="#12181f"/>
+    <g fill="#4d5866">${(() => { let s=''; for (let i=0;i<6;i++){const a=i*60;const cx=(356+9*Math.cos(a*Math.PI/180)).toFixed(1),cy=(251+9*Math.sin(a*Math.PI/180)).toFixed(1);s+=`<ellipse cx="${cx}" cy="${cy}" rx="7" ry="3.6" transform="rotate(${a} ${cx} ${cy})"/>`;} return s; })()}</g>
+    <circle cx="356" cy="251" r="5" fill="#6d7a8a"/>
+    <circle cx="448" cy="251" r="17" fill="#12181f"/>
+    <g fill="#4d5866">${(() => { let s=''; for (let i=0;i<6;i++){const a=i*60+30;const cx=(448+9*Math.cos(a*Math.PI/180)).toFixed(1),cy=(251+9*Math.sin(a*Math.PI/180)).toFixed(1);s+=`<ellipse cx="${cx}" cy="${cy}" rx="7" ry="3.6" transform="rotate(${a} ${cx} ${cy})"/>`;} return s; })()}</g>
+    <circle cx="448" cy="251" r="5" fill="#6d7a8a"/>
+    <text x="540" y="256" font-family="Courier New, monospace" font-size="10" font-weight="700" fill="#7fd4ff">GPU</text>
+    <rect x="430" y="272" width="120" height="9" fill="#c8a83a"/>
+  </g>`;
+}
+
+function soundArt() {
+  return `<g class="fitted" data-fit="sound">
+    <rect x="348" y="292" width="264" height="42" rx="4" fill="#0f1a14" opacity=".55"/>
+    <rect x="352" y="296" width="256" height="34" rx="3" fill="#12653a" stroke="#0a3d22" stroke-width="1.6"/>
+    <g stroke="#d3b455" stroke-width="1.1" fill="none" opacity=".6"><path d="M364 306h34v12h30"/><path d="M364 320h48"/></g>
+    <rect x="372" y="302" width="26" height="16" rx="2" fill="#20262c"/>
+    <circle cx="418" cy="312" r="7" fill="#20262c"/>
+    <circle cx="450" cy="305" r="5.5" fill="#3aaa5a" stroke="#12161a" stroke-width="1.2"/>
+    <circle cx="450" cy="321" r="5.5" fill="#d94040" stroke="#12161a" stroke-width="1.2"/>
+    <text x="530" y="317" font-family="Courier New, monospace" font-size="9" font-weight="700" fill="#bfe6cd">SOUND</text>
+    <rect x="430" y="326" width="90" height="8" fill="#c8a83a"/>
+  </g>`;
+}
+
+function emptySlotArt(id, x, y, w, h, label) {
+  return `<g id="slot-${id}">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="rgba(0,0,0,.22)" stroke="#59616c" stroke-width="2" stroke-dasharray="8 5"/>
+    <text x="${x + w / 2}" y="${y + h / 2 + 4}" class="socket-label" text-anchor="middle">${label}</text>
+  </g>`;
+}
+
+function sceneRebuild(inst) {
+  return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
+  ${SCENE_DEFS}
+  <rect width="900" height="470" fill="url(#wallG)"/>
+  <rect x="126" y="34" width="646" height="404" rx="9" fill="#1b1f24"/>
+  <rect x="138" y="46" width="622" height="380" rx="6" fill="#252a31"/>
+  <rect x="138" y="46" width="622" height="380" rx="6" fill="none" stroke="#3c434c" stroke-width="1.5"/>
+
+  <!-- power supply -->
+  <rect x="150" y="336" width="150" height="84" rx="5" fill="url(#metalG)"/>
+  <circle cx="200" cy="378" r="28" fill="#15181c"/>
+  <g stroke="#4a515b" stroke-width="2" fill="none"><circle cx="200" cy="378" r="22"/><circle cx="200" cy="378" r="14"/><circle cx="200" cy="378" r="7"/></g>
+  <text x="272" y="356" class="socket-label" font-size="9" fill="#8f97a2" text-anchor="middle">PSU</text>
+  <path d="M300 358 C 344 358, 356 306, 400 298" stroke="#c8a83a" stroke-width="5" fill="none" opacity=".9"/>
+  <path d="M300 374 C 352 382, 368 344, 404 336" stroke="#8a3f3f" stroke-width="5" fill="none" opacity=".9"/>
+
+  <!-- drive bay -->
+  ${inst.drive ? driveArt(inst.drive) : emptySlotArt('drive', 152, 62, 164, 88, 'DRIVE BAY')}
+
+  <!-- motherboard, already built back up with CPU + RAM -->
+  <g>
+    <rect x="396" y="70" width="330" height="286" rx="6" fill="url(#pcbG)"/>
+    <g stroke="#d3b455" stroke-width="1.1" fill="none" opacity=".5">
+      <path d="M412 92 h52 v26 h44"/><path d="M412 118 h30 v40 h58"/><path d="M540 84 v34 h58"/><path d="M600 200 h96"/>
+    </g>
+    <rect x="430" y="106" width="106" height="106" rx="5" fill="url(#alumG)"/>
+    <g stroke="#8b929b" stroke-width="1.4">${(() => { let s=''; for (let i=0;i<12;i++){const x=436+i*8.6; s+=`<path d="M${x.toFixed(1)} 110 v98"/>`;} return s; })()}</g>
+    <circle cx="483" cy="159" r="34" fill="#20242a" opacity=".92"/>
+    <circle cx="483" cy="159" r="12" fill="#8f97a2"/><circle cx="483" cy="159" r="5" fill="#5b626d"/>
+    <text x="483" y="163" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#2b3037" text-anchor="middle">CPU</text>
+    <g>
+      <rect x="610" y="90" width="30" height="118" rx="3" fill="#177038"/><rect x="613" y="96" width="24" height="88" rx="2" fill="#2f3a44"/>
+      <rect x="646" y="90" width="30" height="118" rx="3" fill="#177038"/><rect x="649" y="96" width="24" height="88" rx="2" fill="#2f3a44"/>
+      <text x="643" y="226" class="socket-label" text-anchor="middle" font-size="9">RAM</text>
+    </g>
+    <rect x="700" y="86" width="26" height="120" rx="2" fill="#1b1f24"/>
+    <g fill="#9aa2ad"><circle cx="406" cy="80" r="4"/><circle cx="716" cy="80" r="4"/><circle cx="406" cy="346" r="4"/><circle cx="716" cy="346" r="4"/></g>
+    <!-- the two expansion slots on the board -->
+    <rect x="600" y="246" width="14" height="34" rx="2" fill="#3f2f6b"/>
+    <rect x="600" y="292" width="14" height="30" rx="2" fill="#3f2f6b"/>
+  </g>
+
+  <!-- expansion cards -->
+  ${inst.gpu   ? gpuArt()   : emptySlotArt('gpu',   292, 226, 316, 50, 'GRAPHICS CARD SLOT')}
+  ${inst.sound ? soundArt() : emptySlotArt('sound', 352, 296, 256, 34, 'SOUND CARD SLOT')}
+</svg>`;
+}
+
+/* ── SCENE 4: the storage shelf ──────────────────── */
+function sceneShelf(seen) {
+  const lit = id => seen.includes(id) ? '1' : '0';
+  return `<svg viewBox="0 0 900 330" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
+  ${SCENE_DEFS}
+  <rect width="900" height="330" fill="url(#wallG)"/>
+  <rect x="0" y="248" width="900" height="20" fill="url(#deskG)"/>
+  <rect x="0" y="248" width="900" height="5" fill="#dcb689"/>
+  <rect x="0" y="268" width="900" height="62" fill="#e6e2d8"/>
+
+  <g class="sp shelf-pick" data-part="usb" style="--oy:-24px">
+    <ellipse cx="130" cy="250" rx="52" ry="7" fill="url(#shadG)"/>
+    <rect x="86" y="196" width="34" height="26" rx="2" fill="#b0b8c2" stroke="#828a94" stroke-width="1.2"/>
+    <rect x="91" y="202" width="24" height="6" fill="#828a94"/>
+    <rect x="118" y="188" width="66" height="42" rx="6" fill="#3a6ea8"/>
+    <rect x="126" y="196" width="36" height="11" rx="2" fill="#5f97cc" opacity=".8"/>
+    <circle cx="172" cy="209" r="4" fill="#dfe6ee" opacity=".7"/>
+    <text x="132" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">USB Stick</text>
+    <circle cx="132" cy="176" r="9" fill="#3bba5a" opacity="${lit('usb')}"/>
+    <text x="132" y="181" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('usb')}">✓</text>
+  </g>
+
+  <g class="sp shelf-pick" data-part="sd" style="--oy:-24px">
+    <ellipse cx="330" cy="250" rx="44" ry="7" fill="url(#shadG)"/>
+    <path d="M304 168h46a5 5 0 0 1 5 5v66a5 5 0 0 1-5 5h-46a5 5 0 0 1-5-5v-52z" fill="#2f6fa8"/>
+    <g fill="#dfe6ee">${(() => { let s=''; for (let i=0;i<6;i++) s+=`<rect x="${309+i*7}" y="173" width="4.4" height="13" rx="1"/>`; return s; })()}</g>
+    <rect x="308" y="196" width="38" height="34" rx="2" fill="#fff" opacity=".25"/>
+    <text x="330" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">Memory Card</text>
+    <circle cx="330" cy="152" r="9" fill="#3bba5a" opacity="${lit('sd')}"/>
+    <text x="330" y="157" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('sd')}">✓</text>
+  </g>
+
+  <g class="sp shelf-pick" data-part="disc" style="--oy:-24px">
+    <ellipse cx="540" cy="250" rx="52" ry="7" fill="url(#shadG)"/>
+    <circle cx="540" cy="196" r="48" fill="#c8ced6"/>
+    <circle cx="540" cy="196" r="48" fill="url(#discG)" opacity=".75"/>
+    <circle cx="540" cy="196" r="16" fill="#eceff3"/>
+    <circle cx="540" cy="196" r="7" fill="#f7f7f3" stroke="#b0b8c2" stroke-width="1.2"/>
+    <text x="540" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">CD / DVD</text>
+    <circle cx="540" cy="136" r="9" fill="#3bba5a" opacity="${lit('disc')}"/>
+    <text x="540" y="141" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('disc')}">✓</text>
+  </g>
+
+  <g class="sp shelf-pick" data-part="cloud" style="--oy:-24px">
+    <path d="M712 224a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 775 224z" fill="#7ab8e0"/>
+    <path d="M712 224a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 775 224z" fill="url(#cloudG)" opacity=".5"/>
+    <path d="M744 198v26m0 0l-9-9m9 9l9-9" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="744" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">The Cloud</text>
+    <circle cx="744" cy="150" r="9" fill="#3bba5a" opacity="${lit('cloud')}"/>
+    <text x="744" y="155" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('cloud')}">✓</text>
+  </g>
+  <defs>
+    <linearGradient id="discG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9ad8f0"/><stop offset=".4" stop-color="#f0c8e8"/><stop offset=".7" stop-color="#d8f0a8"/><stop offset="1" stop-color="#a8c8f0"/></linearGradient>
+    <linearGradient id="cloudG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+</svg>`;
+}
+
+/* ── SCENE 5: the monitor you install software onto ──
+   Activity 3's payoff: the screen boots into the OS you pick and the
+   apps you choose actually appear on the desktop. ── */
+const OS_LOOK = {
+  Windows: { sky1:'#0b4c8c', sky2:'#1e7fd0', bar:'#0a2f52', barPos:'bottom', mark:'⊞', markC:'#7fd0ff', name:'Windows' },
+  macOS:   { sky1:'#4b2f7a', sky2:'#c0568f', bar:'#241640', barPos:'both',   mark:'', markC:'#ffd9ef', name:'macOS' },
+  Linux:   { sky1:'#2b2118', sky2:'#8a4a1e', bar:'#1b140e', barPos:'top',    mark:'🐧', markC:'#ffc46b', name:'Linux' },
+  Android: { sky1:'#12564a', sky2:'#38b48b', bar:'#0c3a32', barPos:'bottom', mark:'▲', markC:'#b9f5dd', name:'Android' },
+};
+
+const APP_ICONS = {
+  'Word Processor':    { c:'#2f6fd0', g:'W' },
+  'Spreadsheet':       { c:'#2a9648', g:'#' },
+  'Presentation':      { c:'#e07a30', g:'▮' },
+  'Email':             { c:'#4a90d9', g:'✉' },
+  'Web Browser':       { c:'#7060cc', g:'◍' },
+  'Graphics Software': { c:'#d94070', g:'✎' },
+  'Music Player':      { c:'#e0a020', g:'♪' },
+  'Video Editor':      { c:'#c05aa0', g:'▶' },
+};
+
+function sceneMonitor(os, apps) {
+  const look = os ? OS_LOOK[os] : null;
+  let screen;
+  if (!look) {
+    screen = `<rect x="196" y="76" width="508" height="286" fill="#0a0c0f"/>
+      <text x="240" y="140" font-family="Courier New, monospace" font-size="17" fill="#7de08a">Checking hardware... OK</text>
+      <text x="240" y="168" font-family="Courier New, monospace" font-size="17" fill="#7de08a">CPU, RAM, Storage found</text>
+      <text x="240" y="212" font-family="Courier New, monospace" font-size="17" fill="#ff7d7d">No operating system found.</text>
+      <text x="240" y="240" font-family="Courier New, monospace" font-size="17" fill="#c9cfd6">Install an OS to continue</text>
+      <rect x="240" y="256" width="12" height="20" fill="#c9cfd6"><animate attributeName="opacity" values="1;0;1" dur="1.1s" repeatCount="indefinite"/></rect>`;
+  } else {
+    const icons = apps.map((name, i) => {
+      const ic = APP_ICONS[name] || { c:'#888', g:'?' };
+      const col = i % 4, row = Math.floor(i / 4);
+      const x = 232 + col * 116, y = 122 + row * 104;
+      return `<g><rect x="${x}" y="${y}" width="58" height="58" rx="13" fill="${ic.c}"/>` +
+             `<text x="${x + 29}" y="${y + 39}" font-size="26" fill="#fff" text-anchor="middle" font-family="Arial">${ic.g}</text>` +
+             `<text x="${x + 29}" y="${y + 76}" font-size="12" fill="#fff" text-anchor="middle" font-family="Arial">${name.split(' ')[0]}</text></g>`;
+    }).join('');
+    const topBar = (look.barPos === 'top' || look.barPos === 'both')
+      ? `<rect x="196" y="76" width="508" height="24" fill="${look.bar}" opacity=".92"/>
+         <text x="210" y="93" font-size="13" fill="#fff" font-family="Arial">${look.mark} ${look.name}</text>` : '';
+    const botBar = (look.barPos === 'bottom' || look.barPos === 'both')
+      ? `<rect x="196" y="330" width="508" height="32" fill="${look.bar}" opacity=".92"/>
+         <text x="212" y="352" font-size="17" fill="${look.markC}" font-family="Arial">${look.mark}</text>
+         <text x="240" y="351" font-size="13" fill="#dfe6ee" font-family="Arial">${look.name}</text>` : '';
+    screen = `<rect x="196" y="76" width="508" height="286" fill="url(#osSky)"/>${topBar}${icons}${botBar}
+      <defs><linearGradient id="osSky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${look.sky1}"/><stop offset="1" stop-color="${look.sky2}"/></linearGradient></defs>`;
+  }
+
+  return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
+  ${SCENE_DEFS}
+  <rect width="900" height="470" fill="url(#wallG)"/>
+  <rect x="0" y="404" width="900" height="66" fill="url(#deskG)"/>
+  <rect x="0" y="404" width="900" height="6" fill="#dcb689"/>
+  <ellipse cx="450" cy="404" rx="150" ry="11" fill="url(#shadG)"/>
+  <rect x="182" y="62" width="536" height="314" rx="10" fill="url(#bezelG)"/>
+  ${screen}
+  <rect x="196" y="76" width="508" height="286" fill="url(#glassG)" opacity=".5"/>
+  <rect x="182" y="358" width="536" height="18" rx="4" fill="#2c3036"/>
+  <circle cx="450" cy="367" r="3.4" fill="#6a7280"/>
+  <rect x="426" y="376" width="48" height="26" fill="#33383f"/>
+  <ellipse cx="450" cy="400" rx="86" ry="12" fill="#41474f"/>
+</svg>`;
+}
+
 /* ════════════════════════════════════════════════════
    CONTENT DATA
 ════════════════════════════════════════════════════ */
@@ -1586,7 +1886,7 @@ const STORE_KEY = 'buildapc-progress-v1';
 let P = {
   name: '',
   a1: { seen: [], answers: {}, done: false, score: 0, max: A1_QUIZ.length },
-  a2: { drive: null, seen: [], answers: {}, done: false, score: 0, max: A2_QUIZ.length },
+  a2: { drive: null, cards: [], seen: [], answers: {}, done: false, score: 0, max: A2_QUIZ.length },
   a3: { sorted: {}, answers: {}, os: null, apps: [], done: false, score: 0, max: A3_SOFTWARE.length + A3_QUIZ.length },
   a4: { best: {} },   // best[clientId] = score
 };
@@ -1643,8 +1943,8 @@ function resetAll() {
 ════════════════════════════════════════════════════ */
 const ACTIVITIES = [
   { id:'a1', lesson:'Lesson 1', icon:'🔍', title:'Take the computer apart', desc:'Find out what every part of a computer does, and tell input from output.', open:() => openA1() },
-  { id:'a2', lesson:'Lesson 2', icon:'💾', title:'Storage & expansion cards', desc:'Hard drives, memory cards, the cloud, and cards that upgrade your PC.',        open:() => openA2() },
-  { id:'a3', lesson:'Lesson 3', icon:'📀', title:'Software',                 desc:'Operating systems, utilities and apps — and building your own desktop.',      open:() => openA3() },
+  { id:'a2', lesson:'Lesson 2', icon:'💾', title:'Build it back up',          desc:'Fit a hard drive and expansion cards into the empty case, and find where else files live.', open:() => openA2() },
+  { id:'a3', lesson:'Lesson 3', icon:'📀', title:'Switch it on',              desc:'Install an operating system, fill the desktop with apps, and sort the software.', open:() => openA3() },
   { id:'a4', lesson:'Challenge', icon:'🏆', title:'The Build Challenge',      desc:'Build the best PC you can for a real customer on a budget.',                  open:() => openA4() },
 ];
 
@@ -1933,31 +2233,6 @@ function renderShelf() {
   });
 }
 
-function renderParts(containerId, parts, actKey) {
-  const wrap = document.getElementById(containerId);
-  wrap.innerHTML = '';
-  parts.forEach(part => {
-    const tile = document.createElement('button');
-    tile.type = 'button';
-    const seen = P[actKey].seen.includes(part.id);
-    tile.className = 'part-tile' + (seen ? ' seen' : '');
-    tile.innerHTML = SVG[part.svg] +
-      `<div class="part-name">${part.name}</div>` +
-      `<div class="part-tick">${seen ? '✓ learned' : ''}</div>`;
-    tile.onclick = () => {
-      openModal(part);
-      if (!P[actKey].seen.includes(part.id)) {
-        P[actKey].seen.push(part.id);
-        save();
-        renderParts(containerId, parts, actKey);
-        if (actKey === 'a1') updateA1Btn();
-        if (actKey === 'a2') updateA2Btn();
-      }
-    };
-    wrap.appendChild(tile);
-  });
-}
-
 function renderA1Quiz() {
   const wrap = document.getElementById('a1-quiz');
   wrap.innerHTML = '';
@@ -2025,42 +2300,140 @@ function finishA1() {
 }
 
 /* ════════════════════════════════════════════════════
-   ACTIVITY 2
+   ACTIVITY 2 — build the machine back up
 ════════════════════════════════════════════════════ */
 function openA2() {
-  renderA2Drives();
-  renderParts('a2-storage', A2_STORAGE, 'a2');
-  renderParts('a2-cards',   A2_CARDS,   'a2');
+  P.a2.cards = P.a2.cards || [];
+  renderA2Scene();
+  renderA2Shelf();
   renderA2Quiz();
   updateA2Btn();
   showScreen('screen-a2');
 }
 
-function renderA2Drives() {
-  const wrap = document.getElementById('a2-drives');
-  wrap.innerHTML = '';
+function a2Installed() {
+  return { drive: P.a2.drive, gpu: P.a2.cards.includes('gpu'), sound: P.a2.cards.includes('sound') };
+}
+
+function renderA2Scene() {
+  const inst = a2Installed();
+  document.getElementById('a2-scene').innerHTML = sceneRebuild(inst);
+
+  const stage = inst.drive ? 2 : 1;
+  document.getElementById('a2pip-1').className = 'stage-pip' + (stage === 1 ? ' now' : ' done');
+  document.getElementById('a2pip-2').className = 'stage-pip' + (stage === 2 ? (inst.gpu && inst.sound ? ' done' : ' now') : '');
+
+  const title = document.getElementById('a2-stage-title');
+  const sub   = document.getElementById('a2-stage-sub');
+  const tip   = document.getElementById('a2-tip');
+
+  if (!inst.drive) {
+    title.textContent = 'Step 1 — Fit a hard drive';
+    sub.textContent = 'RAM forgets everything when the power goes off. A hard drive is where your files actually live. Pick which kind to slide into the empty bay.';
+    tip.textContent = '👆 Choose a drive from the tray below';
+  } else if (!(inst.gpu && inst.sound)) {
+    title.textContent = 'Step 2 — Fit the expansion cards';
+    sub.textContent = 'An expansion card is a circuit board you push into a slot on the motherboard to give the computer extra abilities.';
+    const left = 2 - P.a2.cards.length;
+    tip.textContent = `👆 Push a card into an empty slot — ${left} to go`;
+  } else {
+    title.textContent = '✓ The computer is built';
+    sub.textContent = 'Storage fitted and both expansion cards seated. Now find out where else files can live.';
+    tip.textContent = '✓ All fitted! Now look at the storage shelf below.';
+  }
+
+  renderA2Tray();
+}
+
+function renderA2Tray() {
+  const tray = document.getElementById('a2-tray');
+  tray.innerHTML = '';
+  const inst = a2Installed();
+
+  // Drives — pick exactly one
   A2_DRIVES.forEach(d => {
-    const card = document.createElement('div');
-    card.className = 'compare-card' + (P.a2.drive === d.id ? ' picked' : '');
-    card.innerHTML = SVG[d.svg] +
-      `<h4>${d.name}</h4>` +
-      `<ul>` +
-        d.pros.map(p => `<li style="color:var(--green-d)">${p}</li>`).join('') +
-        d.cons.map(c => `<li style="color:var(--red)">${c}</li>`).join('') +
-      `</ul>`;
-    card.onclick = () => {
+    const chosen = P.a2.drive === d.id;
+    const other  = P.a2.drive && !chosen;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tray-item' + (chosen ? ' fitted-ok' : other ? ' dimmed' : '');
+    b.innerHTML = SVG[d.svg] +
+      `<span class="t-name">${chosen ? '✓ ' : ''}${d.name}</span>` +
+      `<span class="t-note">${d.pros[0]}<br>${d.cons[0]}</span>`;
+    b.onclick = () => {
+      if (P.a2.drive) return;                       // one drive only
       P.a2.drive = d.id;
       save();
-      renderA2Drives();
-      const fb = document.getElementById('a2-drive-fb');
+      renderA2Scene();
+      const fb = document.getElementById('a2-fit-fb');
       fb.className = 'q-fb show ok';
       fb.innerHTML = d.id === 'ssd'
-        ? '✓ You chose a <b>solid state drive</b> — fast and tough, but you pay more per gigabyte. A great choice if speed matters most.'
-        : '✓ You chose a <b>magnetic hard drive</b> — slower and more fragile, but far cheaper if you need to store a lot. A great choice if space matters most.';
+        ? '✓ You fitted a <b>solid state drive</b> — no moving parts, so it is fast and tough. You pay more per gigabyte, so you get less space for your money.'
+        : '✓ You fitted a <b>magnetic hard drive</b> — spinning disks and a moving arm make it slower and easier to damage, but it is far cheaper for lots of space.';
+      setTimeout(() => openModal(driveInfo(d.id)), 420);
       updateA2Btn();
     };
-    wrap.appendChild(card);
+    tray.appendChild(b);
   });
+
+  // Expansion cards
+  A2_CARDS.forEach(c => {
+    const fitted = P.a2.cards.includes(c.id);
+    const locked = !inst.drive;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tray-item' + (fitted ? ' fitted-ok' : locked ? ' dimmed' : '');
+    b.innerHTML = SVG[c.svg] +
+      `<span class="t-name">${fitted ? '✓ ' : ''}${c.name}</span>` +
+      `<span class="t-note">${locked ? 'Fit the drive first' : fitted ? 'Seated in its slot' : 'Push into a slot'}</span>`;
+    b.onclick = () => {
+      if (fitted) return;
+      if (locked) {
+        const tip = document.getElementById('a2-tip');
+        tip.textContent = '✋ Fit the hard drive first!';
+        return;
+      }
+      P.a2.cards.push(c.id);
+      save();
+      renderA2Scene();
+      setTimeout(() => openModal(c), 420);
+      updateA2Btn();
+    };
+    tray.appendChild(b);
+  });
+}
+
+function driveInfo(id) {
+  const d = A2_DRIVES.find(x => x.id === id);
+  return {
+    name: d.name, svg: d.svg, cat: 'Secondary storage',
+    body: id === 'ssd'
+      ? `<p>A solid state drive stores data on <strong>microchips</strong> — there are no moving parts at all.</p>
+         <p>That makes it much <strong>faster</strong> than a magnetic drive and far more robust if the computer gets knocked about. The catch is cost: you get less space for your money.</p>
+         <div class="modal-fact">⚡ No moving parts also means it is silent and uses less power — which is why laptops use them.</div>`
+      : `<p>A magnetic hard drive stores data on spinning <strong>magnetic disks</strong>, with a read/write head that moves across the surface.</p>
+         <p>All those moving parts make it <strong>slower</strong>, and a bump can damage it. But it is much <strong>cheaper</strong>, especially if you need to store a lot.</p>
+         <div class="modal-fact">🧲 Keep magnets away from one — they can wipe the data.</div>`
+  };
+}
+
+/* ── the storage shelf ── */
+function renderA2Shelf() {
+  const wrap = document.getElementById('a2-shelf-scene');
+  wrap.innerHTML = sceneShelf(P.a2.seen);
+  wrap.querySelectorAll('.sp').forEach(g => {
+    const id = g.dataset.part;
+    g.addEventListener('click', () => {
+      const item = A2_STORAGE.find(s => s.id === id);
+      if (!P.a2.seen.includes(id)) { P.a2.seen.push(id); save(); }
+      renderA2Shelf();
+      openModal(item);
+      updateA2Btn();
+    });
+  });
+  const left = A2_STORAGE.filter(s => !P.a2.seen.includes(s.id)).length;
+  document.getElementById('a2-shelf-tip').textContent =
+    left ? `👆 Click each one to learn about it — ${left} left` : '✓ You have looked at all of them.';
 }
 
 function renderA2Quiz() {
@@ -2070,13 +2443,11 @@ function renderA2Quiz() {
     const block = document.createElement('div');
     block.className = 'q-block';
     const chosen = P.a2.answers[i];
-
     block.innerHTML =
       `<div class="q-num">Statement ${i + 1} of ${A2_QUIZ.length}</div>` +
       `<div class="q-text">${q.q}</div>` +
       `<div class="q-opts"></div>` +
       `<div class="q-fb" id="a2fb-${i}"></div>`;
-
     const opts = block.querySelector('.q-opts');
     [['True', true], ['False', false]].forEach(([label, val]) => {
       const b = document.createElement('button');
@@ -2091,15 +2462,11 @@ function renderA2Quiz() {
       b.onclick = () => {
         if (P.a2.answers[i] !== undefined) return;
         P.a2.answers[i] = val;
-        save();
-        renderA2Quiz();
-        updateA2Btn();
+        save(); renderA2Quiz(); updateA2Btn();
       };
       opts.appendChild(b);
     });
-
     wrap.appendChild(block);
-
     if (chosen !== undefined) {
       const fb = document.getElementById(`a2fb-${i}`);
       const ok = chosen === q.a;
@@ -2110,15 +2477,16 @@ function renderA2Quiz() {
 }
 
 function updateA2Btn() {
-  const need = A2_STORAGE.length + A2_CARDS.length;
-  const allSeen = P.a2.seen.length >= need;
+  P.a2.cards = P.a2.cards || [];
+  const built   = !!P.a2.drive && P.a2.cards.length >= A2_CARDS.length;
+  const shelfOk = P.a2.seen.length >= A2_STORAGE.length;
   const allAns  = Object.keys(P.a2.answers).length >= A2_QUIZ.length;
-  const picked  = !!P.a2.drive;
   const btn = document.getElementById('a2-finish');
-  btn.disabled = !(allSeen && allAns && picked);
-  btn.textContent = (allSeen && allAns && picked) ? 'Finish activity'
-    : !picked ? 'Choose a hard drive first'
-    : !allSeen ? `Explore all parts first (${P.a2.seen.length}/${need})`
+  btn.disabled = !(built && shelfOk && allAns);
+  btn.textContent = (built && shelfOk && allAns) ? 'Finish activity'
+    : !P.a2.drive ? 'Fit a hard drive first'
+    : P.a2.cards.length < A2_CARDS.length ? `Fit both expansion cards (${P.a2.cards.length}/${A2_CARDS.length})`
+    : !shelfOk ? `Look at all the storage options (${P.a2.seen.length}/${A2_STORAGE.length})`
     : `Answer all statements (${Object.keys(P.a2.answers).length}/${A2_QUIZ.length})`;
 }
 
@@ -2133,16 +2501,98 @@ function finishA2() {
 }
 
 /* ════════════════════════════════════════════════════
-   ACTIVITY 3
+   ACTIVITY 3 — switch it on and install software
 ════════════════════════════════════════════════════ */
 let a3Selected = null;
 
 function openA3() {
+  P.a3.apps = P.a3.apps || [];
+  renderA3Machine();
   renderA3Sort();
   renderA3Quiz();
-  renderA3Desktop();
   updateA3Btn();
   showScreen('screen-a3');
+}
+
+function renderA3Machine() {
+  document.getElementById('a3-scene').innerHTML = sceneMonitor(P.a3.os, P.a3.apps);
+
+  const hasOS = !!P.a3.os;
+  document.getElementById('a3pip-1').className = 'stage-pip' + (hasOS ? ' done' : ' now');
+  document.getElementById('a3pip-2').className = 'stage-pip' + (hasOS ? (P.a3.apps.length === 4 ? ' done' : ' now') : '');
+
+  const title = document.getElementById('a3-stage-title');
+  const sub   = document.getElementById('a3-stage-sub');
+  const tip   = document.getElementById('a3-tip');
+
+  if (!hasOS) {
+    title.textContent = 'Step 1 — Install an operating system';
+    sub.textContent = 'The hardware works, but with no operating system the computer cannot even start up properly. Choose one to install.';
+    tip.textContent = '👆 Pick an install disc below';
+  } else if (P.a3.apps.length < 4) {
+    title.textContent = 'Step 2 — Fill the desktop';
+    sub.textContent = 'The OS has booted. Now install applications — the programs you actually use to get things done. You may install exactly 4, so choose wisely.';
+    tip.textContent = `👆 Install apps — ${4 - P.a3.apps.length} slot${4 - P.a3.apps.length !== 1 ? 's' : ''} left`;
+  } else {
+    title.textContent = '✓ Your computer is ready';
+    sub.textContent = 'An operating system running, and four applications installed on the desktop.';
+    tip.textContent = '✓ Ready to use! Click an app again to swap it.';
+  }
+
+  document.getElementById('a3-install-hint').textContent =
+    hasOS ? `${P.a3.os} installed — click another to change it` : 'choose an operating system';
+  document.getElementById('a3-apps-block').style.display = hasOS ? '' : 'none';
+  document.getElementById('a3-app-count').textContent = P.a3.apps.length + ' of 4 chosen';
+
+  renderA3Trays();
+}
+
+function renderA3Trays() {
+  const osTray = document.getElementById('a3-os-tray');
+  osTray.innerHTML = '';
+  A3_OS.forEach(os => {
+    const on = P.a3.os === os;
+    const look = OS_LOOK[os];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tray-item' + (on ? ' fitted-ok' : '');
+    b.innerHTML =
+      `<svg viewBox="0 0 120 100"><circle cx="60" cy="50" r="40" fill="#c8ced6"/>` +
+      `<circle cx="60" cy="50" r="40" fill="url(#dg-${os})" opacity=".85"/>` +
+      `<circle cx="60" cy="50" r="14" fill="#eceff3"/><circle cx="60" cy="50" r="6" fill="#f7f7f3"/>` +
+      `<defs><linearGradient id="dg-${os}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${look.sky1}"/><stop offset="1" stop-color="${look.sky2}"/></linearGradient></defs></svg>` +
+      `<span class="t-name">${on ? '✓ ' : ''}${os}</span>`;
+    b.onclick = () => {
+      P.a3.os = os; save();
+      renderA3Machine(); updateA3Btn();
+    };
+    osTray.appendChild(b);
+  });
+
+  const appTray = document.getElementById('a3-apps');
+  appTray.innerHTML = '';
+  A3_APPS.forEach(app => {
+    const on = P.a3.apps.includes(app);
+    const ic = APP_ICONS[app];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tray-item' + (on ? ' picked' : (P.a3.apps.length >= 4 ? ' dimmed' : ''));
+    b.innerHTML =
+      `<svg viewBox="0 0 120 100"><rect x="34" y="18" width="52" height="52" rx="12" fill="${ic.c}"/>` +
+      `<text x="60" y="55" font-size="26" fill="#fff" text-anchor="middle" font-family="Arial">${ic.g}</text></svg>` +
+      `<span class="t-name">${on ? '✓ ' : ''}${app}</span>`;
+    b.onclick = () => {
+      const i = P.a3.apps.indexOf(app);
+      if (i >= 0) P.a3.apps.splice(i, 1);
+      else if (P.a3.apps.length < 4) P.a3.apps.push(app);
+      else {
+        document.getElementById('a3-tip').textContent = '✋ Only 4 apps fit — click one you have chosen to remove it.';
+        return;
+      }
+      save(); renderA3Machine(); updateA3Btn();
+    };
+    appTray.appendChild(b);
+  });
 }
 
 function renderA3Sort() {
@@ -2151,7 +2601,6 @@ function renderA3Sort() {
   pool.innerHTML = '';
   bins.innerHTML = '';
 
-  // unsorted chips
   A3_SOFTWARE.forEach((sw, i) => {
     if (P.a3.sorted[i] !== undefined) return;
     const c = document.createElement('button');
@@ -2161,17 +2610,13 @@ function renderA3Sort() {
     c.onclick = () => { a3Selected = (a3Selected === i ? null : i); renderA3Sort(); };
     pool.appendChild(c);
   });
-
-  if (!pool.children.length) {
-    pool.innerHTML = '<span style="font-size:0.8rem;color:var(--muted)">All sorted! ✓</span>';
-  }
+  if (!pool.children.length) pool.innerHTML = '<span style="font-size:0.8rem;color:var(--muted)">All sorted! ✓</span>';
 
   A3_BINS.forEach(bin => {
     const d = document.createElement('div');
     d.className = 'bin' + (a3Selected !== null ? ' armed' : '');
     d.innerHTML = `<h4>${bin.title}</h4><div class="bin-hint">${bin.hint}</div><div class="bin-items"></div>`;
     const items = d.querySelector('.bin-items');
-
     A3_SOFTWARE.forEach((sw, i) => {
       if (P.a3.sorted[i] !== bin.id) return;
       const c = document.createElement('span');
@@ -2179,14 +2624,11 @@ function renderA3Sort() {
       c.textContent = sw.name + (sw.cat === bin.id ? ' ✓' : ' ✗');
       items.appendChild(c);
     });
-
     d.onclick = () => {
       if (a3Selected === null) return;
       P.a3.sorted[a3Selected] = bin.id;
       a3Selected = null;
-      save();
-      renderA3Sort();
-      updateA3Btn();
+      save(); renderA3Sort(); updateA3Btn();
     };
     bins.appendChild(d);
   });
@@ -2199,9 +2641,7 @@ function renderA3Sort() {
     fb.className = 'q-fb show ' + (right === A3_SOFTWARE.length ? 'ok' : 'no');
     fb.innerHTML = `You sorted <b>${right} of ${A3_SOFTWARE.length}</b> correctly.` +
       (right === A3_SOFTWARE.length ? ' Perfect!' : ' The red ✗ ones are in the wrong box.');
-  } else {
-    fb.className = 'q-fb';
-  }
+  } else fb.className = 'q-fb';
 }
 
 function renderA3Quiz() {
@@ -2211,13 +2651,11 @@ function renderA3Quiz() {
     const block = document.createElement('div');
     block.className = 'q-block';
     const chosen = P.a3.answers[i];
-
     block.innerHTML =
       `<div class="q-num">Clue ${i + 1} of ${A3_QUIZ.length}</div>` +
       `<div class="q-text">${q.q}</div>` +
       `<div class="q-opts"></div>` +
       `<div class="q-fb" id="a3fb-${i}"></div>`;
-
     const opts = block.querySelector('.q-opts');
     q.opts.forEach(label => {
       const b = document.createElement('button');
@@ -2232,15 +2670,11 @@ function renderA3Quiz() {
       b.onclick = () => {
         if (P.a3.answers[i] !== undefined) return;
         P.a3.answers[i] = label;
-        save();
-        renderA3Quiz();
-        updateA3Btn();
+        save(); renderA3Quiz(); updateA3Btn();
       };
       opts.appendChild(b);
     });
-
     wrap.appendChild(block);
-
     if (chosen !== undefined) {
       const fb = document.getElementById(`a3fb-${i}`);
       const ok = chosen === q.a;
@@ -2250,52 +2684,18 @@ function renderA3Quiz() {
   });
 }
 
-function renderA3Desktop() {
-  const osWrap = document.getElementById('a3-os');
-  osWrap.innerHTML = '';
-  A3_OS.forEach(os => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'q-opt' + (P.a3.os === os ? ' chosen' : '');
-    b.textContent = os;
-    b.onclick = () => { P.a3.os = os; save(); renderA3Desktop(); updateA3Btn(); };
-    osWrap.appendChild(b);
-  });
-
-  const appWrap = document.getElementById('a3-apps');
-  appWrap.innerHTML = '';
-  P.a3.apps = P.a3.apps || [];
-  A3_APPS.forEach(app => {
-    const on = P.a3.apps.includes(app);
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'chip' + (on ? ' selected' : '');
-    b.textContent = (on ? '✓ ' : '') + app;
-    b.onclick = () => {
-      const idx = P.a3.apps.indexOf(app);
-      if (idx >= 0) P.a3.apps.splice(idx, 1);
-      else if (P.a3.apps.length < 4) P.a3.apps.push(app);
-      else { alert('You can only choose 4 apps. Remove one first.'); return; }
-      save();
-      renderA3Desktop();
-      updateA3Btn();
-    };
-    appWrap.appendChild(b);
-  });
-
-  document.getElementById('a3-app-count').textContent = P.a3.apps.length + ' of 4 chosen';
-}
-
 function updateA3Btn() {
-  const sorted = Object.keys(P.a3.sorted).length >= A3_SOFTWARE.length;
+  P.a3.apps = P.a3.apps || [];
+  const sorted   = Object.keys(P.a3.sorted).length >= A3_SOFTWARE.length;
   const answered = Object.keys(P.a3.answers).length >= A3_QUIZ.length;
-  const desktop = !!P.a3.os && (P.a3.apps || []).length === 4;
+  const machine  = !!P.a3.os && P.a3.apps.length === 4;
   const btn = document.getElementById('a3-finish');
-  btn.disabled = !(sorted && answered && desktop);
-  btn.textContent = (sorted && answered && desktop) ? 'Finish activity'
-    : !sorted ? 'Sort all the software first'
-    : !answered ? 'Answer all the clues'
-    : 'Choose an OS and exactly 4 apps';
+  btn.disabled = !(sorted && answered && machine);
+  btn.textContent = (sorted && answered && machine) ? 'Finish activity'
+    : !P.a3.os ? 'Install an operating system first'
+    : P.a3.apps.length !== 4 ? `Install exactly 4 apps (${P.a3.apps.length}/4)`
+    : !sorted ? 'Sort all the software'
+    : 'Answer all the clues';
 }
 
 function finishA3() {
