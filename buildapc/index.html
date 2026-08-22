@@ -562,8 +562,133 @@ p.screen-intro {
   user-select: all;
 }
 
+/* ── WORKBENCH SCENE ────────────────────────────────── */
+.stage-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.stage-steps { display: flex; gap: 7px; flex-wrap: wrap; }
+.stage-pip {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  color: var(--faint);
+  background: var(--white);
+  font-weight: 700;
+}
+.stage-pip.now  { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.stage-pip.done { border-color: var(--green); color: var(--green-d); background: var(--green-light); }
+
+.scene-wrap {
+  position: relative;
+  background: #eceae4;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 14px rgba(0,0,0,0.09);
+  padding-bottom: 44px;   /* clear strip so the tip never covers the artwork */
+}
+.scene-svg { display: block; width: 100%; height: auto; }
+
+/* A removable part in the scene */
+.sp { cursor: pointer; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.45s; transform-box: fill-box; transform-origin: center; }
+.sp:hover  { filter: brightness(1.08) drop-shadow(0 0 7px rgba(58,143,212,0.85)); }
+.sp:active { filter: brightness(1.14) drop-shadow(0 0 10px rgba(58,143,212,1)); }
+.sp.removed {
+  transform: translate(var(--ox, 0px), var(--oy, -70px)) scale(0.82) rotate(var(--orot, 0deg));
+  opacity: 0;
+  pointer-events: none;
+}
+/* pulsing ring inviting a click */
+.sp-hot { animation: hotPulse 1.9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes hotPulse {
+  0%,100% { opacity: 0.28; }
+  50%     { opacity: 0.9; }
+}
+.socket-label {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  fill: #8a8a92;
+  letter-spacing: 0.06em;
+}
+
+/* cables */
+.cable { transition: opacity 0.4s, stroke-dashoffset 0.55s ease-in; }
+.cable.pulled { opacity: 0; }
+
+/* the swinging side panel */
+#side-panel {
+  transition: transform 0.85s cubic-bezier(0.5,0,0.2,1), opacity 0.7s;
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+#side-panel.open { transform: translateX(-58px) scaleX(0.08) skewY(-3deg); opacity: 0.3; }
+
+.scene-tip {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  background: rgba(30,30,28,0.9);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+}
+
+/* removed-parts shelf */
+.shelf {
+  margin-top: 14px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.shelf-title {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 10px;
+}
+.shelf-row { display: flex; flex-wrap: wrap; gap: 10px; min-height: 74px; align-items: flex-start; }
+.shelf-item {
+  width: 84px;
+  background: var(--white);
+  border: 2px solid var(--green);
+  border-radius: 8px;
+  padding: 6px 4px 5px;
+  text-align: center;
+  animation: dropIn 0.45s cubic-bezier(0.34,1.5,0.64,1);
+  cursor: pointer;
+}
+.shelf-item svg { width: 100%; height: 40px; }
+.shelf-item span { display: block; font-size: 0.62rem; font-weight: 700; line-height: 1.2; margin-top: 3px; }
+@keyframes dropIn {
+  from { transform: translateY(-26px) scale(0.7); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.shelf-empty { font-size: 0.78rem; color: var(--muted); font-style: italic; padding: 22px 4px; }
+
 /* ── MOBILE ─────────────────────────────────────────── */
 @media (max-width: 600px) {
+  .scene-tip { font-size: 0.68rem; padding: 6px 12px; bottom: 6px; }
+  .shelf-item { width: 66px; }
+  .shelf-item svg { height: 32px; }
   #header { padding: 12px 14px 12px 60px; }
   #header h1 { font-size: 0.92rem; }
   main { padding: 20px 14px 48px; }
@@ -629,18 +754,32 @@ p.screen-intro {
   <section id="screen-a1" class="screen">
     <div class="eyebrow">Lesson 1 · Activity 1</div>
     <h2 class="screen-title">🔍 Take the computer apart</h2>
-    <p class="screen-intro">Every part of a computer has a job. Click each part to find out what it does — then prove what you have learned.</p>
+    <p class="screen-intro">Strip a real computer down to its bare case. Unplug everything on the desk, unscrew the side panel, then pull out the parts inside — finding out what each one does as you go.</p>
 
     <div class="panel">
-      <h3>Part 1 — Outside the computer</h3>
-      <div class="sub">Click all <b>5</b> parts to see what each one does.</div>
-      <div class="explore-grid" id="a1-outside"></div>
-    </div>
+      <div class="stage-head">
+        <div>
+          <h3 id="a1-stage-title">Step 1 — Unplug the peripherals</h3>
+          <div class="sub" id="a1-stage-sub" style="margin-bottom:0">Click each device to unplug it from the tower and put it on the bench.</div>
+        </div>
+        <div class="stage-steps">
+          <span class="stage-pip" id="pip-1">1 · Unplug</span>
+          <span class="stage-pip" id="pip-2">2 · Open the case</span>
+          <span class="stage-pip" id="pip-3">3 · Strip it down</span>
+        </div>
+      </div>
 
-    <div class="panel">
-      <h3>Part 2 — Inside the computer</h3>
-      <div class="sub">Now look inside the case. Click all <b>5</b> parts.</div>
-      <div class="explore-grid" id="a1-inside"></div>
+      <div class="scene-wrap">
+        <div id="a1-scene"></div>
+        <div class="scene-tip" id="a1-tip"></div>
+      </div>
+
+      <div class="btn-row" id="a1-stage-btns"></div>
+
+      <div class="shelf">
+        <div class="shelf-title">🔧 Parts on the bench — <span id="shelf-count">0</span> removed</div>
+        <div class="shelf-row" id="a1-shelf"></div>
+      </div>
     </div>
 
     <div class="panel" id="a1-quiz-panel">
@@ -866,6 +1005,321 @@ const SVG = {
 };
 
 /* ════════════════════════════════════════════════════
+   THE WORKBENCH SCENES
+   Two big illustrated scenes you actually take apart:
+   the desk (unplug the peripherals) and the open case
+   (pull the components out of their slots).
+════════════════════════════════════════════════════ */
+const SCENE_DEFS = `
+<defs>
+  <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f2ec"/><stop offset="1" stop-color="#e0ddd4"/></linearGradient>
+  <linearGradient id="deskG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#caa06e"/><stop offset="1" stop-color="#a2764a"/></linearGradient>
+  <linearGradient id="screenG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b6ba4"/><stop offset=".5" stop-color="#4f97ce"/><stop offset="1" stop-color="#27598c"/></linearGradient>
+  <linearGradient id="bezelG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d4148"/><stop offset="1" stop-color="#212429"/></linearGradient>
+  <linearGradient id="metalG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#454b54"/><stop offset=".18" stop-color="#5a616c"/><stop offset=".62" stop-color="#3d434c"/><stop offset="1" stop-color="#2c3138"/></linearGradient>
+  <linearGradient id="panelG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b626d"/><stop offset=".5" stop-color="#464c56"/><stop offset="1" stop-color="#343941"/></linearGradient>
+  <linearGradient id="glassG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <linearGradient id="pcbG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f7d41"/><stop offset="1" stop-color="#155c2e"/></linearGradient>
+  <linearGradient id="plasticG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a505a"/><stop offset="1" stop-color="#2e333a"/></linearGradient>
+  <linearGradient id="alumG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d2d6dc"/><stop offset=".5" stop-color="#a8aeb6"/><stop offset="1" stop-color="#c2c7ce"/></linearGradient>
+  <radialGradient id="ledG"><stop offset="0" stop-color="#b6efff"/><stop offset="1" stop-color="#22a3dc"/></radialGradient>
+  <radialGradient id="shadG"><stop offset="0" stop-color="#000" stop-opacity=".34"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+</defs>`;
+
+/* helper: a grid of ventilation holes */
+function vents(x, y, cols, rows, gap, w, h, fill) {
+  let s = '';
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      s += `<rect x="${x + c * gap}" y="${y + r * gap}" width="${w}" height="${h}" rx="1" fill="${fill}"/>`;
+  return s;
+}
+
+/* ── SCENE 1: the desk ─────────────────────────────── */
+function sceneOutside() {
+  return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
+  ${SCENE_DEFS}
+  <rect width="900" height="470" fill="url(#wallG)"/>
+  <rect x="0" y="358" width="900" height="112" fill="url(#deskG)"/>
+  <rect x="0" y="358" width="900" height="7" fill="#dcb689"/>
+  <g opacity=".5" stroke="#8d6538" stroke-width="1">
+    <path d="M0 392h900"/><path d="M0 424h900"/>
+  </g>
+
+  <!-- contact shadows -->
+  <ellipse cx="312" cy="357" rx="92" ry="9" fill="url(#shadG)"/>
+  <ellipse cx="712" cy="357" rx="86" ry="9" fill="url(#shadG)"/>
+  <ellipse cx="286" cy="410" rx="140" ry="9" fill="url(#shadG)" opacity=".7"/>
+
+  <!-- ── TOWER (the case — not removable in step 1) ── -->
+  <g id="tower">
+    <rect x="770" y="118" width="34" height="242" rx="4" fill="#22262c"/>
+    <rect x="632" y="118" width="140" height="242" rx="5" fill="url(#panelG)"/>
+    <rect x="632" y="118" width="140" height="242" rx="5" fill="none" stroke="#252a30" stroke-width="2"/>
+    <rect x="640" y="126" width="124" height="226" rx="3" fill="none" stroke="#6a717c" stroke-width="1.2" opacity=".55"/>
+    <!-- brushed sheen -->
+    <rect x="648" y="126" width="20" height="226" fill="#fff" opacity=".05"/>
+    <!-- front strip details -->
+    <rect x="774" y="134" width="26" height="9" rx="2" fill="#15181c"/>
+    <circle cx="787" cy="168" r="8" fill="#2a2f36" stroke="#161a1e" stroke-width="1.4"/>
+    <circle cx="787" cy="168" r="4" fill="url(#ledG)"/>
+    <rect x="778" y="192" width="18" height="7" rx="1.5" fill="#15181c"/>
+    <rect x="778" y="204" width="18" height="7" rx="1.5" fill="#15181c"/>
+    ${vents(774, 250, 3, 9, 9, 5, 5, '#15181c')}
+    <!-- thumbscrews holding the side panel on -->
+    <circle cx="762" cy="132" r="6.5" fill="#8f97a2" stroke="#4a505a" stroke-width="1.6"/>
+    <path d="M758.5 132h7" stroke="#4a505a" stroke-width="1.8"/>
+    <circle cx="762" cy="346" r="6.5" fill="#8f97a2" stroke="#4a505a" stroke-width="1.6"/>
+    <path d="M758.5 346h7" stroke="#4a505a" stroke-width="1.8"/>
+    <!-- port cluster on the back edge -->
+    <rect x="612" y="236" width="22" height="106" rx="3" fill="#1b1f24"/>
+    <rect x="616" y="244" width="14" height="12" rx="2" fill="#3f6ea8"/>
+    <rect x="616" y="262" width="14" height="12" rx="2" fill="#3f6ea8"/>
+    <rect x="616" y="280" width="14" height="10" rx="2" fill="#7a4f9a"/>
+    <circle cx="623" cy="304" r="5" fill="#3aaa5a"/>
+    <circle cx="623" cy="320" r="5" fill="#d94040"/>
+    <text x="612" y="228" class="socket-label" text-anchor="end" font-size="10">PORTS ↓</text>
+  </g>
+
+  <!-- ── CABLES ── -->
+  <g fill="none" stroke-linecap="round">
+    <path class="cable" id="cab-monitor"  d="M320 350 C 420 372, 520 340, 608 302" stroke="#23262b" stroke-width="5"/>
+    <path class="cable" id="cab-keyboard" d="M414 392 C 480 402, 546 372, 606 318" stroke="#23262b" stroke-width="4"/>
+    <path class="cable" id="cab-mouse"    d="M492 386 C 534 392, 570 360, 606 290" stroke="#23262b" stroke-width="3.4"/>
+    <path class="cable" id="cab-speakers" d="M112 352 C 260 400, 430 420, 604 330" stroke="#23262b" stroke-width="3.4"/>
+    <path class="cable" id="cab-webcam"   d="M312 52 C 250 40, 150 96, 128 268" stroke="#23262b" stroke-width="3"/>
+  </g>
+
+  <!-- ── MONITOR ── -->
+  <g class="sp" data-part="monitor" style="--ox:-120px;--oy:-150px;--orot:-12deg">
+    <rect x="150" y="60" width="322" height="196" rx="9" fill="url(#bezelG)"/>
+    <rect x="161" y="70" width="300" height="168" rx="3" fill="url(#screenG)"/>
+    <!-- desktop mock -->
+    <rect x="161" y="70" width="300" height="168" rx="3" fill="url(#glassG)"/>
+    <g opacity=".85">
+      <rect x="172" y="82" width="22" height="18" rx="3" fill="#fff" opacity=".55"/>
+      <rect x="172" y="108" width="22" height="18" rx="3" fill="#fff" opacity=".4"/>
+      <rect x="172" y="134" width="22" height="18" rx="3" fill="#fff" opacity=".3"/>
+      <rect x="220" y="88" width="180" height="98" rx="4" fill="#fff" opacity=".22"/>
+      <rect x="220" y="88" width="180" height="15" rx="4" fill="#fff" opacity=".3"/>
+      <circle cx="230" cy="95" r="3" fill="#e06a6a"/><circle cx="240" cy="95" r="3" fill="#e0c05a"/><circle cx="250" cy="95" r="3" fill="#6ac06a"/>
+      <rect x="232" y="116" width="120" height="5" rx="2.5" fill="#fff" opacity=".5"/>
+      <rect x="232" y="130" width="150" height="5" rx="2.5" fill="#fff" opacity=".35"/>
+      <rect x="232" y="144" width="96" height="5" rx="2.5" fill="#fff" opacity=".35"/>
+    </g>
+    <rect x="161" y="222" width="300" height="16" fill="#1e3f5e" opacity=".55"/>
+    <rect x="150" y="238" width="322" height="18" rx="4" fill="#2c3036"/>
+    <circle cx="311" cy="247" r="3" fill="#6a7280"/>
+    <rect x="292" y="256" width="38" height="64" fill="#33383f"/>
+    <path d="M240 336 h142 l14 20 H226 z" fill="#3a3f47"/>
+    <ellipse cx="311" cy="340" rx="76" ry="12" fill="#41474f"/>
+  </g>
+
+  <!-- ── WEBCAM ── -->
+  <g class="sp" data-part="webcam" style="--ox:-40px;--oy:-120px;--orot:14deg">
+    <rect x="286" y="36" width="52" height="22" rx="10" fill="#2b2f36"/>
+    <circle cx="312" cy="47" r="9" fill="#14171b"/>
+    <circle cx="312" cy="47" r="5" fill="#2f6fa8"/>
+    <circle cx="310" cy="45" r="2" fill="#a8d8f5"/>
+    <circle cx="330" cy="42" r="2.4" fill="#d94040"/>
+    <path d="M300 58 h24 l-4 8 h-16 z" fill="#33383f"/>
+  </g>
+
+  <!-- ── SPEAKERS (one part, both boxes) ── -->
+  <g class="sp" data-part="speakers" style="--ox:-150px;--oy:60px;--orot:-8deg">
+    <g>
+      <rect x="60" y="258" width="60" height="102" rx="5" fill="url(#plasticG)"/>
+      <rect x="66" y="264" width="48" height="90" rx="3" fill="#22262b"/>
+      <circle cx="90" cy="292" r="17" fill="#15181c" stroke="#3f454e" stroke-width="2"/>
+      <circle cx="90" cy="292" r="8" fill="#4c535d"/>
+      <circle cx="90" cy="292" r="3.4" fill="#767e89"/>
+      <circle cx="90" cy="332" r="9" fill="#15181c" stroke="#3f454e" stroke-width="1.6"/>
+      <circle cx="90" cy="332" r="4" fill="#4c535d"/>
+    </g>
+    <g>
+      <rect x="516" y="258" width="60" height="102" rx="5" fill="url(#plasticG)"/>
+      <rect x="522" y="264" width="48" height="90" rx="3" fill="#22262b"/>
+      <circle cx="546" cy="292" r="17" fill="#15181c" stroke="#3f454e" stroke-width="2"/>
+      <circle cx="546" cy="292" r="8" fill="#4c535d"/>
+      <circle cx="546" cy="292" r="3.4" fill="#767e89"/>
+      <circle cx="546" cy="332" r="9" fill="#15181c" stroke="#3f454e" stroke-width="1.6"/>
+      <circle cx="546" cy="332" r="4" fill="#4c535d"/>
+      <circle cx="546" cy="272" r="2.6" fill="#3aaa5a"/>
+    </g>
+  </g>
+
+  <!-- ── KEYBOARD ── -->
+  <g class="sp" data-part="keyboard" style="--ox:-60px;--oy:130px;--orot:6deg">
+    <path d="M150 374 h264 l16 34 H134 z" fill="#3f454e"/>
+    <path d="M156 378 h252 l13 26 H143 z" fill="#2b3037"/>
+    <g fill="#525a65">
+      ${(() => { let s = ''; for (let r = 0; r < 4; r++) { const y = 381 + r * 6.2, ins = r * 1.6; for (let c = 0; c < 22; c++) { const x = 161 + ins + c * 11.3 - r * 0.2; s += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="9" height="4.6" rx="1"/>`; } } return s; })()}
+      <rect x="252" y="406" width="76" height="5" rx="1.5"/>
+    </g>
+  </g>
+
+  <!-- ── MOUSE ── -->
+  <g class="sp" data-part="mouse" style="--ox:70px;--oy:130px;--orot:-14deg">
+    <ellipse cx="468" cy="404" rx="30" ry="8" fill="#000" opacity=".16"/>
+    <path d="M452 404 c0-22 6-32 16-32 s16 10 16 32 c0 10-7 14-16 14 s-16-4-16-14z" fill="#d9dce1" stroke="#a9aeb6" stroke-width="1.4"/>
+    <path d="M452 390 h32" stroke="#a9aeb6" stroke-width="1.2"/>
+    <path d="M468 372 v18" stroke="#a9aeb6" stroke-width="1.2"/>
+    <rect x="465" y="376" width="6" height="9" rx="3" fill="#8f959e"/>
+  </g>
+</svg>`;
+}
+
+/* ── SCENE 2: inside the open case ─────────────────── */
+function sceneInside() {
+  return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
+  ${SCENE_DEFS}
+  <rect width="900" height="470" fill="url(#wallG)"/>
+
+  <!-- case shell + interior -->
+  <rect x="126" y="34" width="646" height="404" rx="9" fill="#1b1f24"/>
+  <rect x="138" y="46" width="622" height="380" rx="6" fill="#252a31"/>
+  <rect x="138" y="46" width="622" height="380" rx="6" fill="none" stroke="#3c434c" stroke-width="1.5"/>
+  <!-- drive bays (empty scenery) -->
+  <g opacity=".85">
+    <rect x="152" y="60" width="132" height="30" rx="3" fill="#1e2228" stroke="#39404a" stroke-width="1.2"/>
+    <rect x="152" y="96" width="132" height="30" rx="3" fill="#1e2228" stroke="#39404a" stroke-width="1.2"/>
+    <text x="218" y="80" class="socket-label" text-anchor="middle" font-size="9" fill="#5c646f">DRIVE BAY</text>
+  </g>
+  <!-- power supply (scenery) -->
+  <g>
+    <rect x="150" y="332" width="150" height="88" rx="5" fill="url(#metalG)"/>
+    <circle cx="200" cy="376" r="30" fill="#15181c"/>
+    <g stroke="#4a515b" stroke-width="2" fill="none">
+      <circle cx="200" cy="376" r="24"/><circle cx="200" cy="376" r="16"/><circle cx="200" cy="376" r="8"/>
+    </g>
+    <text x="266" y="352" class="socket-label" font-size="9" fill="#8f97a2" text-anchor="middle">PSU</text>
+    <path d="M300 356 C 340 356, 350 300, 396 292" stroke="#c8a83a" stroke-width="5" fill="none" opacity=".9"/>
+    <path d="M300 372 C 350 380, 366 340, 402 330" stroke="#8a3f3f" stroke-width="5" fill="none" opacity=".9"/>
+  </g>
+
+  <!-- empty case-mounted socket (revealed when the fan comes out) -->
+  <g id="sock-fan" opacity="0">
+    <rect x="150" y="150" width="112" height="112" rx="6" fill="none" stroke="#4c545f" stroke-width="2" stroke-dasharray="7 5"/>
+    <text x="206" y="212" class="socket-label" text-anchor="middle">FAN MOUNT</text>
+  </g>
+
+  <!-- ── MOTHERBOARD (must come out last) ── -->
+  <g class="sp" data-part="motherboard" style="--ox:180px;--oy:-40px;--orot:9deg">
+    <rect x="396" y="70" width="330" height="286" rx="6" fill="url(#pcbG)"/>
+    <g stroke="#d3b455" stroke-width="1.1" fill="none" opacity=".55">
+      <path d="M412 92 h52 v26 h44"/><path d="M412 118 h30 v40 h58"/>
+      <path d="M540 84 v34 h58"/><path d="M420 320 h84 v-28 h60"/>
+      <path d="M600 240 h96"/><path d="M430 240 h64 v46"/>
+    </g>
+    <g fill="#c8a83a" opacity=".8">
+      ${vents(408, 300, 14, 1, 9, 4, 4, '#c8a83a')}
+    </g>
+    <!-- chipset heatsink -->
+    <rect x="556" y="306" width="60" height="38" rx="3" fill="#4a515b"/>
+    ${vents(561, 311, 6, 3, 9, 5, 7, '#2f353d')}
+    <!-- capacitors -->
+    <g>
+      <circle cx="420" cy="196" r="9" fill="#2b3037" stroke="#171a1e" stroke-width="1.4"/><path d="M415 196h10" stroke="#7b838e" stroke-width="1.4"/>
+      <circle cx="420" cy="222" r="9" fill="#2b3037" stroke="#171a1e" stroke-width="1.4"/><path d="M415 222h10" stroke="#7b838e" stroke-width="1.4"/>
+      <circle cx="420" cy="248" r="9" fill="#2b3037" stroke="#171a1e" stroke-width="1.4"/><path d="M415 248h10" stroke="#7b838e" stroke-width="1.4"/>
+    </g>
+    <!-- PCIe slot -->
+    <rect x="424" y="270" width="180" height="13" rx="2" fill="#3f2f6b"/>
+    <rect x="428" y="273" width="170" height="7" rx="1.5" fill="#2a1f4a"/>
+    <!-- rear I/O -->
+    <rect x="700" y="86" width="26" height="120" rx="2" fill="#1b1f24"/>
+    ${vents(704, 94, 1, 5, 20, 18, 12, '#3f6ea8')}
+    <!-- mounting screws -->
+    <g fill="#9aa2ad"><circle cx="406" cy="80" r="4"/><circle cx="716" cy="80" r="4"/><circle cx="406" cy="346" r="4"/><circle cx="716" cy="346" r="4"/></g>
+
+    <!-- Sockets live ON the board, so they show once a part is pulled
+         and travel with the board when it is finally lifted out. -->
+    <g id="sock-cpu" opacity="0">
+      <rect x="436" y="112" width="94" height="94" rx="4" fill="#12161a" stroke="#5c646f" stroke-width="1.8"/>
+      ${vents(446, 122, 8, 8, 10, 4, 4, '#39404a')}
+      <text x="483" y="228" class="socket-label" text-anchor="middle">CPU SOCKET</text>
+    </g>
+    <g id="sock-ram" opacity="0">
+      <rect x="608" y="92" width="34" height="120" rx="3" fill="#12161a" stroke="#5c646f" stroke-width="1.6"/>
+      <rect x="644" y="92" width="34" height="120" rx="3" fill="#12161a" stroke="#5c646f" stroke-width="1.6"/>
+      <text x="643" y="232" class="socket-label" text-anchor="middle">RAM SLOTS</text>
+    </g>
+    <g id="sock-rom" opacity="0">
+      <rect x="558" y="250" width="56" height="38" rx="3" fill="#12161a" stroke="#5c646f" stroke-width="1.6"/>
+      <text x="586" y="306" class="socket-label" text-anchor="middle" font-size="9">ROM PADS</text>
+    </g>
+  </g>
+
+  <!-- ── ROM chip ── -->
+  <g class="sp" data-part="rom" style="--ox:150px;--oy:120px;--orot:-16deg">
+    <rect x="560" y="252" width="52" height="34" rx="3" fill="#1d2126"/>
+    <g stroke="#9aa2ad" stroke-width="2">
+      ${(() => { let s = ''; for (let i = 0; i < 6; i++) { const y = 258 + i * 5.4; s += `<path d="M560 ${y.toFixed(1)} h-7"/><path d="M612 ${y.toFixed(1)} h7"/>`; } return s; })()}
+    </g>
+    <circle cx="567" cy="259" r="2.6" fill="#454c56"/>
+    <text x="588" y="274" font-family="Courier New, monospace" font-size="11" font-weight="700" fill="#c3c9d1" text-anchor="middle">ROM</text>
+  </g>
+
+  <!-- ── RAM sticks ── -->
+  <g class="sp" data-part="ram" style="--ox:110px;--oy:-140px;--orot:8deg">
+    <g>
+      <rect x="610" y="90" width="30" height="118" rx="3" fill="url(#pcbG)"/>
+      <rect x="613" y="96" width="24" height="88" rx="2" fill="#2f3a44"/>
+      ${vents(616, 100, 1, 5, 17, 18, 12, '#1c242c')}
+      <rect x="610" y="196" width="30" height="12" fill="#c8a83a"/>
+      ${vents(612, 196, 9, 1, 3.2, 1.5, 12, '#1f7d41')}
+    </g>
+    <g>
+      <rect x="646" y="90" width="30" height="118" rx="3" fill="url(#pcbG)"/>
+      <rect x="649" y="96" width="24" height="88" rx="2" fill="#2f3a44"/>
+      ${vents(652, 100, 1, 5, 17, 18, 12, '#1c242c')}
+      <rect x="646" y="196" width="30" height="12" fill="#c8a83a"/>
+      ${vents(648, 196, 9, 1, 3.2, 1.5, 12, '#1f7d41')}
+    </g>
+  </g>
+
+  <!-- ── CPU + cooler ── -->
+  <g class="sp" data-part="cpu" style="--ox:0px;--oy:-170px;--orot:-6deg">
+    <!-- heatsink fins -->
+    <rect x="430" y="106" width="106" height="106" rx="5" fill="url(#alumG)"/>
+    <g stroke="#8b929b" stroke-width="1.4">
+      ${(() => { let s = ''; for (let i = 0; i < 12; i++) { const x = 436 + i * 8.6; s += `<path d="M${x.toFixed(1)} 110 v98"/>`; } return s; })()}
+    </g>
+    <!-- fan on top -->
+    <circle cx="483" cy="159" r="40" fill="#20242a" opacity=".92"/>
+    <g fill="#4d545e" opacity=".95">
+      ${(() => { let s = ''; for (let i = 0; i < 7; i++) { const a = i * (360 / 7); const x1 = (483 + 36 * Math.cos((a - 21) * Math.PI / 180)).toFixed(1), y1 = (159 + 36 * Math.sin((a - 21) * Math.PI / 180)).toFixed(1); const x2 = (483 + 36 * Math.cos((a + 21) * Math.PI / 180)).toFixed(1), y2 = (159 + 36 * Math.sin((a + 21) * Math.PI / 180)).toFixed(1); s += `<path d="M483 159 L${x1} ${y1} A36 36 0 0 1 ${x2} ${y2} Z"/>`; } return s; })()}
+    </g>
+    <circle cx="483" cy="159" r="13" fill="#8f97a2"/>
+    <circle cx="483" cy="159" r="6" fill="#5b626d"/>
+    <text x="483" y="163" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#2b3037" text-anchor="middle">CPU</text>
+  </g>
+
+  <!-- ── case fan ── -->
+  <g class="sp" data-part="fan" style="--ox:-150px;--oy:-90px;--orot:20deg">
+    <rect x="148" y="148" width="116" height="116" rx="7" fill="url(#plasticG)"/>
+    <circle cx="206" cy="206" r="50" fill="#181c21"/>
+    <g fill="#5a626d">
+      ${(() => { let s = ''; for (let i = 0; i < 9; i++) { const a = i * 40; const x1 = (206 + 46 * Math.cos((a - 17) * Math.PI / 180)).toFixed(1), y1 = (206 + 46 * Math.sin((a - 17) * Math.PI / 180)).toFixed(1); const x2 = (206 + 46 * Math.cos((a + 17) * Math.PI / 180)).toFixed(1), y2 = (206 + 46 * Math.sin((a + 17) * Math.PI / 180)).toFixed(1); s += `<path d="M206 206 L${x1} ${y1} A46 46 0 0 1 ${x2} ${y2} Z" opacity=".9"/>`; } return s; })()}
+    </g>
+    <circle cx="206" cy="206" r="16" fill="#8f97a2"/>
+    <circle cx="206" cy="206" r="7" fill="#5b626d"/>
+    <g fill="#7f8894"><circle cx="160" cy="160" r="4.4"/><circle cx="252" cy="160" r="4.4"/><circle cx="160" cy="252" r="4.4"/><circle cx="252" cy="252" r="4.4"/></g>
+  </g>
+
+  <!-- ── SIDE PANEL (swings away in step 2) ── -->
+  <g id="side-panel">
+    <rect x="126" y="34" width="646" height="404" rx="9" fill="url(#panelG)"/>
+    <rect x="138" y="46" width="622" height="380" rx="5" fill="none" stroke="#6a717c" stroke-width="1.4" opacity=".5"/>
+    <rect x="160" y="46" width="34" height="380" fill="#fff" opacity=".05"/>
+    ${vents(560, 300, 12, 8, 13, 7, 7, '#2b3037')}
+    <circle cx="750" cy="52" r="7" fill="#8f97a2" stroke="#4a505a" stroke-width="1.6"/><path d="M746 52h8" stroke="#4a505a" stroke-width="2"/>
+    <circle cx="750" cy="420" r="7" fill="#8f97a2" stroke="#4a505a" stroke-width="1.6"/><path d="M746 420h8" stroke="#4a505a" stroke-width="2"/>
+  </g>
+</svg>`;
+}
+
+/* ════════════════════════════════════════════════════
    CONTENT DATA
 ════════════════════════════════════════════════════ */
 
@@ -878,9 +1332,9 @@ const A1_OUTSIDE = [
   { id:'keyboard', name:'Keyboard', svg:'keyboard', cat:'Input device',
     body:`<p>The keyboard is an <strong>input device</strong>. Every key you press sends data into the computer for the CPU to process.</p>
           <p>It is the main way we put words and numbers into a computer.</p>` },
-  { id:'touchpad', name:'Touchpad', svg:'touchpad', cat:'Input device',
-    body:`<p>The touchpad is an <strong>input device</strong>. It senses your finger moving and tells the computer where to put the pointer.</p>
-          <p>On a desktop computer you would use a <b>mouse</b> instead — it does exactly the same job.</p>` },
+  { id:'mouse', name:'Mouse', svg:'mouse', cat:'Input device',
+    body:`<p>The mouse is an <strong>input device</strong>. Moving it and clicking sends data into the computer telling it where you are pointing.</p>
+          <p>On a laptop you would use a <b>touchpad</b> instead — it does exactly the same job.</p>` },
   { id:'webcam', name:'Webcam', svg:'webcam', cat:'Input device',
     body:`<p>A webcam is an <strong>input device</strong>. It captures pictures and video and sends that data into the computer.</p>
           <div class="modal-fact">💡 A webcam usually has a microphone next to it — that is another input device.</div>` },
@@ -1274,12 +1728,175 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 /* ════════════════════════════════════════════════════
    ACTIVITY 1
 ════════════════════════════════════════════════════ */
+let a1Stage = 1;   // 1 = unplug peripherals, 2 = case shut, 3 = strip the insides
+
+function partById(id) {
+  return A1_OUTSIDE.concat(A1_INSIDE).find(p => p.id === id);
+}
+
 function openA1() {
-  renderParts('a1-outside', A1_OUTSIDE, 'a1');
-  renderParts('a1-inside',  A1_INSIDE,  'a1');
+  // Resume at the right stage for whatever has already been removed.
+  const outDone = A1_OUTSIDE.every(p => P.a1.seen.includes(p.id));
+  a1Stage = outDone ? (P.a1.seen.some(id => A1_INSIDE.find(p => p.id === id)) ? 3 : 2) : 1;
+  renderA1Stage();
   renderA1Quiz();
   updateA1Btn();
   showScreen('screen-a1');
+}
+
+function renderA1Stage() {
+  const scene = document.getElementById('a1-scene');
+  const title = document.getElementById('a1-stage-title');
+  const sub   = document.getElementById('a1-stage-sub');
+  const btns  = document.getElementById('a1-stage-btns');
+  const tip   = document.getElementById('a1-tip');
+  btns.innerHTML = '';
+
+  const outLeft = A1_OUTSIDE.filter(p => !P.a1.seen.includes(p.id)).length;
+  const inLeft  = A1_INSIDE.filter(p => !P.a1.seen.includes(p.id)).length;
+
+  if (a1Stage === 1) {
+    title.textContent = 'Step 1 — Unplug the peripherals';
+    sub.textContent = 'These are the parts you can see and touch from the outside. Click each one to unplug it and put it on the bench.';
+    scene.innerHTML = sceneOutside();
+    wireScene(scene, A1_OUTSIDE);
+    tip.textContent = outLeft ? `👆 Click a device to unplug it — ${outLeft} left` : '✓ All unplugged! Now open the case.';
+    if (!outLeft) {
+      const b = document.createElement('button');
+      b.className = 'btn primary';
+      b.textContent = '🔩 Unscrew the side panel';
+      b.onclick = () => { a1Stage = 2; renderA1Stage(); };
+      btns.appendChild(b);
+    }
+  }
+  else if (a1Stage === 2) {
+    title.textContent = 'Step 2 — Open the case';
+    sub.textContent = 'The side panel is held on by two thumbscrews. Take it off to see inside.';
+    scene.innerHTML = sceneInside();
+    tip.textContent = '👆 Click the side panel to swing it open';
+    const panel = scene.querySelector('#side-panel');
+    panel.style.cursor = 'pointer';
+    panel.addEventListener('click', () => {
+      panel.classList.add('open');
+      tip.textContent = '⚙️ Opening…';
+      setTimeout(() => { a1Stage = 3; renderA1Stage(); }, 900);
+    }, { once: true });
+  }
+  else {
+    title.textContent = 'Step 3 — Strip it down';
+    sub.textContent = 'Now pull each component out of its slot. The motherboard has to come out last — everything else is attached to it.';
+    scene.innerHTML = sceneInside();
+    const panel = scene.querySelector('#side-panel');
+    panel.classList.add('open');
+    panel.style.pointerEvents = 'none';
+    wireScene(scene, A1_INSIDE);
+    tip.textContent = inLeft ? `👆 Click a component to pull it out — ${inLeft} left` : '✓ Stripped down! Now answer the questions below.';
+  }
+
+  // stage pips
+  [1, 2, 3].forEach(n => {
+    const pip = document.getElementById('pip-' + n);
+    pip.className = 'stage-pip' + (a1Stage === n ? ' now' : (a1Stage > n ? ' done' : ''));
+  });
+
+  renderShelf();
+}
+
+/* Make every .sp in a scene clickable, and hide the ones already removed. */
+function wireScene(scene, parts) {
+  const ids = parts.map(p => p.id);
+  scene.querySelectorAll('.sp').forEach(g => {
+    const id = g.dataset.part;
+    if (!ids.includes(id)) return;
+
+    if (P.a1.seen.includes(id)) {
+      // already taken out — show it gone, with its socket exposed
+      g.classList.add('removed');
+      g.style.transition = 'none';
+      revealSocket(scene, id);
+      pullCable(scene, id, false);
+      return;
+    }
+
+    g.addEventListener('click', () => removeScenePart(scene, g, id, parts));
+  });
+}
+
+function revealSocket(scene, id) {
+  const sock = scene.querySelector('#sock-' + id);
+  if (sock) sock.setAttribute('opacity', '1');
+}
+
+function pullCable(scene, id, animate) {
+  const cab = scene.querySelector('#cab-' + id);
+  if (!cab) return;
+  if (animate) cab.classList.add('pulled');
+  else { cab.style.transition = 'none'; cab.classList.add('pulled'); }
+}
+
+function removeScenePart(scene, g, id, parts) {
+  if (P.a1.seen.includes(id)) return;
+
+  // The motherboard is underneath everything — it cannot come out first.
+  if (id === 'motherboard') {
+    const others = A1_INSIDE.filter(p => p.id !== 'motherboard');
+    const stillOn = others.filter(p => !P.a1.seen.includes(p.id));
+    if (stillOn.length) {
+      const tip = document.getElementById('a1-tip');
+      tip.textContent = `✋ Take the ${stillOn.map(p => p.name).join(', ')} off it first!`;
+      g.animate(
+        [{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }],
+        { duration: 300 }
+      );
+      return;
+    }
+  }
+
+  P.a1.seen.push(id);
+  save();
+
+  pullCable(scene, id, true);
+  g.classList.add('removed');
+  revealSocket(scene, id);
+
+  const part = partById(id);
+  setTimeout(() => {
+    renderShelf();
+    openModal(part);
+    refreshA1Tip(parts);
+    updateA1Btn();
+  }, 380);
+}
+
+function refreshA1Tip(parts) {
+  const tip = document.getElementById('a1-tip');
+  const left = parts.filter(p => !P.a1.seen.includes(p.id)).length;
+  if (a1Stage === 1) {
+    tip.textContent = left ? `👆 Click a device to unplug it — ${left} left` : '✓ All unplugged! Now open the case.';
+    if (!left) renderA1Stage();
+  } else {
+    tip.textContent = left ? `👆 Click a component to pull it out — ${left} left` : '✓ Stripped down! Now answer the questions below.';
+  }
+}
+
+function renderShelf() {
+  const row = document.getElementById('a1-shelf');
+  const all = A1_OUTSIDE.concat(A1_INSIDE);
+  const got = all.filter(p => P.a1.seen.includes(p.id));
+  document.getElementById('shelf-count').textContent = got.length;
+  row.innerHTML = '';
+  if (!got.length) {
+    row.innerHTML = '<div class="shelf-empty">Nothing removed yet — parts you take out will appear here.</div>';
+    return;
+  }
+  got.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'shelf-item';
+    d.title = 'Read about the ' + p.name + ' again';
+    d.innerHTML = SVG[p.svg] + `<span>${p.name}</span>`;
+    d.onclick = () => openModal(p);
+    row.appendChild(d);
+  });
 }
 
 function renderParts(containerId, parts, actKey) {
