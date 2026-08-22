@@ -849,6 +849,20 @@ p.screen-intro {
 }
 .shelf-pick { cursor: pointer; }
 
+/* storage that appears on the machine once the build is finished */
+.store-part {
+  cursor: pointer;
+  opacity: 0;
+  animation: storeFade 0.75s ease forwards;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes storeFade {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: none; }
+}
+.store-part:hover { filter: brightness(1.08) drop-shadow(0 0 7px rgba(58,143,212,0.85)); }
+
 /* ── MOBILE ─────────────────────────────────────────── */
 @media (max-width: 600px) {
   .scene-tip { font-size: 0.68rem; padding: 6px 12px; bottom: 6px; }
@@ -1007,6 +1021,7 @@ p.screen-intro {
         <div class="stage-steps">
           <span class="stage-pip" id="a2pip-1">1 · Hard drive</span>
           <span class="stage-pip" id="a2pip-2">2 · Expansion cards</span>
+          <span class="stage-pip" id="a2pip-3">3 · Other storage</span>
         </div>
       </div>
 
@@ -1025,15 +1040,6 @@ p.screen-intro {
         <div class="q-num">Drive capacity — how much can it hold?</div>
         <div class="q-opts" id="a2-size-row"></div>
         <div class="cat-why" id="a2-size-note" style="margin-top:9px"></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h3>Other places to store files</h3>
-      <div class="sub">The hard drive is not the only place your files can live. Click each one on the shelf to find out about it.</div>
-      <div class="scene-wrap">
-        <div id="a2-shelf-scene"></div>
-        <div class="scene-tip" id="a2-shelf-tip"></div>
       </div>
     </div>
 
@@ -1654,7 +1660,70 @@ function emptySlotArt(id, x, y, w, h, label) {
   </g>`;
 }
 
-function sceneRebuild(inst, anim) {
+/* The other places files can live, fitted to the same machine.
+   They fade in once the build itself is finished. `seen` ticks off the
+   ones the pupil has already read about. */
+function storageExtras(seen) {
+  const tick = (x, y, id) => seen.includes(id)
+    ? `<circle cx="${x}" cy="${y}" r="13" fill="#3bba5a" stroke="#fff" stroke-width="2.5"/>` +
+      `<text x="${x}" y="${y + 5}" font-size="14" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>`
+    : '';
+
+  return `
+  <!-- microSD in a card reader -->
+  <g class="store-part" data-store="sd" style="animation-delay:.05s">
+    <rect x="150" y="168" width="132" height="46" rx="4" fill="url(#alumG)" stroke="#7a828c" stroke-width="1.6"/>
+    <rect x="158" y="178" width="52" height="10" rx="2" fill="#141a1f"/>
+    <rect x="158" y="194" width="30" height="6" rx="2" fill="#141a1f" opacity=".7"/>
+    <circle cx="270" cy="176" r="3.4" fill="#3aaa5a"/>
+    <text x="248" y="204" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#5c646f" text-anchor="middle">READER</text>
+    <!-- the card, half inserted -->
+    <g transform="translate(0 -2)">
+      <path d="M196 176h34a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3h-34z" fill="#2f6fa8" stroke="#1d4870" stroke-width="1.2"/>
+      <g fill="#dfe6ee">${(() => { let s=''; for (let i=0;i<5;i++) s+=`<rect x="${200+i*6}" y="178" width="3" height="7" rx="1"/>`; return s; })()}</g>
+      <path d="M230 176 l4 4 v14 h-4z" fill="#255c8c"/>
+    </g>
+    <text x="216" y="230" class="socket-label" font-size="10" text-anchor="middle">MEMORY CARD</text>
+    ${tick(272, 168, 'sd')}
+  </g>
+
+  <!-- USB port with a thumb drive plugged in -->
+  <g class="store-part" data-store="usb" style="animation-delay:.2s">
+    <rect x="150" y="248" width="58" height="50" rx="4" fill="#22272d" stroke="#12161a" stroke-width="1.6"/>
+    <rect x="157" y="256" width="44" height="13" rx="2" fill="#2f5f96"/><rect x="161" y="260" width="36" height="5" fill="#0f1216"/>
+    <rect x="157" y="277" width="44" height="13" rx="2" fill="#2f5f96"/><rect x="161" y="281" width="36" height="5" fill="#0f1216"/>
+    <!-- the stick, seated in the top port -->
+    <g>
+      <rect x="198" y="254" width="26" height="17" rx="1.5" fill="#b0b8c2" stroke="#828a94" stroke-width="1.2"/>
+      <rect x="203" y="259" width="16" height="5" fill="#7f8892"/>
+      <rect x="222" y="248" width="70" height="29" rx="6" fill="#3a6ea8" stroke="#28527d" stroke-width="1.4"/>
+      <rect x="230" y="255" width="34" height="8" rx="2" fill="#5f97cc" opacity=".85"/>
+      <circle cx="282" cy="262" r="3.6" fill="#dfe6ee" opacity=".8"/>
+    </g>
+    <text x="222" y="314" class="socket-label" font-size="10" text-anchor="middle">USB PORT</text>
+    ${tick(296, 244, 'usb')}
+  </g>
+
+  <!-- network port, cable, and the cloud beyond it -->
+  <g class="store-part" data-store="cloud" style="animation-delay:.35s">
+    <rect x="700" y="212" width="26" height="26" rx="2" fill="#141a1f" stroke="#39404a" stroke-width="1.2"/>
+    <path d="M706 218h14v9l-4 4h-6l-4-4z" fill="#c8a83a"/>
+    <text x="713" y="252" class="socket-label" font-size="8" text-anchor="middle">LAN</text>
+    <path d="M726 225 C 762 224, 772 196, 790 150" stroke="#3f4a56" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M726 225 C 762 224, 772 196, 790 150" stroke="#5c6b7a" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 8">
+      <animate attributeName="stroke-dashoffset" values="28;0" dur="1.6s" repeatCount="indefinite"/>
+    </path>
+    <g>
+      <path d="M786 128a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 849 128z" fill="#7ab8e0" stroke="#4d8db8" stroke-width="1.6"/>
+      <path d="M786 128a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 849 128z" fill="url(#ic-cg)" opacity=".5"/>
+      <path d="M818 102v22m0 0l-8-8m8 8l8-8" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="818" y="150" class="socket-label" font-size="10" text-anchor="middle">THE CLOUD</text>
+    ${tick(852, 86, 'cloud')}
+  </g>`;
+}
+
+function sceneRebuild(inst, anim, showStorage, seen) {
   return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
   <rect width="900" height="470" fill="url(#wallG)"/>
   <rect x="126" y="34" width="646" height="404" rx="9" fill="#1b1f24"/>
@@ -1698,59 +1767,8 @@ function sceneRebuild(inst, anim) {
   <!-- expansion cards -->
   ${inst.gpu   ? gpuArt(anim === 'gpu')     : emptySlotArt('gpu',   292, 226, 316, 50, 'GRAPHICS CARD SLOT')}
   ${inst.sound ? soundArt(anim === 'sound') : emptySlotArt('sound', 352, 296, 256, 34, 'SOUND CARD SLOT')}
-</svg>`;
-}
 
-/* ── SCENE 4: the storage shelf ──────────────────── */
-function sceneShelf(seen) {
-  const lit = id => seen.includes(id) ? '1' : '0';
-  return `<svg viewBox="0 0 900 330" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
-  <rect width="900" height="330" fill="url(#wallG)"/>
-  <rect x="0" y="248" width="900" height="20" fill="url(#deskG)"/>
-  <rect x="0" y="248" width="900" height="5" fill="#dcb689"/>
-  <rect x="0" y="268" width="900" height="62" fill="#e6e2d8"/>
-
-  <g class="sp shelf-pick" data-part="usb" style="--oy:-24px">
-    <ellipse cx="130" cy="250" rx="52" ry="7" fill="url(#shadG)"/>
-    <rect x="86" y="196" width="34" height="26" rx="2" fill="#b0b8c2" stroke="#828a94" stroke-width="1.2"/>
-    <rect x="91" y="202" width="24" height="6" fill="#828a94"/>
-    <rect x="118" y="188" width="66" height="42" rx="6" fill="#3a6ea8"/>
-    <rect x="126" y="196" width="36" height="11" rx="2" fill="#5f97cc" opacity=".8"/>
-    <circle cx="172" cy="209" r="4" fill="#dfe6ee" opacity=".7"/>
-    <text x="132" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">USB Stick</text>
-    <circle cx="132" cy="176" r="9" fill="#3bba5a" opacity="${lit('usb')}"/>
-    <text x="132" y="181" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('usb')}">✓</text>
-  </g>
-
-  <g class="sp shelf-pick" data-part="sd" style="--oy:-24px">
-    <ellipse cx="330" cy="250" rx="44" ry="7" fill="url(#shadG)"/>
-    <path d="M304 168h46a5 5 0 0 1 5 5v66a5 5 0 0 1-5 5h-46a5 5 0 0 1-5-5v-52z" fill="#2f6fa8"/>
-    <g fill="#dfe6ee">${(() => { let s=''; for (let i=0;i<6;i++) s+=`<rect x="${309+i*7}" y="173" width="4.4" height="13" rx="1"/>`; return s; })()}</g>
-    <rect x="308" y="196" width="38" height="34" rx="2" fill="#fff" opacity=".25"/>
-    <text x="330" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">Memory Card</text>
-    <circle cx="330" cy="152" r="9" fill="#3bba5a" opacity="${lit('sd')}"/>
-    <text x="330" y="157" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('sd')}">✓</text>
-  </g>
-
-  <g class="sp shelf-pick" data-part="disc" style="--oy:-24px">
-    <ellipse cx="540" cy="250" rx="52" ry="7" fill="url(#shadG)"/>
-    <circle cx="540" cy="196" r="48" fill="#c8ced6"/>
-    <circle cx="540" cy="196" r="48" fill="url(#discG)" opacity=".75"/>
-    <circle cx="540" cy="196" r="16" fill="#eceff3"/>
-    <circle cx="540" cy="196" r="7" fill="#f7f7f3" stroke="#b0b8c2" stroke-width="1.2"/>
-    <text x="540" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">CD / DVD</text>
-    <circle cx="540" cy="136" r="9" fill="#3bba5a" opacity="${lit('disc')}"/>
-    <text x="540" y="141" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('disc')}">✓</text>
-  </g>
-
-  <g class="sp shelf-pick" data-part="cloud" style="--oy:-24px">
-    <path d="M712 224a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 775 224z" fill="#7ab8e0"/>
-    <path d="M712 224a20 20 0 0 1 2.4-39.8 28 28 0 0 1 53.4 7.5A17.6 17.6 0 0 1 775 224z" fill="url(#cloudG)" opacity=".5"/>
-    <path d="M744 198v26m0 0l-9-9m9 9l9-9" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="744" y="292" class="socket-label" text-anchor="middle" font-size="12" fill="#4a505a">The Cloud</text>
-    <circle cx="744" cy="150" r="9" fill="#3bba5a" opacity="${lit('cloud')}"/>
-    <text x="744" y="155" font-size="12" fill="#fff" text-anchor="middle" opacity="${lit('cloud')}">✓</text>
-  </g>
+  ${showStorage ? storageExtras(seen || []) : ''}
 </svg>`;
 }
 
@@ -1912,17 +1930,16 @@ function appLimit() {
 
 const A2_STORAGE = [
   { id:'usb', name:'USB Stick', svg:'usb', cat:'Secondary storage',
-    body:`<p>A small, cheap device you plug into a USB port to carry files between computers.</p>
-          <p>Great for moving work from school to home — but easy to lose!</p>` },
+    body:`<p>A USB stick plugs into a <strong>USB port</strong> on the computer. It is small and cheap, so it is handy for carrying files between computers.</p>
+          <p>Great for moving your work from school to home — but easy to lose, and easy for someone else to pick up and read.</p>
+          <div class="modal-fact">💡 It stores data on chips, just like a solid state drive — only much smaller.</div>` },
   { id:'sd', name:'Memory Card', svg:'sdcard', cat:'Secondary storage',
-    body:`<p>Small cards used in cameras, phones and games consoles to store photos, videos and save files.</p>
-          <p>They use the same kind of chips as a solid state drive.</p>` },
-  { id:'disc', name:'CD / DVD', svg:'disc', cat:'Optical storage',
-    body:`<p>Data is burned onto a shiny disc and read with a <strong>laser</strong> — which is why it is called <em>optical</em> storage.</p>
-          <p>Once common for music, films and games, but rarely used now.</p>` },
+    body:`<p>A microSD card slides into a <strong>card reader</strong>. Cameras, phones and games consoles use these to store photos, videos and save files.</p>
+          <p>The computer treats it just like any other drive once it is plugged in.</p>
+          <div class="modal-fact">📷 Tiny, but a single card can hold thousands of photos.</div>` },
   { id:'cloud', name:'The Cloud', svg:'cloud', cat:'Online storage',
-    body:`<p>Your files are sent over the internet and stored on someone else's computer in a big data centre.</p>
-          <p>You can get to them from any device, anywhere — but you need an internet connection.</p>
+    body:`<p>Instead of saving to a device you can hold, your files travel over the <strong>network</strong> to a company's computers in a big data centre.</p>
+          <p>You can reach them from any device, anywhere — but only while you have an internet connection.</p>
           <div class="modal-fact">☁️ "The cloud" is just a friendly name for <b>somebody else's computer</b>.</div>` },
 ];
 
@@ -2937,7 +2954,6 @@ function finishA1() {
 function openA2() {
   P.a2.cards = P.a2.cards || [];
   renderA2Scene();
-  renderA2Shelf();
   renderA2Quiz();
   updateA2Btn();
   showScreen('screen-a2');
@@ -2959,8 +2975,9 @@ let a2Anim = null;
 
 function renderA2Scene() {
   const inst = a2Installed();
+  const built = !!inst.drive && inst.gpu && inst.sound;   // part 1 finished?
   const sceneEl = document.getElementById('a2-scene');
-  sceneEl.innerHTML = sceneRebuild(inst, a2Anim);
+  sceneEl.innerHTML = sceneRebuild(inst, a2Anim, built, P.a2.seen);
   a2Anim = null;
 
   // Anything already seated in the case can be clicked to read about it again.
@@ -2972,9 +2989,21 @@ function renderA2Scene() {
     });
   });
 
+  // The other places files can live, fitted to the same machine.
+  sceneEl.querySelectorAll('.store-part').forEach(g => {
+    g.addEventListener('click', () => {
+      const id = g.dataset.store;
+      if (!P.a2.seen.includes(id)) { P.a2.seen.push(id); save(); renderA2Scene(); }
+      openModal(A2_STORAGE.find(s => s.id === id));
+      updateA2Btn();
+    });
+  });
+
   const stage = inst.drive ? 2 : 1;
   document.getElementById('a2pip-1').className = 'stage-pip' + (stage === 1 ? ' now' : ' done');
   document.getElementById('a2pip-2').className = 'stage-pip' + (stage === 2 ? (inst.gpu && inst.sound ? ' done' : ' now') : '');
+  const storeLeft = A2_STORAGE.filter(s => !P.a2.seen.includes(s.id)).length;
+  document.getElementById('a2pip-3').className = 'stage-pip' + (!built ? '' : (storeLeft ? ' now' : ' done'));
 
   const title = document.getElementById('a2-stage-title');
   const sub   = document.getElementById('a2-stage-sub');
@@ -2989,10 +3018,14 @@ function renderA2Scene() {
     sub.textContent = 'An expansion card is a circuit board you push into a slot on the motherboard to give the computer extra abilities.';
     const left = 2 - P.a2.cards.length;
     tip.textContent = `👆 Push a card into an empty slot — ${left} to go`;
+  } else if (storeLeft) {
+    title.textContent = 'Step 3 — Other places your files can live';
+    sub.textContent = 'The hard drive is not the only option. More storage has just appeared on your machine — click each one to find out about it.';
+    tip.textContent = `👆 Click the new storage — ${storeLeft} left`;
   } else {
     title.textContent = '✓ The computer is built';
-    sub.textContent = 'Storage fitted and both expansion cards seated. Swap the drive any time to compare the two kinds.';
-    tip.textContent = '✓ All fitted! Now look at the storage shelf below.';
+    sub.textContent = 'Storage fitted, both expansion cards seated, and you have seen every place a file can be kept. Swap the drive any time to compare the two kinds.';
+    tip.textContent = '✓ All done! Now answer the questions below.';
   }
 
   renderA2Tray();
@@ -3112,25 +3145,6 @@ function driveInfo(id) {
          <p>All those moving parts make it <strong>slower</strong>, and a bump can damage it. But it is much <strong>cheaper</strong>, especially if you need to store a lot.</p>
          <div class="modal-fact">🧲 Keep magnets away from one — they can wipe the data.</div>`
   };
-}
-
-/* ── the storage shelf ── */
-function renderA2Shelf() {
-  const wrap = document.getElementById('a2-shelf-scene');
-  wrap.innerHTML = sceneShelf(P.a2.seen);
-  wrap.querySelectorAll('.sp').forEach(g => {
-    const id = g.dataset.part;
-    g.addEventListener('click', () => {
-      const item = A2_STORAGE.find(s => s.id === id);
-      if (!P.a2.seen.includes(id)) { P.a2.seen.push(id); save(); }
-      renderA2Shelf();
-      openModal(item);
-      updateA2Btn();
-    });
-  });
-  const left = A2_STORAGE.filter(s => !P.a2.seen.includes(s.id)).length;
-  document.getElementById('a2-shelf-tip').textContent =
-    left ? `👆 Click each one to learn about it — ${left} left` : '✓ You have looked at all of them.';
 }
 
 function renderA2Quiz() {
