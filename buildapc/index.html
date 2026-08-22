@@ -526,9 +526,17 @@ p.screen-intro {
   background: #f3efe4;
 }
 .stall-svg { display: block; width: 100%; height: auto; }
-.good { cursor: pointer; transition: transform 0.16s; transform-box: fill-box; transform-origin: center bottom; }
-.good:hover { transform: translateY(-5px); filter: drop-shadow(0 5px 10px rgba(0,0,0,0.22)); }
-.good-picked { filter: drop-shadow(0 0 7px rgba(47,154,85,0.6)); }
+.good { cursor: pointer; }
+/* Only the artwork lifts — the hit area above must stay still, or the
+   pointer slides off it and hover flickers on and off. */
+.good .good-art {
+  transition: transform 0.16s ease-out;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  pointer-events: none;          /* clicks are handled by .good-hit */
+}
+.good:hover .good-art { transform: translateY(-5px); }
+.good-picked .good-art { filter: drop-shadow(0 0 6px rgba(47,154,85,0.55)); }
 
 /* bunting across the top of the fair */
 #fair-banner { margin-bottom: 16px; }
@@ -2019,6 +2027,12 @@ function stallSvg(cat, pickedIdx, spentOther, budget) {
     const tagText = picked ? '#ffffff' : (afford ? '#2a2a2a' : '#b03030');
     goods +=
       `<g class="good${picked ? ' good-picked' : ''}" data-idx="${i}" transform="translate(${(cx - 70).toFixed(1)} 118)">` +
+        // Stationary hit area covering the whole slot. It never moves, so
+        // hovering cannot flicker, and it makes the gaps between the artwork,
+        // price tag and labels clickable — an SVG group alone is only
+        // clickable where something is actually painted.
+        `<rect class="good-hit" x="${(70 - slot / 2).toFixed(1)}" y="-14" width="${slot.toFixed(1)}" height="220" fill="none" pointer-events="all"/>` +
+        `<g class="good-art">` +
         `<ellipse cx="70" cy="106" rx="46" ry="6" fill="#000" opacity=".16"/>` +
         goodsArt(cat.id, opt) +
         (picked ? `<circle cx="120" cy="14" r="14" fill="#2f9a55" stroke="#fff" stroke-width="2"/>` +
@@ -2032,6 +2046,7 @@ function stallSvg(cat, pickedIdx, spentOther, budget) {
         `<text x="70" y="166" font-family="Arial" font-size="12.5" font-weight="800" fill="#2a2a2a" text-anchor="middle">${opt.name}</text>` +
         `<text x="70" y="181" font-family="Arial" font-size="10" fill="#6f6f68" text-anchor="middle">${opt.spec}</text>` +
         (afford || picked ? '' : `<text x="70" y="198" font-family="Arial" font-size="10" font-weight="700" fill="#b03030" text-anchor="middle">✕ too dear for this budget</text>`) +
+        `</g>` +
       `</g>`;
   });
 
