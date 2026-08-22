@@ -1026,6 +1026,14 @@ const SCENE_DEFS = `
   <radialGradient id="shadG"><stop offset="0" stop-color="#000" stop-opacity=".34"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
 </defs>`;
 
+/* helper: a connector seated in a port on the tower's back edge.
+   `y` is the centre line of the port it plugs into. */
+function plug(y) {
+  return `<rect x="592" y="${y - 6.5}" width="20" height="13" rx="2.5" fill="#2a2e34"/>` +
+         `<rect x="594" y="${y - 4.5}" width="4" height="9" rx="1" fill="#454b54"/>` +
+         `<rect x="608" y="${y - 3.5}" width="8" height="7" rx="1" fill="#9aa2ad"/>`;
+}
+
 /* helper: a grid of ventilation holes */
 function vents(x, y, cols, rows, gap, w, h, fill) {
   let s = '';
@@ -1071,23 +1079,49 @@ function sceneOutside() {
     <path d="M758.5 132h7" stroke="#4a505a" stroke-width="1.8"/>
     <circle cx="762" cy="346" r="6.5" fill="#8f97a2" stroke="#4a505a" stroke-width="1.6"/>
     <path d="M758.5 346h7" stroke="#4a505a" stroke-width="1.8"/>
-    <!-- port cluster on the back edge -->
-    <rect x="612" y="236" width="22" height="106" rx="3" fill="#1b1f24"/>
-    <rect x="616" y="244" width="14" height="12" rx="2" fill="#3f6ea8"/>
-    <rect x="616" y="262" width="14" height="12" rx="2" fill="#3f6ea8"/>
-    <rect x="616" y="280" width="14" height="10" rx="2" fill="#7a4f9a"/>
-    <circle cx="623" cy="304" r="5" fill="#3aaa5a"/>
-    <circle cx="623" cy="320" r="5" fill="#d94040"/>
-    <text x="612" y="228" class="socket-label" text-anchor="end" font-size="10">PORTS ↓</text>
+    <!-- port cluster on the back edge — one port per device -->
+    <rect x="610" y="230" width="26" height="118" rx="3" fill="#1b1f24"/>
+    <rect x="612" y="232" width="22" height="114" rx="2" fill="#0f1216"/>
+    <!-- video port (monitor) -->
+    <rect x="614" y="242" width="18" height="15" rx="2" fill="#2b3d68"/>
+    <g fill="#7d8794">${vents(617, 246, 4, 2, 4, 2, 3, '#7d8794')}</g>
+    <!-- three USB ports (keyboard, mouse, webcam) -->
+    <rect x="615" y="264" width="16" height="10" rx="1.5" fill="#2f5f96"/><rect x="617" y="267" width="12" height="4" fill="#0f1216"/>
+    <rect x="615" y="282" width="16" height="10" rx="1.5" fill="#2f5f96"/><rect x="617" y="285" width="12" height="4" fill="#0f1216"/>
+    <rect x="615" y="300" width="16" height="10" rx="1.5" fill="#2f5f96"/><rect x="617" y="303" width="12" height="4" fill="#0f1216"/>
+    <!-- green audio-out jack (speakers) -->
+    <circle cx="623" cy="326" r="7" fill="#2f9a4e" stroke="#0f1216" stroke-width="1.4"/>
+    <circle cx="623" cy="326" r="3" fill="#0d1114"/>
+    <text x="606" y="224" class="socket-label" text-anchor="end" font-size="10">PORTS ↓</text>
   </g>
 
-  <!-- ── CABLES ── -->
+  <!-- ── CABLES ──
+       Every lead runs from a real point on its device to its own port on
+       the tower, finishing in a plug. Devices are drawn after the cables,
+       so a lead correctly disappears behind whatever it comes out of. -->
   <g fill="none" stroke-linecap="round">
-    <path class="cable" id="cab-monitor"  d="M320 350 C 420 372, 520 340, 608 302" stroke="#23262b" stroke-width="5"/>
-    <path class="cable" id="cab-keyboard" d="M414 392 C 480 402, 546 372, 606 318" stroke="#23262b" stroke-width="4"/>
-    <path class="cable" id="cab-mouse"    d="M492 386 C 534 392, 570 360, 606 290" stroke="#23262b" stroke-width="3.4"/>
-    <path class="cable" id="cab-speakers" d="M112 352 C 260 400, 430 420, 604 330" stroke="#23262b" stroke-width="3.4"/>
-    <path class="cable" id="cab-webcam"   d="M312 52 C 250 40, 150 96, 128 268" stroke="#23262b" stroke-width="3"/>
+    <g class="cable" id="cab-monitor">
+      <path d="M330 300 C 420 322, 505 300, 556 272 C 578 260, 590 252, 601 250" stroke="#23262b" stroke-width="5"/>
+      ${plug(250)}
+    </g>
+    <g class="cable" id="cab-keyboard">
+      <path d="M424 388 C 500 394, 558 372, 586 322 C 596 302, 597 280, 601 269" stroke="#23262b" stroke-width="4"/>
+      ${plug(269)}
+    </g>
+    <g class="cable" id="cab-mouse">
+      <path d="M468 374 C 502 352, 542 342, 574 322 C 590 312, 597 296, 601 287" stroke="#23262b" stroke-width="3.4"/>
+      ${plug(287)}
+    </g>
+    <g class="cable" id="cab-webcam">
+      <path d="M332 50 C 404 42, 480 58, 483 172 C 487 252, 522 292, 570 301 C 584 303, 594 305, 601 305" stroke="#23262b" stroke-width="3"/>
+      ${plug(305)}
+    </g>
+    <g class="cable" id="cab-speakers">
+      <!-- left speaker daisy-chains to the right one, which plugs into the jack -->
+      <path d="M120 344 C 220 368, 386 368, 516 346" stroke="#23262b" stroke-width="3.4"/>
+      <path d="M576 336 C 588 334, 596 331, 601 326" stroke="#23262b" stroke-width="3.4"/>
+      ${plug(326)}
+    </g>
   </g>
 
   <!-- ── MONITOR ── -->
