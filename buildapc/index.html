@@ -707,11 +707,24 @@ p.screen-intro {
 .tray-item.dimmed { opacity: 0.4; }
 .tray-item.picked { border-color: var(--green); background: var(--green-light); }
 
+/* screwdriver cursor — shown over anything you unscrew */
+.cursor-tool, .cursor-tool * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cg transform='rotate(-45 16 16)'%3E%3Cpath d='M14.4 2.5h3.2v6h-3.2z' fill='%23e8edf2'/%3E%3Cpath d='M14.8 8h2.4v7.4h-2.4z' fill='%23b9c2cb'/%3E%3Crect x='13.2' y='15' width='5.6' height='2.6' rx='1' fill='%237f8894'/%3E%3Crect x='11.8' y='17.2' width='8.4' height='12' rx='3.2' fill='%23c0392b'/%3E%3Crect x='13.4' y='18.6' width='1.8' height='9' rx='.9' fill='%23e0655a'/%3E%3C/g%3E%3C/svg%3E") 7 7, pointer;
+}
+/* gentle nudge that the case is now openable */
+.tool-ready { animation: toolGlow 1.8s ease-in-out infinite; }
+@keyframes toolGlow {
+  0%,100% { filter: none; }
+  50%     { filter: drop-shadow(0 0 9px rgba(232,216,122,0.95)); }
+}
+
 /* a part sliding home into its slot */
-.fitted { animation: seatIn 0.55s cubic-bezier(0.3,1.35,0.6,1); transform-box: fill-box; transform-origin: center; }
+.fit-part { transform-box: fill-box; transform-origin: center; }
+.fit-part.fitted { animation: seatIn 0.5s cubic-bezier(0.25,0.9,0.3,1); }
 @keyframes seatIn {
-  from { transform: translateX(-130px) scale(0.94); opacity: 0; }
-  to   { transform: none; opacity: 1; }
+  0%   { transform: translateX(-58px); opacity: 0; }
+  70%  { transform: translateX(4px);   opacity: 1; }
+  100% { transform: none;              opacity: 1; }
 }
 .shelf-pick { cursor: pointer; }
 
@@ -852,6 +865,12 @@ p.screen-intro {
         <div class="tray-row" id="a2-tray"></div>
       </div>
       <div class="q-fb" id="a2-fit-fb"></div>
+
+      <div id="a2-size-block" style="display:none;margin-top:16px">
+        <div class="q-num">Drive capacity — how much can it hold?</div>
+        <div class="q-opts" id="a2-size-row"></div>
+        <div class="cat-why" id="a2-size-note" style="margin-top:9px"></div>
+      </div>
     </div>
 
     <div class="panel">
@@ -904,7 +923,7 @@ p.screen-intro {
 
       <div id="a3-apps-block" style="display:none">
         <div class="shelf">
-          <div class="shelf-title">📁 Apps to install — <span id="a3-app-count">0 of 4 chosen</span></div>
+          <div class="shelf-title">📁 Apps to install — <span id="a3-app-count">choose an operating system first</span></div>
           <div class="tray-row" id="a3-apps"></div>
         </div>
       </div>
@@ -1418,9 +1437,10 @@ function sceneInside() {
 /* ── SCENE 3: fitting new parts into the empty case ──
    Activity 2 is the mirror of Activity 1 — instead of stripping the PC
    down, you build it back up by seating parts into empty slots. ── */
-function driveArt(kind) {
+function driveArt(kind, sizeLabel, anim) {
+  const cls = 'fit-part' + (anim ? ' fitted' : '');
   if (kind === 'magnetic') {
-    return `<g class="fitted" data-fit="drive">
+    return `<g class="${cls}" data-fit="drive">
       <rect x="152" y="62" width="164" height="88" rx="4" fill="url(#alumG)" stroke="#7a828c" stroke-width="1.5"/>
       <circle cx="220" cy="106" r="34" fill="#3a4048"/>
       <circle cx="220" cy="106" r="34" fill="url(#glassG)" opacity=".55"/>
@@ -1428,10 +1448,10 @@ function driveArt(kind) {
       <path d="M300 74 L292 84 L246 98 L252 108 L298 88 Z" fill="#c8ced6" stroke="#8f97a2" stroke-width="1.2"/>
       <circle cx="299" cy="78" r="6" fill="#8f97a2"/>
       <rect x="160" y="128" width="58" height="16" rx="2" fill="#eceff3" stroke="#b8bec6" stroke-width="1"/>
-      <text x="189" y="140" font-family="Courier New, monospace" font-size="9" font-weight="700" fill="#4a505a" text-anchor="middle">1 TB HDD</text>
+      <text x="189" y="140" font-family="Courier New, monospace" font-size="9" font-weight="700" fill="#4a505a" text-anchor="middle">${sizeLabel} HDD</text>
     </g>`;
   }
-  return `<g class="fitted" data-fit="drive">
+  return `<g class="${cls}" data-fit="drive">
     <rect x="152" y="70" width="164" height="72" rx="4" fill="#2f3a4a" stroke="#1d2530" stroke-width="1.5"/>
     <rect x="160" y="78" width="148" height="56" rx="3" fill="url(#pcbG)"/>
     <g fill="#20262c">
@@ -1440,12 +1460,13 @@ function driveArt(kind) {
       <rect x="262" y="86" width="34" height="42" rx="2"/>
     </g>
     <rect x="152" y="98" width="8" height="18" fill="#c8a83a"/>
-    <text x="279" y="112" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#9fb4c6" text-anchor="middle">SSD</text>
+    <text x="279" y="112" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#9fb4c6" text-anchor="middle">${sizeLabel}</text>
+    <text x="279" y="124" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#6f8698" text-anchor="middle">SSD</text>
   </g>`;
 }
 
-function gpuArt() {
-  return `<g class="fitted" data-fit="gpu">
+function gpuArt(anim) {
+  return `<g class="fit-part${anim ? ' fitted' : ''}" data-fit="gpu">
     <rect x="292" y="226" width="316" height="50" rx="4" fill="#1d2530"/>
     <rect x="298" y="231" width="304" height="40" rx="3" fill="#2b3540"/>
     <circle cx="356" cy="251" r="17" fill="#12181f"/>
@@ -1459,8 +1480,8 @@ function gpuArt() {
   </g>`;
 }
 
-function soundArt() {
-  return `<g class="fitted" data-fit="sound">
+function soundArt(anim) {
+  return `<g class="fit-part${anim ? ' fitted' : ''}" data-fit="sound">
     <rect x="348" y="292" width="264" height="42" rx="4" fill="#0f1a14" opacity=".55"/>
     <rect x="352" y="296" width="256" height="34" rx="3" fill="#12653a" stroke="#0a3d22" stroke-width="1.6"/>
     <g stroke="#d3b455" stroke-width="1.1" fill="none" opacity=".6"><path d="M364 306h34v12h30"/><path d="M364 320h48"/></g>
@@ -1480,7 +1501,7 @@ function emptySlotArt(id, x, y, w, h, label) {
   </g>`;
 }
 
-function sceneRebuild(inst) {
+function sceneRebuild(inst, anim) {
   return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
   ${SCENE_DEFS}
   <rect width="900" height="470" fill="url(#wallG)"/>
@@ -1497,7 +1518,7 @@ function sceneRebuild(inst) {
   <path d="M300 374 C 352 382, 368 344, 404 336" stroke="#8a3f3f" stroke-width="5" fill="none" opacity=".9"/>
 
   <!-- drive bay -->
-  ${inst.drive ? driveArt(inst.drive) : emptySlotArt('drive', 152, 62, 164, 88, 'DRIVE BAY')}
+  ${inst.drive ? driveArt(inst.drive, inst.sizeLabel, anim === 'drive') : emptySlotArt('drive', 152, 62, 164, 88, 'DRIVE BAY')}
 
   <!-- motherboard, already built back up with CPU + RAM -->
   <g>
@@ -1523,8 +1544,8 @@ function sceneRebuild(inst) {
   </g>
 
   <!-- expansion cards -->
-  ${inst.gpu   ? gpuArt()   : emptySlotArt('gpu',   292, 226, 316, 50, 'GRAPHICS CARD SLOT')}
-  ${inst.sound ? soundArt() : emptySlotArt('sound', 352, 296, 256, 34, 'SOUND CARD SLOT')}
+  ${inst.gpu   ? gpuArt(anim === 'gpu')     : emptySlotArt('gpu',   292, 226, 316, 50, 'GRAPHICS CARD SLOT')}
+  ${inst.sound ? soundArt(anim === 'sound') : emptySlotArt('sound', 352, 296, 256, 34, 'SOUND CARD SLOT')}
 </svg>`;
 }
 
@@ -1592,8 +1613,7 @@ function sceneShelf(seen) {
 const OS_LOOK = {
   Windows: { sky1:'#0b4c8c', sky2:'#1e7fd0', bar:'#0a2f52', barPos:'bottom', mark:'⊞', markC:'#7fd0ff', name:'Windows' },
   macOS:   { sky1:'#4b2f7a', sky2:'#c0568f', bar:'#241640', barPos:'both',   mark:'', markC:'#ffd9ef', name:'macOS' },
-  Linux:   { sky1:'#2b2118', sky2:'#8a4a1e', bar:'#1b140e', barPos:'top',    mark:'🐧', markC:'#ffc46b', name:'Linux' },
-  Android: { sky1:'#12564a', sky2:'#38b48b', bar:'#0c3a32', barPos:'bottom', mark:'▲', markC:'#b9f5dd', name:'Android' },
+  Linux:   { sky1:'#4a1d47', sky2:'#e8823c', bar:'#2e1230', barPos:'top',    mark:'🐧', markC:'#ffcf96', name:'Linux' },
 };
 
 const APP_ICONS = {
@@ -1722,6 +1742,28 @@ const A2_DRIVES = [
     cons:['More expensive','Costs a lot more for very large sizes'] },
 ];
 
+/* Capacities on offer. Magnetic drives give far more space per pound,
+   solid state gives less — which is the trade-off the lesson makes.
+   The size you fit decides how many apps fit in Activity 3. */
+const DRIVE_SIZES = {
+  magnetic: [1000, 2000, 4000],
+  ssd:      [250, 500, 1000],
+};
+const DEFAULT_SIZE = { magnetic: 2000, ssd: 500 };
+
+function sizeLabel(gb) { return gb >= 1000 ? (gb / 1000) + ' TB' : gb + ' GB'; }
+function appsForSize(gb) {
+  if (gb >= 4000) return 6;
+  if (gb >= 2000) return 5;
+  if (gb >= 1000) return 4;
+  if (gb >= 500)  return 3;
+  return 2;
+}
+/* How many apps this pupil's machine can hold (4 if no drive fitted yet). */
+function appLimit() {
+  return P.a2 && P.a2.size ? appsForSize(P.a2.size) : 4;
+}
+
 const A2_STORAGE = [
   { id:'usb', name:'USB Stick', svg:'usb', cat:'Secondary storage',
     body:`<p>A small, cheap device you plug into a USB port to carry files between computers.</p>
@@ -1762,7 +1804,7 @@ const A2_QUIZ = [
 const A3_SOFTWARE = [
   { name:'Windows',        cat:'os' },
   { name:'macOS',          cat:'os' },
-  { name:'Android',        cat:'os' },
+  { name:'Linux',          cat:'os' },
   { name:'Antivirus',      cat:'util' },
   { name:'Backup software',cat:'util' },
   { name:'File manager',   cat:'util' },
@@ -1784,7 +1826,7 @@ const A3_QUIZ = [
   { q:'"I let you move, rename, copy and delete your files and folders."', opts:['Screen saver','Encryption software','File manager'], a:'File manager', why:'A file manager organises your files and folders.' },
 ];
 
-const A3_OS = ['Windows','macOS','Linux','Android'];
+const A3_OS = ['Windows','macOS','Linux'];
 const A3_APPS = ['Word Processor','Spreadsheet','Presentation','Email','Web Browser','Graphics Software','Music Player','Video Editor'];
 
 /* ════════════════════════════════════════════════════
@@ -1886,7 +1928,7 @@ const STORE_KEY = 'buildapc-progress-v1';
 let P = {
   name: '',
   a1: { seen: [], answers: {}, done: false, score: 0, max: A1_QUIZ.length },
-  a2: { drive: null, cards: [], seen: [], answers: {}, done: false, score: 0, max: A2_QUIZ.length },
+  a2: { drive: null, size: null, cards: [], seen: [], answers: {}, done: false, score: 0, max: A2_QUIZ.length },
   a3: { sorted: {}, answers: {}, os: null, apps: [], done: false, score: 0, max: A3_SOFTWARE.length + A3_QUIZ.length },
   a4: { best: {} },   // best[clientId] = score
 };
@@ -2094,13 +2136,17 @@ function renderA1Stage() {
     sub.textContent = 'These are the parts you can see and touch from the outside. Click each one to unplug it and put it on the bench.';
     scene.innerHTML = sceneOutside();
     wireScene(scene, A1_OUTSIDE);
-    tip.textContent = outLeft ? `👆 Click a device to unplug it — ${outLeft} left` : '✓ All unplugged! Now open the case.';
-    if (!outLeft) {
-      const b = document.createElement('button');
-      b.className = 'btn primary';
-      b.textContent = '🔩 Unscrew the side panel';
-      b.onclick = () => { a1Stage = 2; renderA1Stage(); };
-      btns.appendChild(b);
+    if (outLeft) {
+      tip.textContent = `👆 Click a device to unplug it — ${outLeft} left`;
+    } else {
+      // Everything is unplugged — the tower itself becomes the way in.
+      tip.textContent = '🪛 Now click the computer to unscrew it open';
+      const tower = scene.querySelector('#tower');
+      tower.classList.add('cursor-tool', 'tool-ready');
+      tower.addEventListener('click', () => {
+        a1Stage = 2;
+        renderA1Stage();
+      }, { once: true });
     }
   }
   else if (a1Stage === 2) {
@@ -2109,8 +2155,9 @@ function renderA1Stage() {
     scene.innerHTML = sceneInside();
     tip.textContent = '👆 Click the side panel to swing it open';
     const panel = scene.querySelector('#side-panel');
-    panel.style.cursor = 'pointer';
+    panel.classList.add('cursor-tool', 'tool-ready');
     panel.addEventListener('click', () => {
+      panel.classList.remove('tool-ready');
       panel.classList.add('open');
       tip.textContent = '⚙️ Opening…';
       setTimeout(() => { a1Stage = 3; renderA1Stage(); }, 900);
@@ -2312,12 +2359,23 @@ function openA2() {
 }
 
 function a2Installed() {
-  return { drive: P.a2.drive, gpu: P.a2.cards.includes('gpu'), sound: P.a2.cards.includes('sound') };
+  return {
+    drive: P.a2.drive,
+    sizeLabel: P.a2.size ? sizeLabel(P.a2.size) : '',
+    gpu: P.a2.cards.includes('gpu'),
+    sound: P.a2.cards.includes('sound'),
+  };
 }
+
+/* Which part (if any) should play its slide-in animation on this render.
+   Only the part just fitted animates — otherwise every part re-animated
+   every time anything changed, which looked wrong. */
+let a2Anim = null;
 
 function renderA2Scene() {
   const inst = a2Installed();
-  document.getElementById('a2-scene').innerHTML = sceneRebuild(inst);
+  document.getElementById('a2-scene').innerHTML = sceneRebuild(inst, a2Anim);
+  a2Anim = null;
 
   const stage = inst.drive ? 2 : 1;
   document.getElementById('a2pip-1').className = 'stage-pip' + (stage === 1 ? ' now' : ' done');
@@ -2329,7 +2387,7 @@ function renderA2Scene() {
 
   if (!inst.drive) {
     title.textContent = 'Step 1 — Fit a hard drive';
-    sub.textContent = 'RAM forgets everything when the power goes off. A hard drive is where your files actually live. Pick which kind to slide into the empty bay.';
+    sub.textContent = 'RAM forgets everything when the power goes off. A hard drive is where your files actually live. Pick which kind to slide into the empty bay — you can swap it afterwards to compare.';
     tip.textContent = '👆 Choose a drive from the tray below';
   } else if (!(inst.gpu && inst.sound)) {
     title.textContent = 'Step 2 — Fit the expansion cards';
@@ -2338,7 +2396,7 @@ function renderA2Scene() {
     tip.textContent = `👆 Push a card into an empty slot — ${left} to go`;
   } else {
     title.textContent = '✓ The computer is built';
-    sub.textContent = 'Storage fitted and both expansion cards seated. Now find out where else files can live.';
+    sub.textContent = 'Storage fitted and both expansion cards seated. Swap the drive any time to compare the two kinds.';
     tip.textContent = '✓ All fitted! Now look at the storage shelf below.';
   }
 
@@ -2350,27 +2408,25 @@ function renderA2Tray() {
   tray.innerHTML = '';
   const inst = a2Installed();
 
-  // Drives — pick exactly one
+  // Drive type — swappable, so pupils can compare the two head to head
   A2_DRIVES.forEach(d => {
     const chosen = P.a2.drive === d.id;
-    const other  = P.a2.drive && !chosen;
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'tray-item' + (chosen ? ' fitted-ok' : other ? ' dimmed' : '');
+    b.className = 'tray-item' + (chosen ? ' fitted-ok' : '');
     b.innerHTML = SVG[d.svg] +
       `<span class="t-name">${chosen ? '✓ ' : ''}${d.name}</span>` +
-      `<span class="t-note">${d.pros[0]}<br>${d.cons[0]}</span>`;
+      `<span class="t-note">${chosen ? 'Fitted — click the other to swap' : d.pros[0]}</span>`;
     b.onclick = () => {
-      if (P.a2.drive) return;                       // one drive only
+      if (chosen) return;
+      const swapping = !!P.a2.drive;
       P.a2.drive = d.id;
+      P.a2.size  = DEFAULT_SIZE[d.id];
       save();
+      a2Anim = 'drive';
       renderA2Scene();
-      const fb = document.getElementById('a2-fit-fb');
-      fb.className = 'q-fb show ok';
-      fb.innerHTML = d.id === 'ssd'
-        ? '✓ You fitted a <b>solid state drive</b> — no moving parts, so it is fast and tough. You pay more per gigabyte, so you get less space for your money.'
-        : '✓ You fitted a <b>magnetic hard drive</b> — spinning disks and a moving arm make it slower and easier to damage, but it is far cheaper for lots of space.';
-      setTimeout(() => openModal(driveInfo(d.id)), 420);
+      showDriveFeedback(d.id, swapping);
+      if (!swapping) setTimeout(() => openModal(driveInfo(d.id)), 430);
       updateA2Btn();
     };
     tray.appendChild(b);
@@ -2388,19 +2444,61 @@ function renderA2Tray() {
       `<span class="t-note">${locked ? 'Fit the drive first' : fitted ? 'Seated in its slot' : 'Push into a slot'}</span>`;
     b.onclick = () => {
       if (fitted) return;
-      if (locked) {
-        const tip = document.getElementById('a2-tip');
-        tip.textContent = '✋ Fit the hard drive first!';
-        return;
-      }
+      if (locked) { document.getElementById('a2-tip').textContent = '✋ Fit the hard drive first!'; return; }
       P.a2.cards.push(c.id);
       save();
+      a2Anim = c.id;
       renderA2Scene();
-      setTimeout(() => openModal(c), 420);
+      setTimeout(() => openModal(c), 430);
       updateA2Btn();
     };
     tray.appendChild(b);
   });
+
+  renderA2Sizes();
+}
+
+/* Capacity picker — only shown once a drive type is fitted. */
+function renderA2Sizes() {
+  const row = document.getElementById('a2-size-row');
+  const block = document.getElementById('a2-size-block');
+  if (!P.a2.drive) { block.style.display = 'none'; return; }
+  block.style.display = '';
+  row.innerHTML = '';
+
+  DRIVE_SIZES[P.a2.drive].forEach(gb => {
+    const on = P.a2.size === gb;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'q-opt' + (on ? ' chosen' : '');
+    b.innerHTML = `${sizeLabel(gb)} <span style="opacity:.7;font-weight:400">· ${appsForSize(gb)} apps</span>`;
+    b.onclick = () => {
+      P.a2.size = gb;
+      // Dropping to a smaller drive may no longer hold everything installed.
+      const lim = appsForSize(gb);
+      if (P.a3.apps && P.a3.apps.length > lim) P.a3.apps = P.a3.apps.slice(0, lim);
+      save();
+      a2Anim = 'drive';
+      renderA2Scene();
+      updateA2Btn();
+    };
+    row.appendChild(b);
+  });
+
+  document.getElementById('a2-size-note').innerHTML =
+    `A <b>${sizeLabel(P.a2.size)}</b> drive has room for <b>${appsForSize(P.a2.size)} apps</b> when you install software in Activity 3. ` +
+    (P.a2.drive === 'ssd'
+      ? 'Solid state costs more per gigabyte, so your money buys less space.'
+      : 'Magnetic drives are cheap per gigabyte, so you get plenty of room.');
+}
+
+function showDriveFeedback(id, swapping) {
+  const fb = document.getElementById('a2-fit-fb');
+  fb.className = 'q-fb show ok';
+  const base = id === 'ssd'
+    ? '<b>Solid state drive</b> — no moving parts, so it is fast and tough. You pay more per gigabyte, so you get less space for your money.'
+    : '<b>Magnetic hard drive</b> — spinning disks and a moving arm make it slower and easier to damage, but it is far cheaper for lots of space.';
+  fb.innerHTML = (swapping ? '🔄 Swapped to a ' : '✓ You fitted a ') + base;
 }
 
 function driveInfo(id) {
@@ -2519,30 +2617,38 @@ function renderA3Machine() {
 
   const hasOS = !!P.a3.os;
   document.getElementById('a3pip-1').className = 'stage-pip' + (hasOS ? ' done' : ' now');
-  document.getElementById('a3pip-2').className = 'stage-pip' + (hasOS ? (P.a3.apps.length === 4 ? ' done' : ' now') : '');
 
   const title = document.getElementById('a3-stage-title');
   const sub   = document.getElementById('a3-stage-sub');
   const tip   = document.getElementById('a3-tip');
+  const lim   = appLimit();
+
+  document.getElementById('a3pip-2').className = 'stage-pip' + (hasOS ? (P.a3.apps.length === lim ? ' done' : ' now') : '');
 
   if (!hasOS) {
     title.textContent = 'Step 1 — Install an operating system';
     sub.textContent = 'The hardware works, but with no operating system the computer cannot even start up properly. Choose one to install.';
     tip.textContent = '👆 Pick an install disc below';
-  } else if (P.a3.apps.length < 4) {
+  } else if (P.a3.apps.length < lim) {
     title.textContent = 'Step 2 — Fill the desktop';
-    sub.textContent = 'The OS has booted. Now install applications — the programs you actually use to get things done. You may install exactly 4, so choose wisely.';
-    tip.textContent = `👆 Install apps — ${4 - P.a3.apps.length} slot${4 - P.a3.apps.length !== 1 ? 's' : ''} left`;
+    sub.textContent = `The OS has booted. Now install applications — the programs you actually use to get things done. Your hard drive has room for ${lim}, so choose wisely.`;
+    const left = lim - P.a3.apps.length;
+    tip.textContent = `👆 Install apps — ${left} slot${left !== 1 ? 's' : ''} left on the drive`;
   } else {
     title.textContent = '✓ Your computer is ready';
-    sub.textContent = 'An operating system running, and four applications installed on the desktop.';
+    sub.textContent = `An operating system running, with the drive full at ${lim} application${lim !== 1 ? 's' : ''}.`;
     tip.textContent = '✓ Ready to use! Click an app again to swap it.';
   }
 
   document.getElementById('a3-install-hint').textContent =
     hasOS ? `${P.a3.os} installed — click another to change it` : 'choose an operating system';
   document.getElementById('a3-apps-block').style.display = hasOS ? '' : 'none';
-  document.getElementById('a3-app-count').textContent = P.a3.apps.length + ' of 4 chosen';
+
+  const driveNote = (P.a2 && P.a2.size)
+    ? `${sizeLabel(P.a2.size)} ${P.a2.drive === 'ssd' ? 'SSD' : 'hard drive'} fitted — room for ${lim}`
+    : `no drive fitted yet, assuming room for ${lim} — fit one in Activity 2 to change this`;
+  document.getElementById('a3-app-count').innerHTML =
+    `${P.a3.apps.length} of ${lim} installed <span style="opacity:.75;text-transform:none;letter-spacing:0">· ${driveNote}</span>`;
 
   renderA3Trays();
 }
@@ -2576,17 +2682,19 @@ function renderA3Trays() {
     const ic = APP_ICONS[app];
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'tray-item' + (on ? ' picked' : (P.a3.apps.length >= 4 ? ' dimmed' : ''));
+    b.className = 'tray-item' + (on ? ' picked' : (P.a3.apps.length >= appLimit() ? ' dimmed' : ''));
     b.innerHTML =
       `<svg viewBox="0 0 120 100"><rect x="34" y="18" width="52" height="52" rx="12" fill="${ic.c}"/>` +
       `<text x="60" y="55" font-size="26" fill="#fff" text-anchor="middle" font-family="Arial">${ic.g}</text></svg>` +
       `<span class="t-name">${on ? '✓ ' : ''}${app}</span>`;
     b.onclick = () => {
       const i = P.a3.apps.indexOf(app);
+      const lim = appLimit();
       if (i >= 0) P.a3.apps.splice(i, 1);
-      else if (P.a3.apps.length < 4) P.a3.apps.push(app);
+      else if (P.a3.apps.length < lim) P.a3.apps.push(app);
       else {
-        document.getElementById('a3-tip').textContent = '✋ Only 4 apps fit — click one you have chosen to remove it.';
+        document.getElementById('a3-tip').textContent =
+          `✋ The drive is full at ${lim} apps — remove one, or fit a bigger drive in Activity 2.`;
         return;
       }
       save(); renderA3Machine(); updateA3Btn();
@@ -2688,12 +2796,13 @@ function updateA3Btn() {
   P.a3.apps = P.a3.apps || [];
   const sorted   = Object.keys(P.a3.sorted).length >= A3_SOFTWARE.length;
   const answered = Object.keys(P.a3.answers).length >= A3_QUIZ.length;
-  const machine  = !!P.a3.os && P.a3.apps.length === 4;
+  const lim      = appLimit();
+  const machine  = !!P.a3.os && P.a3.apps.length === lim;
   const btn = document.getElementById('a3-finish');
   btn.disabled = !(sorted && answered && machine);
   btn.textContent = (sorted && answered && machine) ? 'Finish activity'
     : !P.a3.os ? 'Install an operating system first'
-    : P.a3.apps.length !== 4 ? `Install exactly 4 apps (${P.a3.apps.length}/4)`
+    : P.a3.apps.length !== lim ? `Fill the drive — install ${lim} apps (${P.a3.apps.length}/${lim})`
     : !sorted ? 'Sort all the software'
     : 'Answer all the clues';
 }
