@@ -1044,6 +1044,8 @@ p.screen-intro {
         <div class="scene-tip" id="a2-tip"></div>
       </div>
 
+      <div class="btn-row" id="a2-scene-btns"></div>
+
       <div class="shelf">
         <div class="shelf-title">🔧 Parts you removed — put them back</div>
         <div class="tray-row" id="a2-refit-tray"></div>
@@ -1770,139 +1772,137 @@ function soundArt(anim) {
 }
 
 /* ══ The machine turned round, in isometric ═══════════
-   Storage you plug in lives on the FRONT of a computer, not
-   inside it — so for the last step the case rotates to show its
-   front panel and the devices go in where they really would.
-   2:1 isometric: the front face runs right-and-down, depth runs
-   right-and-up, height is straight down the screen. */
-const ISO = { fx: 312, fy: 104, fw: 200, fh: 214, sw: 122, t: 0.5 };
+   Storage you plug in lives on the FRONT of a computer, so for the
+   last step the case turns to show its front panel. 2:1 isometric
+   viewed from the front-RIGHT: moving right across the front face
+   goes UP, depth recedes back-and-left, so the machine's own left
+   side is the one on show. */
+const ISO = { fx: 252, fy: 202, fw: 202, fh: 212, sw: 124, t: 0.5 };
 
-/* a point on the front face, u across (0-1), v down (0-1) */
+/* a point on the front face: u across (0-1, left to right), v down (0-1) */
 function fpt(u, v) {
-  return [ISO.fx + u * ISO.fw, ISO.fy + u * ISO.fw * ISO.t + v * ISO.fh];
+  return [ISO.fx + u * ISO.fw, ISO.fy - u * ISO.fw * ISO.t + v * ISO.fh];
 }
-/* a rectangle lying on the front face, as a polygon */
+/* a point on the visible left side face: s back (0-1), v down (0-1) */
+function lpt(s, v) {
+  return [ISO.fx - s * ISO.sw, ISO.fy - s * ISO.sw * ISO.t + v * ISO.fh];
+}
+/* a rectangle lying on the front face */
 function fquad(u0, v0, u1, v1) {
-  const p = [fpt(u0, v0), fpt(u1, v0), fpt(u1, v1), fpt(u0, v1)];
-  return p.map(q => `${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' ');
+  return [fpt(u0, v0), fpt(u1, v0), fpt(u1, v1), fpt(u0, v1)]
+    .map(q => `${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' ');
 }
-/* straight out of the front face, toward the viewer */
-function fout(p, d) { return [p[0] - d * 0.894, p[1] + d * 0.447]; }
+/* straight out of the front face, toward the viewer (right and down) */
+function fout(p, d) { return [p[0] + d * 0.894, p[1] + d * 0.447]; }
 
 function sceneIso(seen) {
-  const P1 = fpt(0, 0), P2 = fpt(1, 0), P3 = fpt(1, 1), P4 = fpt(0, 1);
-  const P5 = [P2[0] + ISO.sw, P2[1] - ISO.sw * ISO.t];
-  const P6 = [P3[0] + ISO.sw, P3[1] - ISO.sw * ISO.t];
-  const P7 = [P1[0] + ISO.sw, P1[1] - ISO.sw * ISO.t];
+  const F_TL = fpt(0, 0), F_TR = fpt(1, 0), F_BR = fpt(1, 1), F_BL = fpt(0, 1);
+  const B_TL = lpt(1, 0), B_BL = lpt(1, 1);
+  const B_TR = [F_TR[0] - ISO.sw, F_TR[1] - ISO.sw * ISO.t];
   const q = pts => pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
 
-  // Labels sit in a column clear of the machine, with a leader line to
-  // the device — putting them next to the devices made them collide.
-  const lead = (y, text, ax, ay) =>
-    `<line x1="212" y1="${y}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#a8a8a0" stroke-width="1.4" stroke-dasharray="3 3"/>` +
-    `<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="3.4" fill="#a8a8a0"/>` +
-    `<text x="204" y="${y + 4}" class="socket-label" font-size="12" text-anchor="end">${text}</text>`;
+  // labels sit clear of the machine, with a leader line to each device
+  const lead = (ly, text, tip) =>
+    `<line x1="${tip[0].toFixed(1)}" y1="${tip[1].toFixed(1)}" x2="562" y2="${ly}" stroke="#9a9a92" stroke-width="1.4" stroke-dasharray="3 3"/>` +
+    `<circle cx="${tip[0].toFixed(1)}" cy="${tip[1].toFixed(1)}" r="3.4" fill="#9a9a92"/>` +
+    `<text x="572" y="${ly + 4}" class="socket-label" font-size="12">${text}</text>`;
 
-  const tick = (u, v, id, off) => {
-    if (!seen.includes(id)) return '';
-    const p = fout(fpt(u, v), off || 0);
-    return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="14" fill="#3bba5a" stroke="#fff" stroke-width="3"/>` +
-           `<text x="${p[0].toFixed(1)}" y="${(p[1] + 5).toFixed(1)}" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>`;
-  };
+  const tick = (p) =>
+    `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="14" fill="#3bba5a" stroke="#fff" stroke-width="3"/>` +
+    `<text x="${p[0].toFixed(1)}" y="${(p[1] + 5).toFixed(1)}" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>`;
 
-  // side vents
+  // vents down the visible side
   let vent = '';
-  for (let i = 0; i < 9; i++) {
-    const a = [P2[0] + 18 + i * 11, P2[1] - 9 - i * 5.5];
-    vent += `<polygon points="${q([a, [a[0] + 7, a[1] + 3.5], [a[0] + 7, a[1] + 3.5 + 150], [a[0], a[1] + 150]])}" fill="#000" opacity=".22"/>`;
+  for (let i = 0; i < 8; i++) {
+    const s0 = 0.16 + i * 0.088, s1 = s0 + 0.05;
+    vent += `<polygon points="${q([lpt(s0, 0.3), lpt(s1, 0.3), lpt(s1, 0.9), lpt(s0, 0.9)])}" fill="#000" opacity=".2"/>`;
   }
 
   return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
   <rect width="900" height="470" fill="url(#wallG)"/>
-  <ellipse cx="${(P4[0] + 150).toFixed(1)}" cy="${(P3[1] + 16).toFixed(1)}" rx="210" ry="26" fill="#000" opacity=".13"/>
+  <ellipse cx="292" cy="428" rx="196" ry="26" fill="#000" opacity=".13"/>
 
   <!-- the tower -->
-  <polygon points="${q([P1, P2, P5, P7])}" fill="#5b626d"/>
-  <polygon points="${q([P2, P5, P6, P3])}" fill="#333940"/>
+  <polygon points="${q([B_TL, B_TR, F_TR, F_TL])}" fill="#5b626d"/>
+  <polygon points="${q([B_TL, F_TL, F_BL, B_BL])}" fill="#333940"/>
   ${vent}
-  <polygon points="${q([P1, P2, P3, P4])}" fill="#464d57"/>
-  <polygon points="${q([P1, P2, P3, P4])}" fill="url(#glassG)" opacity=".18"/>
-  <polyline points="${q([P7, P1, P4])}" fill="none" stroke="#2b3037" stroke-width="2"/>
-  <polyline points="${q([P4, P3, P6])}" fill="none" stroke="#2b3037" stroke-width="2"/>
+  <polygon points="${q([F_TL, F_TR, F_BR, F_BL])}" fill="#464d57"/>
+  <polygon points="${q([F_TL, F_TR, F_BR, F_BL])}" fill="url(#glassG)" opacity=".16"/>
+  <polyline points="${q([B_TR, F_TR, F_BR, F_BL])}" fill="none" stroke="#2b3037" stroke-width="2"/>
+  <polyline points="${q([B_BL, F_BL])}" fill="none" stroke="#2b3037" stroke-width="2"/>
 
-  <!-- power button + badge -->
-  <ellipse cx="${fpt(0.82, 0.87)[0].toFixed(1)}" cy="${fpt(0.82, 0.87)[1].toFixed(1)}" rx="11" ry="6" fill="#2a2f36" stroke="#1a1e23" stroke-width="1.4"/>
-  <ellipse cx="${fpt(0.82, 0.87)[0].toFixed(1)}" cy="${fpt(0.82, 0.87)[1].toFixed(1)}" rx="5" ry="2.8" fill="url(#ledG)"/>
+  <!-- power button -->
+  <ellipse cx="${fpt(0.84, 0.88)[0].toFixed(1)}" cy="${fpt(0.84, 0.88)[1].toFixed(1)}" rx="11" ry="6" fill="#2a2f36" stroke="#1a1e23" stroke-width="1.4"/>
+  <ellipse cx="${fpt(0.84, 0.88)[0].toFixed(1)}" cy="${fpt(0.84, 0.88)[1].toFixed(1)}" rx="5" ry="2.8" fill="url(#ledG)"/>
 
-  <!-- ══ CD / DVD: slot-loading, disc going in ══ -->
+  <!-- ══ CD / DVD: slot-loading, disc feeding in ══ -->
   <g class="store-part" data-store="disc" style="animation-delay:.05s">
     <polygon points="${fquad(0.08, 0.05, 0.92, 0.115)}" fill="#2b3037" stroke="#181c21" stroke-width="1.6"/>
-    <polygon points="${fquad(0.12, 0.072, 0.86, 0.088)}" fill="#0d1013"/>
-    <ellipse cx="${fpt(0.9, 0.098)[0].toFixed(1)}" cy="${fpt(0.9, 0.098)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
-    <!-- the disc, half fed into the slot -->
-    <g transform="rotate(26.57 ${fpt(0.34, 0.08)[0].toFixed(1)} ${fpt(0.34, 0.08)[1].toFixed(1)})">
-      <ellipse cx="${fpt(0.34, 0.08)[0].toFixed(1)}" cy="${fpt(0.34, 0.08)[1].toFixed(1)}" rx="52" ry="15" fill="#c8ced6" stroke="#9aa2ad" stroke-width="1.2"/>
-      <ellipse cx="${fpt(0.34, 0.08)[0].toFixed(1)}" cy="${fpt(0.34, 0.08)[1].toFixed(1)}" rx="52" ry="15" fill="url(#ic-dg)" opacity=".8"/>
-      <ellipse cx="${fpt(0.34, 0.08)[0].toFixed(1)}" cy="${fpt(0.34, 0.08)[1].toFixed(1)}" rx="15" ry="5" fill="#eef1f4"/>
-    </g>
-    ${lead(fpt(0.08, 0.085)[1], 'CD / DVD', fpt(0.08, 0.085)[0], fpt(0.08, 0.085)[1])}
-    ${tick(0.95, 0.06, 'disc', 0)}
+    <polygon points="${fquad(0.12, 0.072, 0.86, 0.09)}" fill="#0d1013"/>
+    <ellipse cx="${fpt(0.88, 0.1)[0].toFixed(1)}" cy="${fpt(0.88, 0.1)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
+    ${(() => {
+      const c = fout(fpt(0.42, 0.082), 22);
+      return `<g transform="rotate(-26.57 ${c[0].toFixed(1)} ${c[1].toFixed(1)})">
+        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="54" ry="15" fill="#c8ced6" stroke="#9aa2ad" stroke-width="1.2"/>
+        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="54" ry="15" fill="url(#ic-dg)" opacity=".8"/>
+        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="15" ry="5" fill="#eef1f4"/></g>`;
+    })()}
+    ${lead(196, 'CD / DVD', fout(fpt(0.62, 0.06), 44))}
+    ${seen.includes('disc') ? tick(fout(fpt(0.9, 0.03), 8)) : ''}
   </g>
 
   <!-- ══ memory card going into the reader ══ -->
   <g class="store-part" data-store="sd" style="animation-delay:.18s">
-    <polygon points="${fquad(0.08, 0.28, 0.62, 0.35)}" fill="#8f97a2" stroke="#5c646f" stroke-width="1.4"/>
-    <polygon points="${fquad(0.13, 0.305, 0.45, 0.325)}" fill="#12161a"/>
-    <ellipse cx="${fpt(0.56, 0.318)[0].toFixed(1)}" cy="${fpt(0.56, 0.318)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
-    <!-- the card, part-way in -->
+    <polygon points="${fquad(0.08, 0.3, 0.6, 0.37)}" fill="#8f97a2" stroke="#5c646f" stroke-width="1.4"/>
+    <polygon points="${fquad(0.13, 0.322, 0.44, 0.344)}" fill="#12161a"/>
+    <ellipse cx="${fpt(0.54, 0.34)[0].toFixed(1)}" cy="${fpt(0.54, 0.34)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
     ${(() => {
-      const a = fpt(0.19, 0.315), o1 = fout(a, 60), w = 15;
-      const pts = [[a[0], a[1] - w], [o1[0], o1[1] - w], [o1[0], o1[1] + w * 0.5], [a[0], a[1] + w * 0.5]];
-      return `<polygon points="${q(pts)}" fill="#2f6fa8" stroke="#1d4870" stroke-width="1.4"/>` +
-             `<polygon points="${q([[a[0], a[1] - w], [o1[0], o1[1] - w], [o1[0] + 6, o1[1] - w - 3], [a[0] + 6, a[1] - w - 3]])}" fill="#4a8cc4"/>` +
-             `<g fill="#dfe6ee">${[0,1,2,3].map(i => `<rect x="${(o1[0] + 8 + i * 7).toFixed(1)}" y="${(o1[1] - w + 4).toFixed(1)}" width="4" height="9" rx="1"/>`).join('')}</g>`;
+      const a = fpt(0.4, 0.333), o = fout(a, 62), w = 15;
+      const face = [[a[0], a[1] - w], [o[0], o[1] - w], [o[0], o[1] + w * 0.5], [a[0], a[1] + w * 0.5]];
+      const top  = [[a[0], a[1] - w], [o[0], o[1] - w], [o[0] - 6, o[1] - w - 3], [a[0] - 6, a[1] - w - 3]];
+      return `<polygon points="${q(face)}" fill="#2f6fa8" stroke="#1d4870" stroke-width="1.4"/>` +
+             `<polygon points="${q(top)}" fill="#4a8cc4"/>` +
+             `<g fill="#dfe6ee">${[0,1,2,3].map(i => `<rect x="${(o[0] - 20 + i * 7).toFixed(1)}" y="${(o[1] - w + 4).toFixed(1)}" width="4" height="9" rx="1"/>`).join('')}</g>`;
     })()}
-    ${(() => { const p = fout(fpt(0.19, 0.315), 64); return lead(p[1], 'MEMORY CARD', p[0], p[1]); })()}
-    ${tick(0.68, 0.3, 'sd', 0)}
+    ${lead(296, 'MEMORY CARD', fout(fpt(0.4, 0.333), 66))}
+    ${seen.includes('sd') ? tick(fout(fpt(0.66, 0.3), 6)) : ''}
   </g>
 
   <!-- ══ USB stick going into a front port ══ -->
   <g class="store-part" data-store="usb" style="animation-delay:.31s">
-    <polygon points="${fquad(0.08, 0.5, 0.44, 0.62)}" fill="#22272d" stroke="#12161a" stroke-width="1.4"/>
-    <polygon points="${fquad(0.12, 0.525, 0.39, 0.545)}" fill="#2f5f96"/>
-    <polygon points="${fquad(0.12, 0.575, 0.39, 0.595)}" fill="#2f5f96"/>
-    <!-- the stick, half plugged in -->
+    <polygon points="${fquad(0.08, 0.52, 0.42, 0.64)}" fill="#22272d" stroke="#12161a" stroke-width="1.4"/>
+    <polygon points="${fquad(0.12, 0.545, 0.38, 0.567)}" fill="#2f5f96"/>
+    <polygon points="${fquad(0.12, 0.595, 0.38, 0.617)}" fill="#2f5f96"/>
     ${(() => {
-      const a = fpt(0.2, 0.535), m = fout(a, 26), o = fout(a, 96), w = 17;
+      const a = fpt(0.3, 0.556), m = fout(a, 26), o = fout(a, 98), w = 17;
       const shroud = [[a[0], a[1] - w], [m[0], m[1] - w], [m[0], m[1] + w * 0.55], [a[0], a[1] + w * 0.55]];
       const body   = [[m[0], m[1] - w - 4], [o[0], o[1] - w - 4], [o[0], o[1] + w * 0.8], [m[0], m[1] + w * 0.8]];
-      const top    = [[m[0], m[1] - w - 4], [o[0], o[1] - w - 4], [o[0] + 8, o[1] - w - 9], [m[0] + 8, m[1] - w - 9]];
+      const top    = [[m[0], m[1] - w - 4], [o[0], o[1] - w - 4], [o[0] - 8, o[1] - w - 9], [m[0] - 8, m[1] - w - 9]];
       return `<polygon points="${q(shroud)}" fill="#b0b8c2" stroke="#828a94" stroke-width="1.2"/>` +
              `<polygon points="${q(body)}" fill="#3a6ea8" stroke="#28527d" stroke-width="1.4"/>` +
              `<polygon points="${q(top)}" fill="#5286c4"/>` +
-             `<ellipse cx="${(o[0] + 16).toFixed(1)}" cy="${(o[1] - 4).toFixed(1)}" rx="4" ry="3" fill="#dfe6ee" opacity=".85"/>`;
+             `<ellipse cx="${(o[0] - 16).toFixed(1)}" cy="${(o[1] - 4).toFixed(1)}" rx="4" ry="3" fill="#dfe6ee" opacity=".85"/>`;
     })()}
-    ${(() => { const p = fout(fpt(0.2, 0.535), 100); return lead(p[1], 'USB STICK', p[0], p[1]); })()}
-    ${tick(0.52, 0.53, 'usb', 0)}
+    ${lead(392, 'USB STICK', fout(fpt(0.3, 0.556), 102))}
+    ${seen.includes('usb') ? tick(fout(fpt(0.52, 0.52), 6)) : ''}
   </g>
 
-  <!-- ══ network lead round the back, up to the cloud ══ -->
+  <!-- ══ network lead from the back, up to the cloud ══ -->
   <g class="store-part" data-store="cloud" style="animation-delay:.44s">
-    <path d="M${(P5[0] - 6).toFixed(1)} ${(P5[1] + 74).toFixed(1)} C 660 190, 690 150, 726 118" stroke="#3f4a56" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M${(P5[0] - 6).toFixed(1)} ${(P5[1] + 74).toFixed(1)} C 660 190, 690 150, 726 118" stroke="#5c6b7a" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 8">
+    <path d="M${(B_TR[0] + 16).toFixed(1)} ${(B_TR[1] + 12).toFixed(1)} C 470 40, 560 58, 646 92" stroke="#3f4a56" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M${(B_TR[0] + 16).toFixed(1)} ${(B_TR[1] + 12).toFixed(1)} C 470 40, 560 58, 646 92" stroke="#5c6b7a" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 8">
       <animate attributeName="stroke-dashoffset" values="28;0" dur="1.6s" repeatCount="indefinite"/>
     </path>
     <g>
-      <path d="M722 106a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 787 106z" fill="#7ab8e0" stroke="#4d8db8" stroke-width="1.6"/>
-      <path d="M722 106a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 787 106z" fill="url(#ic-cg)" opacity=".5"/>
-      <path d="M755 78v24m0 0l-9-9m9 9l9-9" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M652 108a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 717 108z" fill="#7ab8e0" stroke="#4d8db8" stroke-width="1.6"/>
+      <path d="M652 108a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 717 108z" fill="url(#ic-cg)" opacity=".5"/>
+      <path d="M685 80v24m0 0l-9-9m9 9l9-9" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
-    <text x="755" y="130" class="socket-label" font-size="11" text-anchor="middle">THE CLOUD</text>
-    ${seen.includes('cloud') ? `<circle cx="795" cy="62" r="14" fill="#3bba5a" stroke="#fff" stroke-width="3"/><text x="795" y="67" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>` : ''}
+    <text x="685" y="132" class="socket-label" font-size="12" text-anchor="middle">THE CLOUD</text>
+    ${seen.includes('cloud') ? tick([727, 64]) : ''}
   </g>
 
-  <!-- reminder that the drive they fitted is still in there -->
-  <text x="${(P4[0] + 108).toFixed(1)}" y="458" font-family="Arial" font-size="12.5" fill="#8a8a82" text-anchor="middle">…and the hard drive you fitted is still inside the case</text>
+  <text x="292" y="458" font-family="Arial" font-size="12.5" fill="#8a8a82" text-anchor="middle">…and the hard drive you fitted is still inside the case</text>
 </svg>`;
 }
 
@@ -3132,8 +3132,8 @@ function finishA1() {
 function openA2() {
   P.a2.cards = P.a2.cards || [];
   P.a2.refit = P.a2.refit || [];
-  a2View = a2Built() ? 'iso' : 'inside';
-  renderA2Scene({ noFlip: true });
+  if (!a2Built()) a2View = 'inside';
+  renderA2Scene();
   renderA2Quiz();
   updateA2Btn();
   showScreen('screen-a2');
@@ -3163,24 +3163,19 @@ function a2Built() {
   return a2Refitted() && !!inst.drive && inst.gpu && inst.sound;
 }
 
-function renderA2Scene(opts) {
-  const built = a2Built();
-
-  // Reaching the storage step turns the machine round to show its front.
-  if (built && a2View !== 'iso') {
-    a2View = 'iso';
-    if (!(opts && opts.noFlip)) { flipToIso(); return; }
-  }
-  if (!built) a2View = 'inside';
-
+function renderA2Scene() {
+  if (!a2Built()) a2View = 'inside';   // can't be looking at the front of an unbuilt machine
   paintA2Scene();
 }
 
-function flipToIso() {
+/* Turn the case round (or back), rather than jumping straight there. */
+function flipTo(view) {
   const el = document.getElementById('a2-scene');
   el.classList.add('flip-out');
-  document.getElementById('a2-tip').textContent = '🔄 Turning the computer round…';
+  document.getElementById('a2-tip').textContent =
+    view === 'iso' ? '🔄 Turning the computer round…' : '🔄 Opening it up again…';
   setTimeout(() => {
+    a2View = view;
     paintA2Scene();
     el.classList.remove('flip-out');
     el.classList.add('flip-in');
@@ -3245,6 +3240,10 @@ function paintA2Scene() {
     title.textContent = 'Step 3 — Fit the expansion cards';
     sub.textContent = 'An expansion card pushes into a slot on the motherboard. Its metal bracket reaches the back of the case, so you can plug things into its ports from outside.';
     tip.textContent = `👆 Push a card into an empty slot — ${2 - P.a2.cards.length} to go`;
+  } else if (a2View !== 'iso') {
+    title.textContent = '✓ The machine is built';
+    sub.textContent = 'Everything is back in and the new parts are fitted. But the hard drive is not the only place files can live — and the rest of it plugs into the FRONT of the machine.';
+    tip.textContent = '👆 Press “Storage options” to turn the computer round';
   } else if (storeLeft) {
     title.textContent = 'Step 4 — Other places your files can live';
     sub.textContent = 'Storage you plug in goes on the FRONT of the machine, so the computer has turned round. Click each device to find out about it.';
@@ -3253,6 +3252,23 @@ function paintA2Scene() {
     title.textContent = '✓ The computer is rebuilt';
     sub.textContent = 'Everything back in, storage fitted, both cards seated, and you have seen every place a file can be kept.';
     tip.textContent = '✓ All done! Now answer the questions below.';
+  }
+
+  // the way through to the storage step, and back again
+  const btns = document.getElementById('a2-scene-btns');
+  btns.innerHTML = '';
+  if (built) {
+    const b = document.createElement('button');
+    b.className = 'btn primary';
+    if (a2View === 'iso') {
+      b.className = 'btn';
+      b.textContent = '← Look inside the case again';
+      b.onclick = () => flipTo('inside');
+    } else {
+      b.textContent = '📦 Storage options →';
+      b.onclick = () => flipTo('iso');
+    }
+    btns.appendChild(b);
   }
 
   renderA2Tray();
