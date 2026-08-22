@@ -1772,22 +1772,22 @@ function soundArt(anim) {
 }
 
 /* ══ The machine turned round, in isometric ═══════════
-   Storage you plug in lives on the FRONT of a computer, so for the
-   last step the case turns to show its front panel. 2:1 isometric
-   viewed from the front-RIGHT: moving right across the front face
-   goes UP, depth recedes back-and-left, so the machine's own left
-   side is the one on show. */
-const ISO = { fx: 252, fy: 202, fw: 202, fh: 212, sw: 124, t: 0.5 };
+   Modelled on a real workstation tower: a tall case with a
+   diamond mesh front, an optical bay across the top, and the
+   ports in a vertical strip down the front's near edge — which
+   is exactly where a USB stick or memory card really goes in.
+   2:1 isometric from the front-right: moving right across the
+   front face goes UP, depth recedes back-and-left. */
+const ISO = { fx: 282, fy: 192, fw: 172, fh: 248, sw: 146, t: 0.5 };
 
 /* a point on the front face: u across (0-1, left to right), v down (0-1) */
 function fpt(u, v) {
   return [ISO.fx + u * ISO.fw, ISO.fy - u * ISO.fw * ISO.t + v * ISO.fh];
 }
-/* a point on the visible left side face: s back (0-1), v down (0-1) */
+/* a point on the visible side face: s back (0-1), v down (0-1) */
 function lpt(s, v) {
   return [ISO.fx - s * ISO.sw, ISO.fy - s * ISO.sw * ISO.t + v * ISO.fh];
 }
-/* a rectangle lying on the front face */
 function fquad(u0, v0, u1, v1) {
   return [fpt(u0, v0), fpt(u1, v0), fpt(u1, v1), fpt(u0, v1)]
     .map(q => `${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' ');
@@ -1801,108 +1801,137 @@ function sceneIso(seen) {
   const B_TR = [F_TR[0] - ISO.sw, F_TR[1] - ISO.sw * ISO.t];
   const q = pts => pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
 
-  // labels sit clear of the machine, with a leader line to each device
   const lead = (ly, text, tip) =>
-    `<line x1="${tip[0].toFixed(1)}" y1="${tip[1].toFixed(1)}" x2="562" y2="${ly}" stroke="#9a9a92" stroke-width="1.4" stroke-dasharray="3 3"/>` +
+    `<line x1="${tip[0].toFixed(1)}" y1="${tip[1].toFixed(1)}" x2="566" y2="${ly}" stroke="#9a9a92" stroke-width="1.4" stroke-dasharray="3 3"/>` +
     `<circle cx="${tip[0].toFixed(1)}" cy="${tip[1].toFixed(1)}" r="3.4" fill="#9a9a92"/>` +
-    `<text x="572" y="${ly + 4}" class="socket-label" font-size="12">${text}</text>`;
+    `<text x="576" y="${ly + 4}" class="socket-label" font-size="12">${text}</text>`;
 
-  const tick = (p) =>
+  const tick = p =>
     `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="14" fill="#3bba5a" stroke="#fff" stroke-width="3"/>` +
     `<text x="${p[0].toFixed(1)}" y="${(p[1] + 5).toFixed(1)}" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>`;
 
-  // vents down the visible side
+  // diamond mesh across the front, cross-hatched and clipped to the grille
+  let mesh = '';
+  for (let i = -9; i <= 8; i++)
+    mesh += `<line x1="${fpt(i * 0.11, 0.19)[0].toFixed(1)}" y1="${fpt(i * 0.11, 0.19)[1].toFixed(1)}" x2="${fpt(i * 0.11 + 0.95, 0.97)[0].toFixed(1)}" y2="${fpt(i * 0.11 + 0.95, 0.97)[1].toFixed(1)}" stroke="#525a65" stroke-width="2.6"/>`;
+  for (let i = 0; i <= 16; i++)
+    mesh += `<line x1="${fpt(i * 0.11, 0.19)[0].toFixed(1)}" y1="${fpt(i * 0.11, 0.19)[1].toFixed(1)}" x2="${fpt(i * 0.11 - 0.95, 0.97)[0].toFixed(1)}" y2="${fpt(i * 0.11 - 0.95, 0.97)[1].toFixed(1)}" stroke="#525a65" stroke-width="2.6"/>`;
+
+  // small vent patch low on the side panel
   let vent = '';
-  for (let i = 0; i < 8; i++) {
-    const s0 = 0.16 + i * 0.088, s1 = s0 + 0.05;
-    vent += `<polygon points="${q([lpt(s0, 0.3), lpt(s1, 0.3), lpt(s1, 0.9), lpt(s0, 0.9)])}" fill="#000" opacity=".2"/>`;
+  for (let i = 0; i < 7; i++) {
+    const s0 = 0.34 + i * 0.055;
+    vent += `<polygon points="${q([lpt(s0, 0.52), lpt(s0 + 0.03, 0.52), lpt(s0 + 0.03, 0.72), lpt(s0, 0.72)])}" fill="#12151a" opacity=".85"/>`;
   }
 
+  const port = (v0, v1, fill) => `<polygon points="${fquad(0.865, v0, 0.965, v1)}" fill="${fill}"/>`;
+
   return `<svg viewBox="0 0 900 470" class="scene-svg" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="grilleClip"><polygon points="${fquad(0.04, 0.19, 0.80, 0.97)}"/></clipPath>
+  </defs>
   <rect width="900" height="470" fill="url(#wallG)"/>
-  <ellipse cx="292" cy="428" rx="196" ry="26" fill="#000" opacity=".13"/>
+  <ellipse cx="300" cy="446" rx="192" ry="21" fill="#000" opacity=".13"/>
 
-  <!-- the tower -->
-  <polygon points="${q([B_TL, B_TR, F_TR, F_TL])}" fill="#5b626d"/>
-  <polygon points="${q([B_TL, F_TL, F_BL, B_BL])}" fill="#333940"/>
+  <!-- case body -->
+  <polygon points="${q([B_TL, B_TR, F_TR, F_TL])}" fill="#4a515a"/>
+  <polygon points="${q([B_TL, F_TL, F_BL, B_BL])}" fill="#282d33"/>
   ${vent}
-  <polygon points="${q([F_TL, F_TR, F_BR, F_BL])}" fill="#464d57"/>
-  <polygon points="${q([F_TL, F_TR, F_BR, F_BL])}" fill="url(#glassG)" opacity=".16"/>
-  <polyline points="${q([B_TR, F_TR, F_BR, F_BL])}" fill="none" stroke="#2b3037" stroke-width="2"/>
-  <polyline points="${q([B_BL, F_BL])}" fill="none" stroke="#2b3037" stroke-width="2"/>
+  <polygon points="${q([F_TL, F_TR, F_BR, F_BL])}" fill="#373d45"/>
 
-  <!-- power button -->
-  <ellipse cx="${fpt(0.84, 0.88)[0].toFixed(1)}" cy="${fpt(0.84, 0.88)[1].toFixed(1)}" rx="11" ry="6" fill="#2a2f36" stroke="#1a1e23" stroke-width="1.4"/>
-  <ellipse cx="${fpt(0.84, 0.88)[0].toFixed(1)}" cy="${fpt(0.84, 0.88)[1].toFixed(1)}" rx="5" ry="2.8" fill="url(#ledG)"/>
+  <!-- optical bay across the top of the front -->
+  <polygon points="${fquad(0.035, 0.025, 0.965, 0.165)}" fill="#434a53" stroke="#20242a" stroke-width="1.6"/>
+  <polygon points="${fquad(0.06, 0.115, 0.80, 0.132)}" fill="#0e1114"/>
+  <ellipse cx="${fpt(0.86, 0.125)[0].toFixed(1)}" cy="${fpt(0.86, 0.125)[1].toFixed(1)}" rx="5" ry="3" fill="#4c525a"/>
+  <ellipse cx="${fpt(0.90, 0.078)[0].toFixed(1)}" cy="${fpt(0.90, 0.078)[1].toFixed(1)}" rx="3" ry="2" fill="#6a7280"/>
 
-  <!-- ══ CD / DVD: slot-loading, disc feeding in ══ -->
+  <!-- diamond mesh grille -->
+  <polygon points="${fquad(0.04, 0.19, 0.80, 0.97)}" fill="#20252b"/>
+  <g clip-path="url(#grilleClip)" opacity=".85">${mesh}</g>
+  <polygon points="${fquad(0.04, 0.19, 0.80, 0.97)}" fill="none" stroke="#14171b" stroke-width="2"/>
+
+  <!-- badge in the middle of the grille -->
+  <g transform="rotate(-26.57 ${fpt(0.42, 0.56)[0].toFixed(1)} ${fpt(0.42, 0.56)[1].toFixed(1)})">
+    <ellipse cx="${fpt(0.42, 0.56)[0].toFixed(1)}" cy="${fpt(0.42, 0.56)[1].toFixed(1)}" rx="27" ry="23" fill="#2f343b" stroke="#4f5661" stroke-width="2"/>
+    <ellipse cx="${fpt(0.42, 0.56)[0].toFixed(1)}" cy="${fpt(0.42, 0.56)[1].toFixed(1)}" rx="18" ry="15" fill="none" stroke="#6b7380" stroke-width="1.6"/>
+    <text x="${fpt(0.42, 0.56)[0].toFixed(1)}" y="${(fpt(0.42, 0.56)[1] + 4).toFixed(1)}" font-family="Arial" font-size="10" font-weight="900" fill="#8a93a0" text-anchor="middle">PC</text>
+  </g>
+
+  <!-- port strip down the near edge of the front -->
+  <ellipse cx="${fpt(0.915, 0.225)[0].toFixed(1)}" cy="${fpt(0.915, 0.225)[1].toFixed(1)}" rx="10" ry="8" fill="#22262b" stroke="#12151a" stroke-width="1.4"/>
+  <ellipse cx="${fpt(0.915, 0.225)[0].toFixed(1)}" cy="${fpt(0.915, 0.225)[1].toFixed(1)}" rx="4" ry="3" fill="url(#ledG)"/>
+  <ellipse cx="${fpt(0.915, 0.305)[0].toFixed(1)}" cy="${fpt(0.915, 0.305)[1].toFixed(1)}" rx="6" ry="5" fill="#14171b"/>
+  ${port(0.465, 0.487, '#1a1e23')}
+  ${port(0.505, 0.527, '#1a1e23')}
+
+  <!-- ══ CD / DVD: disc feeding into the top bay ══ -->
   <g class="store-part" data-store="disc" style="animation-delay:.05s">
-    <polygon points="${fquad(0.08, 0.05, 0.92, 0.115)}" fill="#2b3037" stroke="#181c21" stroke-width="1.6"/>
-    <polygon points="${fquad(0.12, 0.072, 0.86, 0.09)}" fill="#0d1013"/>
-    <ellipse cx="${fpt(0.88, 0.1)[0].toFixed(1)}" cy="${fpt(0.88, 0.1)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
     ${(() => {
-      const c = fout(fpt(0.42, 0.082), 22);
+      const c = fout(fpt(0.40, 0.108), 24);
       return `<g transform="rotate(-26.57 ${c[0].toFixed(1)} ${c[1].toFixed(1)})">
-        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="54" ry="15" fill="#c8ced6" stroke="#9aa2ad" stroke-width="1.2"/>
-        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="54" ry="15" fill="url(#ic-dg)" opacity=".8"/>
-        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="15" ry="5" fill="#eef1f4"/></g>`;
+        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="52" ry="14" fill="#c8ced6" stroke="#9aa2ad" stroke-width="1.2"/>
+        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="52" ry="14" fill="url(#ic-dg)" opacity=".8"/>
+        <ellipse cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" rx="14" ry="4.5" fill="#eef1f4"/></g>`;
     })()}
-    ${lead(196, 'CD / DVD', fout(fpt(0.62, 0.06), 44))}
-    ${seen.includes('disc') ? tick(fout(fpt(0.9, 0.03), 8)) : ''}
+    ${lead(150, 'CD / DVD drive', fout(fpt(0.66, 0.12), 40))}
+    ${seen.includes('disc') ? tick(fout(fpt(0.99, 0.04), 10)) : ''}
   </g>
 
-  <!-- ══ memory card going into the reader ══ -->
-  <g class="store-part" data-store="sd" style="animation-delay:.18s">
-    <polygon points="${fquad(0.08, 0.3, 0.6, 0.37)}" fill="#8f97a2" stroke="#5c646f" stroke-width="1.4"/>
-    <polygon points="${fquad(0.13, 0.322, 0.44, 0.344)}" fill="#12161a"/>
-    <ellipse cx="${fpt(0.54, 0.34)[0].toFixed(1)}" cy="${fpt(0.54, 0.34)[1].toFixed(1)}" rx="4" ry="2.4" fill="#3aaa5a"/>
+  <!-- ══ USB stick into a front USB port ══ -->
+  <g class="store-part" data-store="usb" style="animation-delay:.18s">
+    ${port(0.355, 0.385, '#2f5f96')}
+    ${port(0.405, 0.435, '#2f5f96')}
     ${(() => {
-      const a = fpt(0.4, 0.333), o = fout(a, 62), w = 15;
-      const face = [[a[0], a[1] - w], [o[0], o[1] - w], [o[0], o[1] + w * 0.5], [a[0], a[1] + w * 0.5]];
-      const top  = [[a[0], a[1] - w], [o[0], o[1] - w], [o[0] - 6, o[1] - w - 3], [a[0] - 6, a[1] - w - 3]];
-      return `<polygon points="${q(face)}" fill="#2f6fa8" stroke="#1d4870" stroke-width="1.4"/>` +
-             `<polygon points="${q(top)}" fill="#4a8cc4"/>` +
-             `<g fill="#dfe6ee">${[0,1,2,3].map(i => `<rect x="${(o[0] - 20 + i * 7).toFixed(1)}" y="${(o[1] - w + 4).toFixed(1)}" width="4" height="9" rx="1"/>`).join('')}</g>`;
-    })()}
-    ${lead(296, 'MEMORY CARD', fout(fpt(0.4, 0.333), 66))}
-    ${seen.includes('sd') ? tick(fout(fpt(0.66, 0.3), 6)) : ''}
-  </g>
-
-  <!-- ══ USB stick going into a front port ══ -->
-  <g class="store-part" data-store="usb" style="animation-delay:.31s">
-    <polygon points="${fquad(0.08, 0.52, 0.42, 0.64)}" fill="#22272d" stroke="#12161a" stroke-width="1.4"/>
-    <polygon points="${fquad(0.12, 0.545, 0.38, 0.567)}" fill="#2f5f96"/>
-    <polygon points="${fquad(0.12, 0.595, 0.38, 0.617)}" fill="#2f5f96"/>
-    ${(() => {
-      const a = fpt(0.3, 0.556), m = fout(a, 26), o = fout(a, 98), w = 17;
+      const a = fpt(0.93, 0.37), m = fout(a, 22), o = fout(a, 92), w = 15;
       const shroud = [[a[0], a[1] - w], [m[0], m[1] - w], [m[0], m[1] + w * 0.55], [a[0], a[1] + w * 0.55]];
       const body   = [[m[0], m[1] - w - 4], [o[0], o[1] - w - 4], [o[0], o[1] + w * 0.8], [m[0], m[1] + w * 0.8]];
       const top    = [[m[0], m[1] - w - 4], [o[0], o[1] - w - 4], [o[0] - 8, o[1] - w - 9], [m[0] - 8, m[1] - w - 9]];
       return `<polygon points="${q(shroud)}" fill="#b0b8c2" stroke="#828a94" stroke-width="1.2"/>` +
              `<polygon points="${q(body)}" fill="#3a6ea8" stroke="#28527d" stroke-width="1.4"/>` +
              `<polygon points="${q(top)}" fill="#5286c4"/>` +
-             `<ellipse cx="${(o[0] - 16).toFixed(1)}" cy="${(o[1] - 4).toFixed(1)}" rx="4" ry="3" fill="#dfe6ee" opacity=".85"/>`;
+             `<ellipse cx="${(o[0] - 15).toFixed(1)}" cy="${(o[1] - 4).toFixed(1)}" rx="4" ry="3" fill="#dfe6ee" opacity=".85"/>`;
     })()}
-    ${lead(392, 'USB STICK', fout(fpt(0.3, 0.556), 102))}
-    ${seen.includes('usb') ? tick(fout(fpt(0.52, 0.52), 6)) : ''}
+    ${lead(258, 'USB stick', fout(fpt(0.93, 0.37), 96))}
+    ${seen.includes('usb') ? tick(fout(fpt(0.99, 0.30), 10)) : ''}
   </g>
+
+  <!-- ══ memory card into the front card slot ══ -->
+  <g class="store-part" data-store="sd" style="animation-delay:.31s">
+    ${port(0.585, 0.612, '#14171b')}
+    ${(() => {
+      const a = fpt(0.93, 0.6), o = fout(a, 58), w = 13;
+      const face = [[a[0], a[1] - w], [o[0], o[1] - w], [o[0], o[1] + w * 0.5], [a[0], a[1] + w * 0.5]];
+      const top  = [[a[0], a[1] - w], [o[0], o[1] - w], [o[0] - 6, o[1] - w - 3], [a[0] - 6, a[1] - w - 3]];
+      return `<polygon points="${q(face)}" fill="#2f6fa8" stroke="#1d4870" stroke-width="1.4"/>` +
+             `<polygon points="${q(top)}" fill="#4a8cc4"/>` +
+             `<g fill="#dfe6ee">${[0,1,2,3].map(i => `<rect x="${(o[0] - 19 + i * 6).toFixed(1)}" y="${(o[1] - w + 3).toFixed(1)}" width="3.4" height="8" rx="1"/>`).join('')}</g>`;
+    })()}
+    ${lead(352, 'Memory card', fout(fpt(0.93, 0.6), 62))}
+    ${seen.includes('sd') ? tick(fout(fpt(0.99, 0.68), 10)) : ''}
+  </g>
+
+  <!-- case edges + feet -->
+  <polyline points="${q([B_TR, F_TR, F_BR, F_BL])}" fill="none" stroke="#14171b" stroke-width="2"/>
+  <polyline points="${q([B_BL, F_BL])}" fill="none" stroke="#14171b" stroke-width="2"/>
+  <polygon points="${q([[F_BL[0], F_BL[1]], [F_BL[0] + 16, F_BL[1] + 8], [F_BL[0] + 16, F_BL[1] + 15], [F_BL[0], F_BL[1] + 7]])}" fill="#15181c"/>
+  <polygon points="${q([[F_BR[0] - 14, F_BR[1] + 7], [F_BR[0], F_BR[1]], [F_BR[0], F_BR[1] + 7], [F_BR[0] - 14, F_BR[1] + 14]])}" fill="#15181c"/>
 
   <!-- ══ network lead from the back, up to the cloud ══ -->
   <g class="store-part" data-store="cloud" style="animation-delay:.44s">
-    <path d="M${(B_TR[0] + 16).toFixed(1)} ${(B_TR[1] + 12).toFixed(1)} C 470 40, 560 58, 646 92" stroke="#3f4a56" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M${(B_TR[0] + 16).toFixed(1)} ${(B_TR[1] + 12).toFixed(1)} C 470 40, 560 58, 646 92" stroke="#5c6b7a" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 8">
+    <path d="M${(B_TR[0] + 20).toFixed(1)} ${(B_TR[1] + 16).toFixed(1)} C 470 46, 566 60, 650 92" stroke="#3f4a56" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M${(B_TR[0] + 20).toFixed(1)} ${(B_TR[1] + 16).toFixed(1)} C 470 46, 566 60, 650 92" stroke="#5c6b7a" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6 8">
       <animate attributeName="stroke-dashoffset" values="28;0" dur="1.6s" repeatCount="indefinite"/>
     </path>
     <g>
-      <path d="M652 108a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 717 108z" fill="#7ab8e0" stroke="#4d8db8" stroke-width="1.6"/>
-      <path d="M652 108a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 717 108z" fill="url(#ic-cg)" opacity=".5"/>
-      <path d="M685 80v24m0 0l-9-9m9 9l9-9" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M656 108a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 721 108z" fill="#7ab8e0" stroke="#4d8db8" stroke-width="1.6"/>
+      <path d="M656 108a21 21 0 0 1 2.6-41.8 29 29 0 0 1 56 7.9A18.5 18.5 0 0 1 721 108z" fill="url(#ic-cg)" opacity=".5"/>
+      <path d="M689 80v24m0 0l-9-9m9 9l9-9" stroke="#fff" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
-    <text x="685" y="132" class="socket-label" font-size="12" text-anchor="middle">THE CLOUD</text>
-    ${seen.includes('cloud') ? tick([727, 64]) : ''}
+    <text x="689" y="132" class="socket-label" font-size="12" text-anchor="middle">THE CLOUD</text>
+    ${seen.includes('cloud') ? tick([731, 64]) : ''}
   </g>
 
-  <text x="292" y="458" font-family="Arial" font-size="12.5" fill="#8a8a82" text-anchor="middle">…and the hard drive you fitted is still inside the case</text>
+  <text x="300" y="462" font-family="Arial" font-size="12.5" fill="#8a8a82" text-anchor="middle">…and the hard drive you fitted is still inside the case</text>
 </svg>`;
 }
 
