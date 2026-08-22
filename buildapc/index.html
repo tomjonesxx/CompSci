@@ -516,6 +516,30 @@ p.screen-intro {
 .shop-opt-spec { font-size: 0.72rem; color: var(--muted); line-height: 1.45; flex: 1; }
 .shop-opt-price { font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--text); }
 
+/* ── THE COMPUTER FAIR (Activity 4) ─────────────────── */
+.stall {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+  background: #f3efe4;
+}
+.stall-svg { display: block; width: 100%; height: auto; }
+.good { cursor: pointer; transition: transform 0.16s; transform-box: fill-box; transform-origin: center bottom; }
+.good:hover { transform: translateY(-5px); filter: drop-shadow(0 5px 10px rgba(0,0,0,0.22)); }
+.good-picked { filter: drop-shadow(0 0 7px rgba(47,154,85,0.6)); }
+
+/* bunting across the top of the fair */
+#fair-banner { margin-bottom: 16px; }
+#fair-banner svg { display: block; width: 100%; height: auto; }
+
+/* the wallet — how much is left to spend */
+#build-bar.wallet {
+  background: #fffdf5;
+  border-color: var(--yellow-bdr);
+}
+
 /* ── RESULTS ────────────────────────────────────────── */
 .score-hero { text-align: center; padding: 10px 0 24px; }
 .score-big {
@@ -732,6 +756,10 @@ p.screen-intro {
 /* ── MOBILE ─────────────────────────────────────────── */
 @media (max-width: 600px) {
   .scene-tip { font-size: 0.68rem; padding: 6px 12px; bottom: 6px; }
+  /* A stall squeezed to phone width makes the labels unreadable, so let it
+     keep its size and scroll sideways inside its own box instead. */
+  .stall { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .stall-svg { min-width: 640px; }
   .shelf-item { width: 66px; }
   .shelf-item svg { height: 32px; }
   #header { padding: 12px 14px 12px 60px; }
@@ -991,15 +1019,17 @@ p.screen-intro {
   <!-- ═══ ACTIVITY 4 — SHOP ═══ -->
   <section id="screen-a4shop" class="screen">
     <div class="eyebrow">The Build Challenge</div>
-    <h2 class="screen-title" id="a4-shop-title">The Computer Shop</h2>
+    <h2 class="screen-title" id="a4-shop-title">The Computer Fair</h2>
     <p class="screen-intro" id="a4-shop-brief"></p>
 
-    <div id="build-bar">
+    <div id="fair-banner"></div>
+
+    <div id="build-bar" class="wallet">
       <div class="bb-client" id="bb-client"></div>
       <div class="bb-money">
-        <div><span class="bb-lbl">Budget</span><span class="bb-fig" id="bb-budget"></span></div>
-        <div><span class="bb-lbl">Spent</span><span class="bb-fig" id="bb-spent"></span></div>
-        <div><span class="bb-lbl">Left</span><span class="bb-fig" id="bb-left"></span></div>
+        <div><span class="bb-lbl">💷 Budget</span><span class="bb-fig" id="bb-budget"></span></div>
+        <div><span class="bb-lbl">🛒 Spent</span><span class="bb-fig" id="bb-spent"></span></div>
+        <div><span class="bb-lbl">Left in wallet</span><span class="bb-fig" id="bb-left"></span></div>
       </div>
       <button class="btn primary" id="bb-submit" onclick="submitBuild()" disabled>Build it!</button>
     </div>
@@ -1832,6 +1862,198 @@ const A3_QUIZ = [
 
 const A3_OS = ['Windows','macOS','Linux'];
 const A3_APPS = ['Word Processor','Spreadsheet','Presentation','Email','Web Browser','Graphics Software','Music Player','Video Editor'];
+
+/* ════════════════════════════════════════════════════
+   THE COMPUTER FAIR
+   Each shop category is a market stall: a striped awning, a
+   hanging price sign, and the goods laid out on the counter.
+   Better parts are drawn bigger, so price and power line up
+   visually before a pupil has read a single number.
+════════════════════════════════════════════════════ */
+const STALL_COLOUR = {
+  cpu:     { awn:'#c0433f', sign:'#8f2f2c' },
+  ram:     { awn:'#3a72b8', sign:'#2a548a' },
+  storage: { awn:'#2f9a55', sign:'#217040' },
+  gpu:     { awn:'#7b5cc4', sign:'#584093' },
+  monitor: { awn:'#dd8228', sign:'#a85d17' },
+  os:      { awn:'#2f9aa8', sign:'#1f7079' },
+};
+
+const CPU_CORES = [2, 4, 6, 8, 16];
+
+/* Every goods drawing fits a 140 x 118 box, standing on y = 104. */
+function goodCPU(t) {
+  const s = 34 + t * 7, x = 70 - s / 2, y = 66 - s / 2;
+  let pins = '';
+  const n = 4 + t;
+  for (let i = 0; i < n; i++) {
+    const p = (x + (s / (n + 1)) * (i + 1)).toFixed(1);
+    pins += `<path d="M${p} ${y} v-6"/><path d="M${p} ${y + s} v6"/>`;
+  }
+  return `<g stroke="#c8a83a" stroke-width="2">${pins}</g>` +
+    `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="3" fill="#2b2b32"/>` +
+    `<rect x="${x + 5}" y="${y + 5}" width="${s - 10}" height="${s - 10}" rx="2" fill="url(#alumG)"/>` +
+    `<text x="70" y="70" font-family="Courier New, monospace" font-size="10" font-weight="700" fill="#4a505a" text-anchor="middle">${CPU_CORES[t - 1]}C</text>`;
+}
+
+function goodRAM(t) {
+  const sticks = t <= 2 ? 1 : (t <= 4 ? 2 : 3);
+  const w = 22, gap = 7, totalW = sticks * w + (sticks - 1) * gap;
+  let s = '';
+  for (let i = 0; i < sticks; i++) {
+    const x = 70 - totalW / 2 + i * (w + gap);
+    let chips = '';
+    for (let c = 0; c < 4; c++) chips += `<rect x="${x + 3}" y="${34 + c * 15}" width="${w - 6}" height="11" rx="1.5" fill="#20262c"/>`;
+    s += `<rect x="${x}" y="28" width="${w}" height="70" rx="2.5" fill="url(#pcbG)"/>${chips}` +
+         `<rect x="${x}" y="92" width="${w}" height="7" fill="#c8a83a"/>`;
+  }
+  return s;
+}
+
+function goodStorage(t) {
+  if (t <= 2) {   // magnetic
+    const w = 74 + t * 8, h = 52 + t * 4, x = 70 - w / 2, y = 104 - h;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="url(#alumG)" stroke="#7a828c" stroke-width="1.4"/>` +
+           `<circle cx="${x + w * 0.42}" cy="${y + h / 2}" r="${h * 0.32}" fill="#3a4048"/>` +
+           `<circle cx="${x + w * 0.42}" cy="${y + h / 2}" r="${h * 0.32}" fill="url(#ic-pl)" opacity=".5"/>` +
+           `<circle cx="${x + w * 0.42}" cy="${y + h / 2}" r="4" fill="#8f97a2"/>` +
+           `<path d="M${x + w - 8} ${y + 8} L${x + w - 14} ${y + 15} L${x + w * 0.55} ${y + h * 0.45} L${x + w * 0.6} ${y + h * 0.55} Z" fill="#c8ced6"/>`;
+  }
+  const w = 62 + t * 6, h = 40 + t * 3, x = 70 - w / 2, y = 104 - h;
+  let chips = '';
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++)
+    chips += `<rect x="${x + 8 + c * (w / 2 - 6)}" y="${y + 8 + r * (h / 2 - 2)}" width="${w / 2 - 14}" height="${h / 2 - 10}" rx="2" fill="#20262c"/>`;
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#2f3a4a" stroke="#1d2530" stroke-width="1.4"/>` +
+         `<rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="${h - 8}" rx="2" fill="url(#pcbG)"/>${chips}` +
+         `<rect x="${x}" y="${y + h / 2 - 7}" width="6" height="14" fill="#c8a83a"/>`;
+}
+
+function goodGPU(t) {
+  if (t === 1) {   // built into the motherboard — no card at all
+    return `<rect x="22" y="52" width="96" height="50" rx="3" fill="url(#pcbG)"/>` +
+           `<rect x="52" y="66" width="30" height="22" rx="2" fill="#2b2b32"/>` +
+           `<text x="70" y="81" font-family="Courier New, monospace" font-size="8" font-weight="700" fill="#cfe6d8" text-anchor="middle">ON</text>` +
+           `<text x="70" y="98" font-family="Courier New, monospace" font-size="7" fill="#9fc4ad" text-anchor="middle">BOARD</text>`;
+  }
+  const fans = t >= 4 ? 2 : 1;
+  const w = 60 + t * 14, h = 30 + t * 5, x = 70 - w / 2, y = 100 - h;
+  let f = '';
+  for (let i = 0; i < fans; i++) {
+    const cx = x + w * (fans === 1 ? 0.44 : (i === 0 ? 0.3 : 0.66)), cy = y + h * 0.48, r = Math.min(h * 0.34, w / (fans * 3.1));
+    f += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="#12181f"/>`;
+    for (let b = 0; b < 6; b++) {
+      const a = b * 60 + i * 25;
+      const bx = (cx + r * 0.5 * Math.cos(a * Math.PI / 180)).toFixed(1), by = (cy + r * 0.5 * Math.sin(a * Math.PI / 180)).toFixed(1);
+      f += `<ellipse cx="${bx}" cy="${by}" rx="${(r * 0.42).toFixed(1)}" ry="${(r * 0.2).toFixed(1)}" transform="rotate(${a} ${bx} ${by})" fill="#4d5866"/>`;
+    }
+    f += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(r * 0.28).toFixed(1)}" fill="#6d7a8a"/>`;
+  }
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#1d2530"/>` +
+         `<rect x="${x + 3}" y="${y + 3}" width="${w - 6}" height="${h - 6}" rx="2" fill="#2b3540"/>${f}` +
+         `<rect x="${x + w * 0.3}" y="${y + h}" width="${w * 0.4}" height="5" fill="#c8a83a"/>` +
+         (t === 5 ? `<rect x="${x}" y="${y - 5}" width="${w}" height="5" rx="2" fill="#7fd4ff" opacity=".65"/>` : '');
+}
+
+function goodMonitor(t) {
+  const w = 52 + t * 13, h = w * 0.6, x = 70 - w / 2, y = 88 - h;
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="url(#bezelG)"/>` +
+         `<rect x="${x + 3}" y="${y + 3}" width="${w - 6}" height="${h - 6}" rx="1.5" fill="url(#screenG)"/>` +
+         `<rect x="${x + 3}" y="${y + 3}" width="${w - 6}" height="${h - 6}" rx="1.5" fill="url(#glassG)" opacity=".5"/>` +
+         `<rect x="${70 - 5}" y="${y + h}" width="10" height="10" fill="#33383f"/>` +
+         `<rect x="${70 - 18}" y="${y + h + 10}" width="36" height="5" rx="2.5" fill="#3a3f47"/>`;
+}
+
+function goodOS(osid) {
+  const look = OS_LOOK[osid] || { sky1:'#555', sky2:'#888', name: osid };
+  return `<rect x="34" y="30" width="52" height="70" rx="3" fill="${look.sky1}"/>` +
+         `<rect x="34" y="30" width="52" height="70" rx="3" fill="url(#glassG)" opacity=".45"/>` +
+         `<rect x="34" y="30" width="10" height="70" fill="#000" opacity=".2"/>` +
+         `<circle cx="63" cy="58" r="15" fill="${look.sky2}"/>` +
+         `<circle cx="63" cy="58" r="5" fill="#f2f4f7"/>` +
+         `<text x="63" y="92" font-family="Arial" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">${look.name}</text>` +
+         `<ellipse cx="98" cy="96" rx="20" ry="6" fill="#000" opacity=".12"/>` +
+         `<circle cx="98" cy="80" r="17" fill="#c8ced6"/><circle cx="98" cy="80" r="17" fill="url(#ic-dg)" opacity=".65"/>` +
+         `<circle cx="98" cy="80" r="6" fill="#eceff3"/>`;
+}
+
+function goodsArt(catId, opt) {
+  switch (catId) {
+    case 'cpu':     return goodCPU(opt.tier);
+    case 'ram':     return goodRAM(opt.tier);
+    case 'storage': return goodStorage(opt.tier);
+    case 'gpu':     return goodGPU(opt.tier);
+    case 'monitor': return goodMonitor(opt.tier);
+    case 'os':      return goodOS(opt.osid);
+  }
+  return '';
+}
+
+/* One market stall: awning, hanging price sign, goods on the counter.
+   Layout (viewBox 900 x 320):
+     0-52    striped canopy
+     58-92   hanging sign
+     106     what this part does
+     118-222 the goods, standing on the counter
+     218-230 counter top
+     230+    cloth front, where the price tags and labels sit */
+function stallSvg(cat, pickedIdx, spentOther, budget) {
+  const col = STALL_COLOUR[cat.id] || { awn:'#888', sign:'#555' };
+  const n = cat.opts.length;
+  const slot = 830 / n;
+
+  // canopy: a solid band so it reads as one awning, with scalloped edge
+  let stripes = '', scallop = '';
+  for (let i = 0; i < 23; i++) {
+    const x = 6 + i * 39;
+    stripes += `<rect x="${x}" y="0" width="39" height="34" fill="${i % 2 ? '#f7edd4' : col.awn}"/>`;
+    scallop += `<path d="M${x} 34 q19.5 19 39 0 z" fill="${i % 2 ? '#f7edd4' : col.awn}"/>`;
+  }
+
+  let goods = '';
+  cat.opts.forEach((opt, i) => {
+    const cx = 35 + slot * (i + 0.5);
+    const picked = pickedIdx === i;
+    const afford = spentOther + opt.price <= budget;
+    const tagFill = picked ? '#2f9a55' : (afford ? '#fffdf6' : '#fadede');
+    const tagLine = picked ? '#217040' : (afford ? '#c9c2ad' : '#d98a8a');
+    const tagText = picked ? '#ffffff' : (afford ? '#2a2a2a' : '#b03030');
+    goods +=
+      `<g class="good${picked ? ' good-picked' : ''}" data-idx="${i}" transform="translate(${(cx - 70).toFixed(1)} 118)">` +
+        `<ellipse cx="70" cy="106" rx="46" ry="6" fill="#000" opacity=".16"/>` +
+        goodsArt(cat.id, opt) +
+        (picked ? `<circle cx="120" cy="14" r="14" fill="#2f9a55" stroke="#fff" stroke-width="2"/>` +
+                  `<text x="120" y="20" font-size="15" fill="#fff" text-anchor="middle" font-family="Arial">✓</text>` : '') +
+        // price tag propped on the counter
+        `<g transform="translate(0 124)">` +
+          `<rect x="22" y="0" width="96" height="27" rx="5" fill="${tagFill}" stroke="${tagLine}" stroke-width="1.8"/>` +
+          `<circle cx="32" cy="13.5" r="3.2" fill="none" stroke="${tagLine}" stroke-width="1.4"/>` +
+          `<text x="78" y="19" font-family="Courier New, monospace" font-size="15" font-weight="700" fill="${tagText}" text-anchor="middle">${opt.price === 0 ? 'FREE' : '£' + opt.price}</text>` +
+        `</g>` +
+        `<text x="70" y="166" font-family="Arial" font-size="12.5" font-weight="800" fill="#2a2a2a" text-anchor="middle">${opt.name}</text>` +
+        `<text x="70" y="181" font-family="Arial" font-size="10" fill="#6f6f68" text-anchor="middle">${opt.spec}</text>` +
+        (afford || picked ? '' : `<text x="70" y="198" font-family="Arial" font-size="10" font-weight="700" fill="#b03030" text-anchor="middle">✕ too dear for this budget</text>`) +
+      `</g>`;
+  });
+
+  return `<svg viewBox="0 0 900 336" class="stall-svg" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="336" fill="#f7f4ec"/>
+  <!-- counter -->
+  <rect x="0" y="230" width="900" height="106" fill="#efe7d5"/>
+  <rect x="0" y="218" width="900" height="14" fill="#c8a06e"/>
+  <rect x="0" y="216" width="900" height="5" rx="2" fill="#e2c197"/>
+  <!-- canopy -->
+  <rect x="6" y="0" width="897" height="34" fill="${col.awn}"/>
+  ${stripes}${scallop}
+  <rect x="6" y="32" width="897" height="3" fill="#000" opacity=".12"/>
+  <!-- hanging sign -->
+  <path d="M300 52 v8 M600 52 v8" stroke="#8a8578" stroke-width="2"/>
+  <rect x="276" y="58" width="348" height="36" rx="6" fill="${col.sign}"/>
+  <rect x="281" y="62" width="338" height="28" rx="4" fill="none" stroke="#ffffff" stroke-width="1.2" opacity=".45"/>
+  <text x="450" y="82" font-family="Arial" font-size="17" font-weight="900" fill="#fff" text-anchor="middle" letter-spacing="1">${cat.name.toUpperCase()}</text>
+  <text x="450" y="110" font-family="Arial" font-size="11.5" fill="#7a7368" text-anchor="middle">${cat.why}</text>
+  ${goods}
+</svg>`;
+}
 
 /* ════════════════════════════════════════════════════
    ACTIVITY 4 — SHOP DATA
@@ -2866,9 +3088,25 @@ function renderClients() {
   });
 }
 
+function fairBanner() {
+  const cols = ['#c0433f', '#dd8228', '#2f9a55', '#3a72b8', '#7b5cc4', '#2f9aa8'];
+  let flags = '';
+  for (let i = 0; i < 26; i++) {
+    const x = 8 + i * 34.5;
+    flags += `<path d="M${x} 8 L${x + 30} 8 L${x + 15} 34 Z" fill="${cols[i % cols.length]}" opacity=".92"/>`;
+  }
+  return `<svg viewBox="0 0 900 84" xmlns="http://www.w3.org/2000/svg">
+    <rect width="900" height="84" fill="#fdf8dc"/>
+    <path d="M0 8 Q450 22 900 8" stroke="#b9ad7e" stroke-width="2.5" fill="none"/>
+    ${flags}
+    <text x="450" y="66" font-family="Arial" font-size="26" font-weight="900" fill="#6b5a1e" text-anchor="middle" letter-spacing="3">🎪 COMPUTER FAIR 🎪</text>
+  </svg>`;
+}
+
 function startBuild(client) {
   currentClient = client;
   build = {};
+  document.getElementById('fair-banner').innerHTML = fairBanner();
   renderShop();
   showScreen('screen-a4shop');
 }
@@ -2878,37 +3116,33 @@ function retryBuild() {
 }
 
 function renderShop() {
-  document.getElementById('a4-shop-title').textContent = `Build for ${currentClient.name}`;
+  document.getElementById('a4-shop-title').textContent = `Shopping for ${currentClient.name}`;
   document.getElementById('a4-shop-brief').innerHTML = currentClient.quote;
-  document.getElementById('bb-client').innerHTML =
-    `${currentClient.emoji} <b>${currentClient.name}</b>`;
+  document.getElementById('bb-client').innerHTML = `${currentClient.emoji} <b>${currentClient.name}</b>`;
 
   const wrap = document.getElementById('a4-shop');
   wrap.innerHTML = '';
+  const budget = currentClient.budget;
 
   SHOP_CATS.forEach(cat => {
-    const sec = document.createElement('div');
-    sec.className = 'shop-cat';
-    sec.innerHTML = `<h4>${cat.name}</h4><div class="cat-why">${cat.why}</div><div class="shop-opts"></div>`;
-    const opts = sec.querySelector('.shop-opts');
+    const picked = build[cat.id] ? build[cat.id]._i : -1;
+    // what everything ELSE costs, so we can flag tags this budget cannot reach
+    const spentOther = SHOP_CATS.reduce((s, c) => s + (c.id !== cat.id && build[c.id] ? build[c.id].price : 0), 0);
 
-    cat.opts.forEach((opt, i) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      const picked = build[cat.id] && build[cat.id]._i === i;
-      b.className = 'shop-opt' + (picked ? ' picked' : '');
-      b.innerHTML =
-        `<div class="shop-opt-name">${picked ? '✓ ' : ''}${opt.name}</div>` +
-        `<div class="shop-opt-spec">${opt.spec}</div>` +
-        `<div class="shop-opt-price">${opt.price === 0 ? 'Free' : '£' + opt.price}</div>`;
-      b.onclick = () => {
+    const stall = document.createElement('div');
+    stall.className = 'stall';
+    stall.innerHTML = stallSvg(cat, picked, spentOther, budget);
+
+    stall.querySelectorAll('.good').forEach(g => {
+      g.addEventListener('click', () => {
+        const i = +g.dataset.idx;
+        const opt = cat.opts[i];
         build[cat.id] = Object.assign({}, opt, { _i: i, _cat: cat.id, _catName: cat.name });
         renderShop();
-      };
-      opts.appendChild(b);
+      });
     });
 
-    wrap.appendChild(sec);
+    wrap.appendChild(stall);
   });
 
   updateBuildBar();
