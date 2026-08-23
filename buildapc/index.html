@@ -917,6 +917,24 @@ p.screen-intro {
   .bb-money { gap: 12px; }
   .explore-grid { grid-template-columns: repeat(auto-fill, minmax(102px, 1fr)); }
 }
+
+/* ═══════════════════════════════════════════════════════
+   ACCESSIBLE WORKSHOP THEME — shared with the new home page
+═══════════════════════════════════════════════════════ */
+:root{--bg:#fbfaf3;--white:#fff;--border:#cbd4d1;--border-dark:#71828b;--text:#15283a;--muted:#4d6473;--faint:#657987;--green:#318563;--green-d:#216747;--green-light:#dcefe7;--blue:#2368a2;--blue-light:#e7f0f6;--orange:#b95d21;--red:#b33131;--red-light:#f8e1df;--purple:#72559a;--yellow-hdr:#fbfaf3;--yellow-bdr:#cbd4d1;--yellow:#f2c94c;--ink-shadow:#15283a;--font:Verdana,Arial,sans-serif}
+html{scroll-behavior:smooth}body{font-size:18px;line-height:1.6}button,input{font:inherit}button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:4px solid #b74b00!important;outline-offset:4px}
+#header{min-height:92px;padding:16px clamp(24px,5vw,72px) 16px 76px;border-bottom:2px solid var(--border);background:rgba(251,250,243,.97)}#header h1{display:flex;align-items:center;gap:13px;font-size:clamp(1rem,2vw,1.28rem);letter-spacing:-.02em}#header h1::before{content:'MJ';width:52px;height:52px;display:grid;place-items:center;border-radius:14px;background:var(--text);color:#fff;font-size:.9rem;letter-spacing:-.06em}#header-right{gap:10px;font-family:var(--font);font-size:.82rem}.link-btn{min-height:44px;padding:8px 12px;border-radius:8px;color:var(--blue);font-size:.8rem;text-underline-offset:4px}.link-btn:hover{background:var(--blue-light);color:var(--blue-dark)}
+main{max-width:1180px;padding:clamp(32px,5vw,64px) clamp(20px,4vw,48px) 90px}.eyebrow{font-family:var(--font);font-size:.72rem;font-weight:900;letter-spacing:.12em;color:var(--blue)}h2.screen-title{max-width:900px;margin-bottom:14px;font-size:clamp(2rem,4vw,3.3rem);line-height:1.08;letter-spacing:-.045em}p.screen-intro{max-width:76ch;margin-bottom:34px;color:var(--muted);font-size:clamp(1rem,1.45vw,1.14rem);line-height:1.65}
+.panel{padding:clamp(22px,3vw,34px);margin-bottom:26px;border:2px solid var(--text);border-radius:18px;box-shadow:0 6px 0 var(--ink-shadow)}.panel h3{font-size:1.2rem}.panel .sub{color:var(--muted);font-size:.92rem}.btn{min-height:50px;padding:11px 20px;border:2px solid var(--text);border-radius:9px;color:var(--text);font-size:.9rem;box-shadow:0 4px 0 var(--text);transition:transform .12s,box-shadow .12s,background .12s}.btn:hover:not(:disabled){border-color:var(--text);background:var(--blue-light);transform:translateY(-2px);box-shadow:0 6px 0 var(--text)}.btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 var(--text)}.btn.primary{background:var(--blue);border-color:var(--blue-dark);color:#fff;box-shadow:0 4px 0 var(--blue-dark)}.btn.primary:hover:not(:disabled){background:var(--blue-dark);border-color:var(--blue-dark);box-shadow:0 6px 0 #0c334f}.btn:disabled{opacity:.46}
+#screen-name .name-card{position:relative;max-width:900px;min-height:500px;margin:1vh auto 0;padding:clamp(32px,5vw,58px);display:grid;grid-template-columns:minmax(260px,.8fr) minmax(320px,1.2fr);grid-template-rows:auto auto auto auto auto auto;align-items:center;column-gap:clamp(35px,6vw,75px);row-gap:10px;border:2px solid var(--text);border-radius:24px;background:#dcefe7;box-shadow:10px 10px 0 var(--text);text-align:left}.name-emoji{grid-column:1;grid-row:1/7;width:100%;aspect-ratio:1.2;display:block;position:relative;margin:0;border:3px solid var(--text);border-radius:20px;background:#fff;box-shadow:12px 12px 0 #f2c94c;color:transparent;font-size:0}.name-emoji::before{content:'';position:absolute;inset:18% 16% 30%;border:5px solid var(--text);border-radius:10px;background:linear-gradient(135deg,#e7f0f6 0 47%,#2368a2 47% 52%,#f5dc83 52%)}.name-emoji::after{content:'';position:absolute;left:12%;right:12%;bottom:19%;height:10%;border:5px solid var(--text);border-top:0;border-radius:0 0 10px 10px;background:#fff}#screen-name .screen-title,#screen-name .screen-intro,#screen-name #name-input,#screen-name .name-hint,#screen-name .btn-row,#screen-name .name-label{grid-column:2}#screen-name .screen-title{grid-row:1;align-self:end;margin-bottom:0}#screen-name .screen-intro{grid-row:2;margin:0!important;align-self:start}.name-label{grid-row:3;display:block;margin-top:8px;font-size:.85rem;font-weight:900}#name-input{grid-row:4;min-height:58px;margin:0;border:2px solid var(--text);border-radius:9px;background:#fff;text-align:left}#name-input:focus{outline:4px solid #b74b00;outline-offset:3px;border-color:var(--text)}.name-hint{grid-row:5;color:var(--muted);font-size:.78rem}#screen-name .btn-row{grid-row:6;justify-content:flex-start!important;margin-top:2px}
+.progress-wrap{padding:15px 18px;border:2px solid var(--border);border-radius:12px;background:#fff}.progress-track{height:18px;border-color:var(--text)}.progress-fill{background:var(--blue)}.progress-text{color:var(--text);font-family:var(--font);font-size:.78rem}.hub-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.hub-card{min-height:280px;padding:28px;gap:10px;border:2px solid var(--text);border-radius:17px;box-shadow:0 6px 0 var(--text);transition:transform .12s,box-shadow .12s;overflow:hidden}.hub-card::before{content:'';position:absolute;inset:0 auto 0 0;width:10px;background:var(--blue)}.hub-a2::before{background:#d4aa22}.hub-a3::before{background:var(--green)}.hub-a4::before{background:var(--purple)}.hub-card:hover{border-color:var(--text);box-shadow:0 10px 0 var(--text);transform:translateY(-4px)}.hub-icon{width:64px;height:64px;display:grid;place-items:center;border:2px solid var(--text);border-radius:50%;background:var(--blue-light);color:var(--blue-dark);font-size:1.25rem;font-weight:900}.hub-a2 .hub-icon{background:#f5dc83}.hub-a3 .hub-icon{background:#dcefe7}.hub-a4 .hub-icon{background:#eadff1}.hub-lesson{color:var(--blue);font-family:var(--font);font-size:.68rem;font-weight:900;letter-spacing:.1em}.hub-title{font-size:1.24rem}.hub-desc{color:var(--muted);font-size:.9rem}.hub-status{border-top:2px solid var(--border);color:var(--muted);font-family:var(--font);font-size:.78rem}.hub-status.done{color:var(--green-d)}.done-badge{top:14px;right:14px;border:3px solid var(--text);background:var(--green);box-shadow:3px 3px 0 var(--text)}
+.stage-head{gap:22px}.stage-pip{min-height:36px;padding:7px 11px;border:2px solid var(--border);border-radius:20px;font-size:.69rem}.stage-pip.active{border-color:var(--text);background:#f5dc83;color:var(--text)}.stage-pip.done{border-color:var(--green-d);background:var(--green-light);color:var(--green-d)}.scene-wrap,#a4-shop{border:2px solid var(--text);border-radius:14px;box-shadow:0 4px 0 var(--text)}.scene-tip{bottom:14px;padding:9px 16px;border:2px solid #fff;border-radius:8px;font-size:.78rem}.shelf{margin-top:20px;padding:16px;border:2px solid var(--border);border-radius:12px;background:var(--cream)}.shelf-title{color:var(--text);font-family:var(--font);font-size:.7rem;font-weight:900;letter-spacing:.1em}.shelf-item,.tray-item{border:2px solid var(--text);border-radius:10px;box-shadow:0 3px 0 var(--text)}
+.q-block{border-bottom:2px solid var(--border);padding-bottom:25px;margin-bottom:27px}.q-num{color:var(--blue);font-family:var(--font);font-weight:900}.q-text{font-size:1.02rem}.q-opt,.chip{min-height:46px;border:2px solid var(--text);border-radius:8px;font-size:.85rem}.q-opt:hover:not(.locked),.q-opt.chosen,.chip:hover,.chip.selected{border-color:var(--blue-dark);background:var(--blue-light)}.q-opt.correct,.chip.placed-ok{border-color:var(--green-d);background:var(--green-light);color:#174b34}.q-opt.wrong,.chip.placed-no{border-color:var(--red);background:var(--red-light);color:#7b2020}.q-fb{padding:13px 16px;border:2px solid currentColor;border-radius:9px;font-size:.88rem}.bin{border:2px dashed var(--border-dark);background:#fff}.bin:hover,.bin.armed{border-color:var(--blue-dark);background:var(--blue-light)}
+.modal-card,.counter-card{border:3px solid var(--text);border-radius:18px;box-shadow:10px 10px 0 var(--text)}.modal-title{font-size:1.65rem}.modal-cat{color:var(--blue);font-family:var(--font);font-weight:900}.modal-body{font-size:.96rem}.modal-fact{border:2px solid var(--text);border-left:10px solid var(--yellow);background:#fff9df}.counter-close{width:48px;height:48px;border-radius:50%;color:var(--text)}.counter-close:hover{background:var(--blue-light)}
+.client-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.client-card{min-height:230px;padding:25px;border:2px solid var(--text);border-radius:16px;box-shadow:0 5px 0 var(--text)}.client-card:hover{border-color:var(--text);transform:translateY(-3px);box-shadow:0 8px 0 var(--text)}.client-emoji{font-size:2.4rem}.client-name{font-size:1.15rem}.client-quote{color:var(--muted);font-size:.88rem}.client-budget{color:var(--green-d);font-family:var(--font);font-size:.95rem}#build-bar{top:106px;padding:16px 20px;border:2px solid var(--text);border-radius:12px;box-shadow:0 5px 0 var(--text)}.bb-money{font-family:var(--font)}.bb-lbl{color:var(--muted);font-size:.63rem}.bb-fig{font-size:1.1rem}.counter-item{border:2px solid var(--text);border-radius:12px;box-shadow:0 4px 0 var(--text)}.counter-item:hover{border-color:var(--text);box-shadow:0 7px 0 var(--text)}.ci-price{font-family:var(--font);border:2px solid var(--text)}
+#screen-name .name-card{min-height:470px;margin:0 auto;padding:clamp(30px,4vw,46px)}#screen-name .screen-title{font-size:clamp(2.2rem,3.2vw,2.8rem)}#screen-name .screen-intro{font-size:1rem}
+@media(max-width:760px){body{font-size:16px}#header{min-height:74px;padding:10px 12px 10px 60px}#header h1::before{display:none}#header h1{font-size:.94rem}#who{display:none}main{padding:30px 14px 60px}.hub-cards,.client-cards{grid-template-columns:1fr}#screen-name .name-card{display:block;min-height:0;padding:28px 22px;text-align:left}.name-emoji{max-width:280px;margin:0 auto 35px}#screen-name .screen-title{font-size:2rem}#screen-name .screen-intro{margin-bottom:22px!important}.name-label{margin:18px 0 7px}#name-input{margin-bottom:7px}.panel{padding:20px 16px;border-radius:14px}.stage-steps{width:100%}.stage-pip{flex:1;text-align:center}#build-bar{top:76px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -950,7 +968,7 @@ p.screen-intro {
 </defs></svg>
 
 <div id="header">
-  <h1>💻 How Computers Work — Build a PC</h1>
+  <h1>How Computers Work — Build a PC</h1>
   <div id="header-right">
     <span id="who"></span>
     <button class="link-btn" onclick="goHub()">Menu</button>
@@ -963,9 +981,10 @@ p.screen-intro {
   <!-- ═══ NAME ENTRY ═══ -->
   <section id="screen-name" class="screen active">
     <div class="name-card">
-      <div class="name-emoji">💻</div>
+      <div class="name-emoji" aria-hidden="true"></div>
       <h2 class="screen-title">How Computers Work</h2>
       <p class="screen-intro" style="margin:0 auto 4px">Take apart a computer, learn what every part does, then build the best PC you can for a real customer on a budget.</p>
+      <label class="name-label" for="name-input">Your name</label>
       <input id="name-input" type="text" placeholder="Type your name" maxlength="28" autocomplete="off">
       <div class="name-hint" id="name-hint">Your progress is saved on this computer only.</div>
       <div class="btn-row" style="justify-content:center">
@@ -980,7 +999,7 @@ p.screen-intro {
     <h2 class="screen-title" id="hub-greeting">Choose an activity</h2>
     <p class="screen-intro">Work through the three activities to learn the parts of a computer, then take on the Build Challenge.</p>
 
-    <div class="progress-wrap">
+    <div class="progress-wrap" id="course-progress" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0">
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="progress-text" id="progress-text"></div>
     </div>
@@ -988,7 +1007,7 @@ p.screen-intro {
     <div class="hub-cards" id="hub-cards"></div>
 
     <div class="panel" style="margin-top:24px">
-      <h3>📋 My results</h3>
+      <h3>My results</h3>
       <div class="sub">When you have finished, copy this into your Class Notebook.</div>
       <div id="summary-box"></div>
       <div class="btn-row">
@@ -1000,7 +1019,7 @@ p.screen-intro {
   <!-- ═══ ACTIVITY 1 ═══ -->
   <section id="screen-a1" class="screen">
     <div class="eyebrow">Lesson 1 · Activity 1</div>
-    <h2 class="screen-title">🔍 Take the computer apart</h2>
+    <h2 class="screen-title">Take the computer apart</h2>
     <p class="screen-intro">Strip a real computer down to its bare case. Unplug everything on the desk, unscrew the side panel, then pull out the parts inside — finding out what each one does as you go.</p>
 
     <div class="panel">
@@ -1043,7 +1062,7 @@ p.screen-intro {
   <!-- ═══ ACTIVITY 2 ═══ -->
   <section id="screen-a2" class="screen">
     <div class="eyebrow">Lesson 2 · Activity 2</div>
-    <h2 class="screen-title">💾 Build it back up</h2>
+    <h2 class="screen-title">Build it back up</h2>
     <p class="screen-intro">You left this machine in pieces. Put everything back where it belongs, then fit the parts that keep your files when the power goes off and the cards that give the computer extra powers.</p>
 
     <div class="panel">
@@ -1094,7 +1113,7 @@ p.screen-intro {
   <!-- ═══ ACTIVITY 3 ═══ -->
   <section id="screen-a3" class="screen">
     <div class="eyebrow">Lesson 3 · Activity 3</div>
-    <h2 class="screen-title">📀 Switch it on</h2>
+    <h2 class="screen-title">Switch it on</h2>
     <p class="screen-intro">The hardware is built — but press the power button and nothing useful happens. Hardware is the part you can touch; <b>software</b> is the instructions that make it do something. Install an operating system, then fill the desktop.</p>
 
     <div class="panel">
@@ -1149,7 +1168,7 @@ p.screen-intro {
   <!-- ═══ ACTIVITY 4 — CLIENT PICK ═══ -->
   <section id="screen-a4pick" class="screen">
     <div class="eyebrow">The Build Challenge</div>
-    <h2 class="screen-title">🏆 Build a PC for a customer</h2>
+    <h2 class="screen-title">Build a PC for a customer</h2>
     <p class="screen-intro">Each customer needs something different from their computer — and each has a budget. Choose a customer, spend their money wisely, and see how well your build suits them.</p>
     <div class="client-cards" id="a4-clients"></div>
     <div class="btn-row">
@@ -1196,7 +1215,7 @@ p.screen-intro {
     </div>
 
     <div class="panel">
-      <h3>💬 What the customer says</h3>
+      <h3>What the customer says</h3>
       <div class="modal-body" id="res-verdict"></div>
     </div>
 
@@ -1211,7 +1230,7 @@ p.screen-intro {
 
 <!-- ═══ THE COUNTER (one category, close up) ═══ -->
 <div class="overlay" id="counter-overlay">
-  <div class="counter-card">
+  <div class="counter-card" role="dialog" aria-modal="true" aria-labelledby="counter-title">
     <button class="counter-close" onclick="closeCounter()" aria-label="Back to the stall">&times;</button>
     <div class="counter-head">
       <h3 id="counter-title"></h3>
@@ -1227,7 +1246,7 @@ p.screen-intro {
 
 <!-- ═══ INFO MODAL ═══ -->
 <div class="overlay" id="modal">
-  <div class="modal-card">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div id="modal-svg"></div>
     <div class="modal-cat" id="modal-cat"></div>
     <div class="modal-title" id="modal-title"></div>
@@ -2809,10 +2828,10 @@ function resetAll() {
    HUB
 ════════════════════════════════════════════════════ */
 const ACTIVITIES = [
-  { id:'a1', lesson:'Lesson 1', icon:'🔍', title:'Take the computer apart', desc:'Find out what every part of a computer does, and tell input from output.', open:() => openA1() },
-  { id:'a2', lesson:'Lesson 2', icon:'💾', title:'Build it back up',          desc:'Fit a hard drive and expansion cards into the empty case, and find where else files live.', open:() => openA2() },
-  { id:'a3', lesson:'Lesson 3', icon:'📀', title:'Switch it on',              desc:'Install an operating system, fill the desktop with apps, and sort the software.', open:() => openA3() },
-  { id:'a4', lesson:'Challenge', icon:'🏆', title:'The Build Challenge',      desc:'Build the best PC you can for a real customer on a budget.',                  open:() => openA4() },
+  { id:'a1', lesson:'Lesson 1', icon:'01', title:'Take the computer apart', desc:'Find out what every part of a computer does, and tell input from output.', open:() => openA1() },
+  { id:'a2', lesson:'Lesson 2', icon:'02', title:'Build it back up',          desc:'Fit a hard drive and expansion cards into the empty case, and find where else files live.', open:() => openA2() },
+  { id:'a3', lesson:'Lesson 3', icon:'03', title:'Switch it on',              desc:'Install an operating system, fill the desktop with apps, and sort the software.', open:() => openA3() },
+  { id:'a4', lesson:'Challenge', icon:'★', title:'The Build Challenge',      desc:'Build the best PC you can for a real customer on a budget.',                  open:() => openA4() },
 ];
 
 function renderHub() {
@@ -2824,7 +2843,7 @@ function renderHub() {
 
   ACTIVITIES.forEach(act => {
     const card = document.createElement('button');
-    card.className = 'hub-card';
+    card.className = 'hub-card hub-' + act.id;
     card.type = 'button';
 
     let status = 'Not started';
@@ -2863,6 +2882,8 @@ function renderHub() {
   const pct = Math.round((complete / 4) * 100);
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-text').textContent = complete + ' of 4 complete';
+  document.getElementById('course-progress').setAttribute('aria-valuenow', complete);
+  document.getElementById('course-progress').setAttribute('aria-valuetext', complete + ' of 4 activities complete');
 }
 
 function renderSummary() {
