@@ -116,6 +116,12 @@ button:focus-visible, input:focus-visible, [role="button"]:focus-visible, [tabin
   box-shadow: 0 5px 0 #0c334f;
 }
 .ctrl-btn.danger { border-color: #8e3030; color: #8e3030; }
+/* The larger type can make a long label wider than its grid column. A grid
+   item will not shrink below its own min-content, and .ctrl-btn is nowrap,
+   so the column pushed the panel past the window edge and the buttons were
+   clipped. Let the items shrink and the label wrap instead. */
+#btn-grid > * { min-width: 0; }
+.ctrl-btn { white-space: normal; }
 .ctrl-btn:disabled, .take-btn:disabled { opacity: .45; }
 .autoplay-row, .autoplay-speed-row, .ctrl-autoplay, .dup-row {
   border: 2px solid var(--border-dark);
