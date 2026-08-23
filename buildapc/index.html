@@ -935,6 +935,7 @@ main{max-width:1180px;padding:clamp(32px,5vw,64px) clamp(20px,4vw,48px) 90px}.ey
 #screen-name .name-card{min-height:470px;margin:0 auto;padding:clamp(30px,4vw,46px)}#screen-name .screen-title{font-size:clamp(2.2rem,3.2vw,2.8rem)}#screen-name .screen-intro{font-size:1rem}
 @media(max-width:760px){body{font-size:16px}#header{min-height:74px;padding:10px 12px 10px 60px}#header h1::before{display:none}#header h1{font-size:.94rem}#who{display:none}main{padding:30px 14px 60px}.hub-cards,.client-cards{grid-template-columns:1fr}#screen-name .name-card{display:block;min-height:0;padding:28px 22px;text-align:left}.name-emoji{max-width:280px;margin:0 auto 35px}#screen-name .screen-title{font-size:2rem}#screen-name .screen-intro{margin-bottom:22px!important}.name-label{margin:18px 0 7px}#name-input{margin-bottom:7px}.panel{padding:20px 16px;border-radius:14px}.stage-steps{width:100%}.stage-pip{flex:1;text-align:center}#build-bar{top:76px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+#header h1::before{content:none}.header-command{display:inline-flex;align-items:baseline;font-family:"Courier New",monospace;font-size:1.35rem;font-weight:700;letter-spacing:.04em;white-space:nowrap}.header-command .prompt,.header-command .cursor{color:#497994}.header-command .letters{color:var(--text)}
 </style>
 </head>
 <body>
@@ -968,7 +969,7 @@ main{max-width:1180px;padding:clamp(32px,5vw,64px) clamp(20px,4vw,48px) 90px}.ey
 </defs></svg>
 
 <div id="header">
-  <h1>How Computers Work — Build a PC</h1>
+  <h1><span class="header-command" aria-hidden="true"><span class="prompt">&gt;</span>&nbsp;<span class="letters">tj</span><span class="cursor">_</span></span> How Computers Work — Build a PC</h1>
   <div id="header-right">
     <span id="who"></span>
     <button class="link-btn" onclick="goHub()">Menu</button>
@@ -4044,6 +4045,6 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
-<script src="/shared.js"></script>
+<script src="../shared.js"></script>
 </body>
 </html>

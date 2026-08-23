@@ -9,11 +9,11 @@
 
 (function () {
   const NAV_ITEMS = [
-    { label: 'Home',        icon: '🏠', href: '/'            },
-    { label: 'Nim',         icon: '🎯', href: '/nim/'        },
-    { label: 'Hanoi',       icon: '🗼', href: '/hanoi/'      },
-    { label: 'Mastermind',  icon: '🔵', href: '/mastermind/' },
-    { label: 'Build a PC',  icon: '💻', href: '/buildapc/'   },
+    { label: 'Home',        icon: 'HM', href: '/'            },
+    { label: 'Nim',         icon: '01', href: '/nim/'        },
+    { label: 'Hanoi',       icon: '02', href: '/hanoi/'      },
+    { label: 'Mastermind',  icon: '03', href: '/mastermind/' },
+    { label: 'Build a PC',  icon: '04', href: '/buildapc/'   },
   ];
 
   /* ── Styles ─────────────────────────────────────────────────────── */
@@ -27,14 +27,14 @@
       width: 44px; height: 40px;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 5px;
-      background: #fdf8dc;
-      border: 2px solid #e8d87a;
+      background: #fbfaf3;
+      border: 2px solid #71828b;
       border-radius: 9px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.12);
       cursor: pointer; padding: 0;
       transition: background 0.14s;
     }
-    #mrj-burger:hover { background: #fef6c0; }
+    #mrj-burger:hover { background: #e7f0f6; }
     #mrj-burger span {
       display: block; width: 20px; height: 2.5px; border-radius: 2px;
       background: #1e1e1e;
@@ -61,23 +61,24 @@
       width: 250px; max-width: 80vw;
       z-index: calc(var(--mrj-z) - 1);
       background: #ffffff;
-      border-right: 2.5px solid #e8d87a;
+      border-right: 2px solid #15283a;
       box-shadow: 4px 0 24px rgba(0,0,0,0.18);
       transform: translateX(-100%);
       transition: transform 0.25s ease;
       display: flex; flex-direction: column;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: Verdana, Arial, sans-serif;
     }
     html.mrj-open #mrj-drawer { transform: translateX(0); }
 
     #mrj-drawer .mrj-head {
-      background: #fdf8dc;
-      border-bottom: 2.5px solid #e8d87a;
+      background: #fbfaf3;
+      border-bottom: 2px solid #cbd4d1;
       padding: 14px 16px 14px 64px;   /* leave room for the ☰ button */
       display: flex; align-items: center; justify-content: space-between;
       min-height: 56px;
     }
-    #mrj-drawer .mrj-head b { font-size: 1rem; font-weight: 800; color: #1e1e1e; }
+    #mrj-drawer .mrj-head b { font: 700 1.1rem "Courier New", monospace; color: #15283a; }
+    #mrj-drawer .mrj-head b .mrj-prompt, #mrj-drawer .mrj-head b .mrj-cursor { color: #497994; }
     #mrj-drawer .mrj-close {
       background: none; border: none; cursor: pointer;
       font-size: 1.6rem; line-height: 1; color: #888880; padding: 0 2px;
@@ -91,10 +92,10 @@
       text-decoration: none; color: #1e1e1e;
       font-size: 0.95rem; font-weight: 700;
     }
-    #mrj-drawer a .mrj-ic { font-size: 1.15rem; width: 1.4em; text-align: center; }
-    #mrj-drawer a:hover { background: #fef6c0; }
-    #mrj-drawer a.mrj-active { background: #e8d87a; }
-    #mrj-drawer a.mrj-home { color: #2a9648; }
+    #mrj-drawer a .mrj-ic { width: 2.35em; height: 2.35em; display: grid; place-items: center; border: 2px solid #15283a; border-radius: 50%; background: #ffffff; font: 800 .68rem Verdana, sans-serif; text-align: center; }
+    #mrj-drawer a:hover { background: #e7f0f6; }
+    #mrj-drawer a.mrj-active { background: #dcefe7; }
+    #mrj-drawer a.mrj-home { color: #174c78; }
   `;
 
   /* ── Build & wire up once the DOM is ready ──────────────────────── */
@@ -110,6 +111,7 @@
     const burger = document.createElement('button');
     burger.id = 'mrj-burger';
     burger.type = 'button';
+    burger.setAttribute('aria-controls', 'mrj-drawer');
     burger.setAttribute('aria-label', 'Open menu');
     burger.setAttribute('aria-expanded', 'false');
     burger.innerHTML = '<span></span><span></span><span></span>';
@@ -117,15 +119,17 @@
     /* Backdrop */
     const backdrop = document.createElement('div');
     backdrop.id = 'mrj-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
 
     /* Drawer */
     const drawer = document.createElement('aside');
     drawer.id = 'mrj-drawer';
     drawer.setAttribute('aria-hidden', 'true');
+    drawer.inert = true;
 
     const head = document.createElement('div');
     head.className = 'mrj-head';
-    head.innerHTML = '<b>Menu</b>';
+    head.innerHTML = '<b><span class="mrj-prompt">&gt;</span> tj<span class="mrj-cursor">_</span></b>';
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'mrj-close';
@@ -153,15 +157,19 @@
     /* Open / close */
     function open() {
       root.classList.add('mrj-open');
+      drawer.inert = false;
       burger.setAttribute('aria-expanded', 'true');
       burger.setAttribute('aria-label', 'Close menu');
       drawer.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => nav.querySelector('a')?.focus());
     }
     function close() {
       root.classList.remove('mrj-open');
+      drawer.inert = true;
       burger.setAttribute('aria-expanded', 'false');
       burger.setAttribute('aria-label', 'Open menu');
       drawer.setAttribute('aria-hidden', 'true');
+      burger.focus();
     }
     function toggle() { root.classList.contains('mrj-open') ? close() : open(); }
 

@@ -633,11 +633,17 @@ body {
   .result-title { font-size: 2rem; }
 }
 </style>
+<link rel="stylesheet" href="../theme.css">
 </head>
 <body>
 
 <div id="header">
-  <h1>🎨 Computational Thinking — Mastermind 🎨</h1>
+  <a class="activity-brand" href="/" aria-label="Mr Jones Computer Science — home">
+    <span class="command-logo" aria-hidden="true"><span class="prompt">&gt;</span>&nbsp;<span class="letters">tj</span><span class="cursor">_</span></span>
+    <span class="activity-brand-text"><strong>Mr Jones</strong><small>Computer Science</small></span>
+  </a>
+  <h1>Mastermind</h1>
+  <div class="activity-subject">Computational Thinking</div>
 </div>
 
 <div id="main">
@@ -689,7 +695,7 @@ body {
         </div>
       </div>
 
-      <div id="status-display">
+      <div id="status-display" aria-live="polite">
         <div class="status-label">Status</div>
         <div id="status-msg">Pick a colour, then click pegs to fill your guess.</div>
       </div>
@@ -720,7 +726,7 @@ body {
       <div class="dup-row">
         <span class="dup-label">Allow duplicates</span>
         <label class="toggle-switch">
-          <input type="checkbox" id="dup-toggle" onchange="newGame()">
+          <input type="checkbox" id="dup-toggle" aria-label="Allow duplicate colours" onchange="newGame()">
           <span class="toggle-track"></span>
         </label>
       </div>
@@ -907,6 +913,8 @@ function renderShield() {
       el.classList.add('revealed');
       el.style.background = COLORS[G.code[i]];
       el.style.boxShadow = '0 3px 10px rgba(0,0,0,0.22), inset 0 1px 3px rgba(255,255,255,0.3)';
+      el.textContent = G.code[i] + 1;
+      el.setAttribute('aria-label', `Code position ${i + 1}, ${COLOR_NAMES[G.code[i]]}`);
     } else {
       el.textContent = '?';
     }
@@ -939,20 +947,25 @@ function renderRows() {
         const peg = document.createElement('div');
         peg.className = 'guess-peg filled';
         peg.style.background = COLORS[ci];
+        peg.textContent = ci + 1;
+        peg.setAttribute('aria-label', `Guess position ${slot + 1}, ${COLOR_NAMES[ci]}`);
         pegsDiv.appendChild(peg);
       });
     } else if (r === currentRow && !G.over) {
       // Active row
       row.classList.add('active');
       G.currentPegs.forEach((ci, slot) => {
-        const peg = document.createElement('div');
+        const peg = document.createElement('button');
+        peg.type = 'button';
         peg.className = 'guess-peg';
         if (ci !== null) {
           peg.classList.add('filled');
           peg.style.background = COLORS[ci];
+          peg.textContent = ci + 1;
         } else {
           peg.classList.add('active-slot');
         }
+        peg.setAttribute('aria-label', `Guess position ${slot + 1}${ci !== null ? `, ${COLOR_NAMES[ci]}` : ', empty'}`);
         peg.onclick = () => clickPeg(slot);
         pegsDiv.appendChild(peg);
       });
@@ -973,6 +986,7 @@ function renderRows() {
 
     if (r < currentRow) {
       const fb = G.guesses[r].feedback;
+      cluster.setAttribute('aria-label', `${fb.black} exact matches and ${fb.white} colour-only matches`);
       const total = fb.black + fb.white;
       for (let k = 0; k < 4; k++) {
         const fp = document.createElement('div');
@@ -1011,14 +1025,17 @@ function renderCurrentRow() {
   const pegsDiv = rows[r].querySelector('.guess-pegs');
   pegsDiv.innerHTML = '';
   G.currentPegs.forEach((ci, slot) => {
-    const peg = document.createElement('div');
+    const peg = document.createElement('button');
+    peg.type = 'button';
     peg.className = 'guess-peg';
     if (ci !== null) {
       peg.classList.add('filled');
       peg.style.background = COLORS[ci];
+      peg.textContent = ci + 1;
     } else {
       peg.classList.add('active-slot');
     }
+    peg.setAttribute('aria-label', `Guess position ${slot + 1}${ci !== null ? `, ${COLOR_NAMES[ci]}` : ', empty'}`);
     peg.onclick = () => clickPeg(slot);
     pegsDiv.appendChild(peg);
   });
@@ -1028,10 +1045,13 @@ function renderPalette() {
   const container = document.getElementById('palette-swatches');
   container.innerHTML = '';
   COLORS.forEach((c, ci) => {
-    const s = document.createElement('div');
+    const s = document.createElement('button');
+    s.type = 'button';
     s.className = 'swatch';
     s.style.background = c;
     s.title = COLOR_NAMES[ci];
+    s.setAttribute('aria-label', COLOR_NAMES[ci]);
+    s.setAttribute('aria-pressed', ci === G.selectedColor ? 'true' : 'false');
     s.textContent = ci + 1;
     if (ci === G.selectedColor) s.classList.add('selected');
     s.onclick = () => selectColor(ci);
@@ -1104,6 +1124,6 @@ function showResult() {
 ═══════════════════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => newGame());
 </script>
-<script src="/shared.js"></script>
+<script src="../shared.js"></script>
 </body>
 </html>

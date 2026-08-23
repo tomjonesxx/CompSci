@@ -771,12 +771,18 @@ body {
   .setup-title { font-size: 1.3rem; margin-bottom: 18px; }
 }
 </style>
+<link rel="stylesheet" href="../theme.css">
 </head>
 <body>
 
 <!-- ── HEADER ──────────────────────────────────────────── -->
 <div id="header">
-  <h1>🧠 Computational Thinking — Towers of Hanoi 🧠</h1>
+  <a class="activity-brand" href="/" aria-label="Mr Jones Computer Science — home">
+    <span class="command-logo" aria-hidden="true"><span class="prompt">&gt;</span>&nbsp;<span class="letters">tj</span><span class="cursor">_</span></span>
+    <span class="activity-brand-text"><strong>Mr Jones</strong><small>Computer Science</small></span>
+  </a>
+  <h1>Towers of Hanoi</h1>
+  <div class="activity-subject">Computational Thinking</div>
 </div>
 
 <!-- ── MAIN ────────────────────────────────────────────── -->
@@ -818,7 +824,7 @@ body {
       </div>
 
       <!-- Held-disk indicator -->
-      <div id="held-display">
+      <div id="held-display" aria-live="polite">
         <div class="held-label">Pick a top disk to move</div>
         <div id="held-disk-preview"></div>
       </div>
@@ -841,7 +847,7 @@ body {
       <div class="autoplay-row">
         <span class="autoplay-label">Autoplay</span>
         <label class="toggle-switch">
-          <input type="checkbox" id="autoplay-toggle" onchange="onAutoplayChange()">
+          <input type="checkbox" id="autoplay-toggle" aria-label="Autoplay puzzle" onchange="onAutoplayChange()">
           <span class="toggle-track"></span>
         </label>
       </div>
@@ -861,9 +867,9 @@ body {
 
 <!-- ── WINNER OVERLAY ──────────────────────────────────── -->
 <div id="winner-overlay" class="overlay">
-  <div class="winner-card">
+  <div class="winner-card" role="dialog" aria-modal="true" aria-labelledby="winner-title">
     <div class="winner-eyebrow">Puzzle Solved!</div>
-    <div class="winner-title">🎉 Well Done!</div>
+    <div class="winner-title" id="winner-title">Well done!</div>
     <div class="winner-stats" id="winner-stats"></div>
     <div class="winner-btns">
       <button class="winner-btn primary" onclick="startGame(true)">↺ Play Again</button>
@@ -874,8 +880,8 @@ body {
 
 <!-- ── SETUP OVERLAY ───────────────────────────────────── -->
 <div id="setup-overlay" class="overlay">
-  <div class="setup-card">
-    <div class="setup-title">Puzzle Setup</div>
+  <div class="setup-card" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+    <div class="setup-title" id="setup-title">Puzzle Setup</div>
 
     <div class="setup-row">
       <label>Number of Disks</label>
@@ -1183,8 +1189,11 @@ function renderTowers() {
   const suggest = (!G.over && G.showSuggest) ? nextOptimalMove(G.towers) : null;
 
   for (let t = 0; t < G.numTowers; t++) {
-    const col = document.createElement('div');
+    const col = document.createElement('button');
+    col.type = 'button';
     col.className = 'tower-col';
+    col.setAttribute('aria-label', `Tower ${towerName(t)}, ${G.towers[t].length} disk${G.towers[t].length === 1 ? '' : 's'}`);
+    col.setAttribute('aria-pressed', G.selected === t ? 'true' : 'false');
     col.onclick = () => clickTower(t);
 
     if (G.selected === t) {
@@ -1462,6 +1471,6 @@ function closeWinner() {
 ════════════════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => startGame(false));
 </script>
-<script src="/shared.js"></script>
+<script src="../shared.js"></script>
 </body>
 </html>
